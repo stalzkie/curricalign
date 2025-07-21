@@ -1,13 +1,14 @@
 from collections import Counter
 import os
 import re
+import pandas as pd
 import google.generativeai as genai
 from dotenv import load_dotenv
 from supabase_client import supabase  # Pull from jobs table
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-1.5-pro")
 
 def extract_skills_with_gemini(text):
     """
@@ -57,7 +58,8 @@ Job Posting:
 
 def extract_skills_from_jobs(jobs=None):
     """
-    Extracts a frequency map of skills from job descriptions using Gemini.
+    Extracts a frequency map of skills from job descriptions using Gemini
+    and saves the results to curricalign/extracted_skills.csv.
     """
     if jobs is None:
         print("📦 Fetching all jobs from Supabase...")
@@ -72,6 +74,7 @@ def extract_skills_from_jobs(jobs=None):
         return {}
 
     skills_found = Counter()
+    all_extracted = []
 
     for i, job in enumerate(jobs):
         content = " ".join([
@@ -88,10 +91,20 @@ def extract_skills_from_jobs(jobs=None):
 
         if extracted_skills:
             print(f"✅ Extracted: {extracted_skills}\n")
+            all_extracted.append({
+                "job_id": job.get("id", f"job_{i+1}"),
+                "skills": ", ".join(extracted_skills)
+            })
         else:
             print("⚠️ No skills extracted.\n")
 
         for skill in set(extracted_skills):
             skills_found[skill] += 1
+
+    # Save to CSV in curricalign folder
+    csv_path = os.path.join("curricalign", "extracted_skills.csv")
+    df = pd.DataFrame(all_extracted)
+    df.to_csv(csv_path, index=False)
+    print(f"📁 Extracted skills saved to: {csv_path}")
 
     return dict(skills_found)
