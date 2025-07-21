@@ -1,5 +1,6 @@
 import os
 import json
+import pandas as pd
 import google.generativeai as genai
 from dotenv import load_dotenv
 from course_descriptions import COURSE_DESCRIPTIONS
@@ -7,7 +8,7 @@ from course_descriptions import COURSE_DESCRIPTIONS
 # Load .env and configure Gemini
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-1.5-pro")
 
 def extract_skills_with_gemini(text):
     """
@@ -64,6 +65,8 @@ def extract_subject_skills_from_static():
     Returns a mapping of course title → list of extracted skills.
     """
     course_map = {}
+    csv_rows = []
+
     print(f"\n📚 Extracting from {len(COURSE_DESCRIPTIONS)} hardcoded course descriptions...\n")
 
     for code, description in COURSE_DESCRIPTIONS.items():
@@ -79,13 +82,25 @@ def extract_subject_skills_from_static():
             print("⚠️ No skills extracted.\n")
 
         course_map[full_title] = sorted(set(matched_skills))
+        csv_rows.append({
+            "course": full_title,
+            "skills": ", ".join(sorted(set(matched_skills)))
+        })
 
     print(f"\n✅ Finished extracting skills for {len(course_map)} courses.\n")
+
+    # Save to JSON
+    with open("course_skills_output.json", "w") as f:
+        json.dump(course_map, f, indent=2)
+        print("📝 Saved output to course_skills_output.json")
+
+    # Save to CSV in curricalign
+    os.makedirs("curricalign", exist_ok=True)
+    df = pd.DataFrame(csv_rows)
+    df.to_csv("curricalign/course_skills_output.csv", index=False)
+    print("📁 Saved CSV to curricalign/course_skills_output.csv")
+
     return course_map
 
 if __name__ == "__main__":
-    result = extract_subject_skills_from_static()
-
-    with open("course_skills_output.json", "w") as f:
-        json.dump(result, f, indent=2)
-        print("📝 Saved output to course_skills_output.json")
+    extract_subject_skills_from_static()

@@ -10,7 +10,7 @@ import google.generativeai as genai
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def generate_ai_summary(report_data):
     """
@@ -36,7 +36,7 @@ Keep it under 200 words.
 """
 
     try:
-        model = genai.GenerativeModel("gemini-pro")
+        model = genai.GenerativeModel("gemini-1.5-pro")
         response = model.generate_content(prompt)
         return response.text.strip()
     except Exception as e:
