@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-
 from scraper import scrape_jobs_from_google_jobs
 from syllabus_matcher import extract_subject_skills_from_static
 from skill_extractor import extract_skills_from_jobs

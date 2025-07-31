@@ -71,7 +71,7 @@ def get_top_keywords(region="PH", n=10):
 
     params = {
         "engine": "google_trends",
-        "q": "tech jobs",
+        "q": "developer computer science jobs",
         "geo": region,
         "hl": "en",
         "api_key": SERPAPI_API_KEY

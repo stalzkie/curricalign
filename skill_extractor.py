@@ -50,10 +50,31 @@ Job Posting:
 
         if raw.startswith("["):
             skills = [s.lower().strip() for s in eval(raw) if isinstance(s, str)]
-            return skills
+            if skills:
+                return skills
+        raise ValueError("No valid skills extracted")
     except Exception as e:
-        print(f"❌ Gemini skill extraction failed: {e}")
+        print(f"⚠️ Primary extraction failed: {e}")
+        return retry_extract_skills(text)
 
+def retry_extract_skills(text):
+    """
+    Retry with a simpler prompt if Gemini returns nothing or fails.
+    """
+    retry_prompt = f"""
+Extract 5–10 technical skills from this job. Return only a valid Python list.
+
+{text.strip()}
+"""
+    try:
+        response = model.generate_content(retry_prompt)
+        raw = response.text.strip()
+        print(f"🔁 Gemini retry output:\n{raw}\n")
+
+        if raw.startswith("["):
+            return [s.lower().strip() for s in eval(raw) if isinstance(s, str)]
+    except Exception as e:
+        print(f"❌ Retry also failed: {e}")
     return []
 
 def extract_skills_from_jobs(jobs=None):
@@ -101,7 +122,6 @@ def extract_skills_from_jobs(jobs=None):
         for skill in set(extracted_skills):
             skills_found[skill] += 1
 
-    # Save to CSV in curricalign folder
     csv_path = os.path.join("curricalign", "extracted_skills.csv")
     df = pd.DataFrame(all_extracted)
     df.to_csv(csv_path, index=False)

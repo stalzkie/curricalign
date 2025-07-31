@@ -4,11 +4,29 @@ import pandas as pd
 import google.generativeai as genai
 from dotenv import load_dotenv
 from course_descriptions import COURSE_DESCRIPTIONS
+import re
 
 # Load .env and configure Gemini
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-pro")
+
+def normalize_skill(skill):
+    """
+    Normalize a skill: lowercase, strip, remove parentheses, and fix spacing.
+    """
+    skill = re.sub(r"\s*\([^)]*\)", "", skill)  # Remove parenthetical content
+    return skill.lower().strip()
+
+def clean_skills(raw):
+    """
+    Convert Gemini's output into a cleaned skill list.
+    """
+    try:
+        skills = eval(raw) if raw.startswith("[") else []
+        return [normalize_skill(s) for s in skills if isinstance(s, str) and s.strip()]
+    except:
+        return []
 
 def extract_skills_with_gemini(text):
     """
@@ -51,12 +69,33 @@ Course Description:
         raw = response.text.strip()
         print(f"🧠 Gemini raw output:\n{raw}\n")
 
-        skills = eval(raw) if raw.startswith("[") else []
-        skills = [s.lower().strip() for s in skills if isinstance(s, str)]
+        skills = clean_skills(raw)
+        if not skills:
+            raise ValueError("Empty or invalid skill list")
         return skills
 
     except Exception as e:
-        print(f"❌ Gemini skill extraction failed: {e}")
+        print(f"⚠️ Primary extraction failed: {e}")
+        return retry_extract_skills(text)
+
+def retry_extract_skills(text):
+    """
+    Retry with a simplified prompt if Gemini returns nothing or invalid list.
+    """
+    retry_prompt = f"""
+Extract 5–10 technical skills from this course. Return only a valid Python list.
+
+{text.strip()}
+"""
+    try:
+        response = model.generate_content(retry_prompt)
+        raw = response.text.strip()
+        print(f"🔁 Gemini retry output:\n{raw}\n")
+
+        skills = clean_skills(raw)
+        return skills if skills else []
+    except Exception as e:
+        print(f"❌ Retry also failed: {e}")
         return []
 
 def extract_subject_skills_from_static():
