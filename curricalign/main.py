@@ -1,9 +1,9 @@
 import os
 from dotenv import load_dotenv
 from scraper import scrape_jobs_from_google_jobs
-from syllabus_matcher import extract_subject_skills_from_static
+from syllabus_matcher import extract_subject_skills_from_supabase
 from skill_extractor import extract_skills_from_jobs
-from evaluator import compute_subject_scores
+from evaluator import compute_subject_scores_and_save
 from pdf_report import generate_pdf_report
 from query_generator import CS_TERMS
 from supabase_client import insert_job
@@ -27,7 +27,6 @@ def main():
         for job in all_jobs:
             insert_job(job)
 
-
     # Step 2: Save to Supabase
     print(f"📤 Inserting {len(all_jobs)} job(s) into Supabase...")
     for job in all_jobs:
@@ -39,7 +38,7 @@ def main():
 
     # Step 4: Extract subject-to-skill mapping
     print("📘 Mapping skills taught per subject from static descriptions...")
-    subject_skills_map = extract_subject_skills_from_static()
+    subject_skills_map = extract_subject_skills_from_supabase()
 
     # Step 5: Conditionally retrain ML models
     if os.getenv("RETRAIN_MODELS", "false").lower() == "true":
@@ -51,7 +50,7 @@ def main():
 
     # Step 6: Score subjects vs job market
     print("📊 Computing subject success scores...")
-    report = compute_subject_scores(subject_skills_map, job_skill_tree)
+    report = compute_subject_scores_and_save()
 
     # Step 7: Generate PDF report
     print("📝 Generating curriculum-job alignment report...")

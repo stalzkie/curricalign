@@ -1,14 +1,16 @@
 from collections import Counter
 import os
 import re
-import pandas as pd
+from datetime import datetime
 import google.generativeai as genai
 from dotenv import load_dotenv
-from supabase_client import supabase  # Pull from jobs table
+from supabase_client import supabase  # Supabase wrapper
 
+# Load environment and configure Gemini
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-pro")
+
 
 def extract_skills_with_gemini(text):
     """
@@ -57,6 +59,7 @@ Job Posting:
         print(f"⚠️ Primary extraction failed: {e}")
         return retry_extract_skills(text)
 
+
 def retry_extract_skills(text):
     """
     Retry with a simpler prompt if Gemini returns nothing or fails.
@@ -77,10 +80,11 @@ Extract 5–10 technical skills from this job. Return only a valid Python list.
         print(f"❌ Retry also failed: {e}")
     return []
 
+
 def extract_skills_from_jobs(jobs=None):
     """
     Extracts a frequency map of skills from job descriptions using Gemini
-    and saves the results to curricalign/extracted_skills.csv.
+    and inserts into Supabase `job_skills` table.
     """
     if jobs is None:
         print("📦 Fetching all jobs from Supabase...")
@@ -91,44 +95,50 @@ def extract_skills_from_jobs(jobs=None):
             return {}
 
     if not jobs:
-        print("❌ No jobs available to process.")
+        print("⚠️ No jobs available to process.")
         return {}
 
     skills_found = Counter()
-    all_extracted = []
 
     for i, job in enumerate(jobs):
-        content = " ".join([
-            job.get("title", ""),
-            job.get("description", ""),
-            job.get("requirements", ""),
-            job.get("matched_keyword", "")
-        ]).lower()
+        job_id = job.get("job_id")
+        title = job.get("title", "")
+        company = job.get("company", "")
+        description = job.get("description", "")
+        requirements = job.get("requirements", "")
+        keywords = job.get("matched_keyword", "")
 
+        # Safe join to prevent NoneType errors
+        content = " ".join(str(x or "") for x in [title, description, requirements, keywords]).lower()
         content = re.sub(r'\s+', ' ', content).strip()[:2000]
 
-        print(f"🔍 [{i+1}/{len(jobs)}] Extracting skills from job...")
+        print(f"🔍 [{i+1}/{len(jobs)}] Extracting skills for job ID {job_id}...")
         extracted_skills = extract_skills_with_gemini(content)
 
         if extracted_skills:
             print(f"✅ Extracted: {extracted_skills}\n")
-            all_extracted.append({
-                "job_id": job.get("id", f"job_{i+1}"),
-                "skills": ", ".join(extracted_skills)
-            })
+
+            # Save to Supabase
+            try:
+                supabase.table("job_skills").insert({
+                    "job_id": job_id,
+                    "title": title,
+                    "company": company,
+                    "description": description,
+                    "job_skills": ", ".join(extracted_skills),
+                    "date_extracted_jobs": datetime.utcnow().isoformat()
+                }).execute()
+                print("📤 Inserted into job_skills table.\n")
+            except Exception as e:
+                print(f"❌ Supabase insert failed: {e}\n")
         else:
             print("⚠️ No skills extracted.\n")
 
         for skill in set(extracted_skills):
             skills_found[skill] += 1
 
-<<<<<<< HEAD
-=======
-    # Save to CSV in curricalign folder
->>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
-    csv_path = os.path.join("curricalign", "extracted_skills.csv")
-    df = pd.DataFrame(all_extracted)
-    df.to_csv(csv_path, index=False)
-    print(f"📁 Extracted skills saved to: {csv_path}")
-
     return dict(skills_found)
+
+
+if __name__ == "__main__":
+    extract_skills_from_jobs()

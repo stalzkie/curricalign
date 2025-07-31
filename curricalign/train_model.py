@@ -9,13 +9,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_absolute_error, r2_score
 from sentence_transformers import SentenceTransformer, util
-<<<<<<< HEAD
-=======
-
->>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
-from syllabus_matcher import extract_subject_skills_from_static
+from syllabus_matcher import extract_subject_skills_from_supabase
 from skill_extractor import extract_skills_from_jobs
-from evaluator import normalize
+from evaluator import normalize_skills
 
 bert_model = SentenceTransformer("all-MiniLM-L6-v2")
 
@@ -41,7 +37,7 @@ def compute_semantic_vector(course_skills, market_skills):
 
 def train_subject_score_model():
     print("📄 Loading syllabus from course_descriptions.py ...")
-    subject_skills_map = extract_subject_skills_from_static()
+    subject_skills_map = extract_subject_skills_from_supabase()
     if not subject_skills_map:
         print("❌ No subjects parsed. Exiting.")
         return
@@ -52,7 +48,7 @@ def train_subject_score_model():
         print("❌ No skills extracted from jobs. Exiting.")
         return
 
-    all_market_skills = sorted(set([normalize(skill) for skill in job_skill_tree.keys() if skill.strip()]))
+    all_market_skills = sorted(set([normalize_skills([skill])[0] for skill in job_skill_tree.keys() if skill.strip()]))
     if not all_market_skills:
         print("❌ No usable job skills found after cleaning.")
         return
