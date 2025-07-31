@@ -1,4 +1,8 @@
-import fitz  # PyMuPDF
+import fitz
+# PyMuPDF;
+# others such as PDFplumber and
+# PyPDF2 probs work too, just don't use
+# VS Code like I did
 
 def extract_text_from_pdf(pdf_path):
     text = ""
