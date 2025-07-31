@@ -1,10 +1,18 @@
 {
   "CompF - Computing Fundamentals \u2014 Overview of the": [
+<<<<<<< HEAD
     "analyzing hardware trends",
     "analyzing software trends",
     "developing ict exhibits",
     "implementing security measures",
     "researching computing applications",
+=======
+    "developing ict exhibit projects",
+    "evaluating hardware",
+    "evaluating software",
+    "implementing security best practices",
+    "researching computing industry trends",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "understanding computer system components"
   ],
   "Prog1 - Programming Essentials \u2014 Focused on prob": [
@@ -14,6 +22,7 @@
     "testing programs",
     "using cisco standards"
   ],
+<<<<<<< HEAD
   "Prog2 - Advanced Programming \u2014 Builds on Prog1,": [
     "implementing data structures",
     "preparing for certification",
@@ -43,6 +52,32 @@
     "texturing",
     "using 3d modeling software",
     "using animation software"
+=======
+  "Prog2 - Advanced Programming \u2014 Builds on Prog1,": [],
+  "LITEP - Living in IT Era \u2014 Teaches flow-charting": [
+    "analyzing problems",
+    "applying logic",
+    "designing structured solutions",
+    "flowcharting",
+    "pseudocoding"
+  ],
+  "2D - 2D Animation \u2014 Covers digital 2D animati": [
+    "animating sprites",
+    "applying timing principles in animation",
+    "generating assets with python",
+    "implementing movement arcs",
+    "using sprite sheets"
+  ],
+  "3D - 3D Animation \u2014 Covers fundamentals of 3D": [
+    "animating 3d models",
+    "lighting 3d scenes",
+    "python scripting for 3d animation",
+    "rendering 3d animations",
+    "rigging",
+    "texturing 3d models",
+    "using 3d modeling software",
+    "using autodesk maya"
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
   ],
   "DatSci - Data Science \u2014 Introduces data mining, v": [
     "applying machine learning",
@@ -53,17 +88,35 @@
   ],
   "DStruc - Data Structures and Algorithms \u2014 Covers": [
     "analyzing time and space complexity",
+<<<<<<< HEAD
     "applying hash maps and sets",
+=======
+    "applying maps and sets",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "implementing stacks and queues",
     "performing sorting and searching algorithms",
     "using trees and graphs"
   ],
+<<<<<<< HEAD
   "GameMath - Applied Math for Games \u2014 Teaches collisi": [],
+=======
+  "GameMath - Applied Math for Games \u2014 Teaches collisi": [
+    "applying probability and statistics for game simulations",
+    "implementing collision detection algorithms",
+    "manipulating matrices",
+    "performing vector algebra calculations",
+    "simulating motion with physics engines"
+  ],
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
   "Info1 - Information Management 1 \u2014 Covers databa": [
     "creating er diagrams",
     "designing databases",
     "developing database applications",
+<<<<<<< HEAD
     "modeling schemas",
+=======
+    "modeling database schemas",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "writing sql queries"
   ],
   "ADA - Analysis and Design of Algorithms \u2014 Focu": [
@@ -72,7 +125,11 @@
     "applying dynamic programming",
     "applying greedy algorithms",
     "designing algorithms",
+<<<<<<< HEAD
     "solving computational problems"
+=======
+    "solving problems with algorithms"
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
   ],
   "CompOrg - Computer Organization with Microcontroll": [
     "implementing microcontroller programs",
@@ -83,7 +140,11 @@
   ],
   "Info2 - Information Management 2 \u2014 Covers advanc": [
     "implementing database security",
+<<<<<<< HEAD
     "managing concurrency",
+=======
+    "managing database concurrency",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "normalizing databases",
     "performing olap operations",
     "using nosql databases"
@@ -103,6 +164,7 @@
     "writing research proposals"
   ],
   "MobAp - Mobile-Based Application Development \u2014 T": [
+<<<<<<< HEAD
     "developing mobile apps",
     "implementing mobile analytics",
     "integrating ai into mobile applications",
@@ -121,10 +183,31 @@
     "applying robotics concepts",
     "participating in seminars",
     "preparing for certifications",
+=======
+    "applying ai techniques in mobile apps",
+    "developing mobile apps",
+    "implementing mobile ui/ux principles",
+    "integrating analytics into mobile applications",
+    "using platform-specific mobile development tools"
+  ],
+  "ProLag - Programming Languages \u2014 Comparative stud": [
+    "comparing programming paradigms",
+    "defining syntax",
+    "implementing control structures",
+    "managing memory",
+    "specifying semantics"
+  ],
+  "CSSAC - CS Trends, Seminars and Certifications \u2014": [
+    "applying ai/ml algorithms",
+    "implementing robotic systems",
+    "preparing for certifications",
+    "presenting research findings",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "prototyping projects",
     "researching current computing trends"
   ],
   "InfoAs - Information Assurance and Security \u2014 Dis": [
+<<<<<<< HEAD
     "analyzing malware",
     "applying security controls",
     "conducting vulnerability assessments",
@@ -139,6 +222,22 @@
     "implementing tcp/ip",
     "performing subnetting",
     "troubleshooting networks"
+=======
+    "analyzing vulnerabilities",
+    "applying cryptography",
+    "conducting security assessments",
+    "ensuring data integrity",
+    "implementing access control",
+    "implementing security controls",
+    "managing risk"
+  ],
+  "NETW1 - CCNA: Introduction to Networks \u2014 Teaches": [
+    "configuring cisco devices",
+    "implementing tcp/ip",
+    "performing subnetting",
+    "troubleshooting networks",
+    "using cisco ios"
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
   ],
   "BIVIS - Business Intelligence and Visualization": [
     "communicating data insights",
@@ -149,16 +248,31 @@
     "using tableau",
     "visualizing data"
   ],
+<<<<<<< HEAD
   "DatMine - Data Mining and Predictive Analytics usi": [],
   "PYTHON - Introduction to Python \u2014 Basics of Pytho": [
     "controlling program flow with python",
     "creating web applications with python",
+=======
+  "DatMine - Data Mining and Predictive Analytics usi": [
+    "applying association rules",
+    "building predictive models",
+    "classifying data",
+    "clustering data",
+    "preprocessing data",
+    "using r"
+  ],
+  "PYTHON - Introduction to Python \u2014 Basics of Pytho": [
+    "building web applications with python",
+    "controlling program flow with python",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "defining python functions",
     "developing data-driven applications with python",
     "using python variables",
     "utilizing python libraries"
   ],
   "SAD - Systems Analysis and Design \u2014 Covers met": [
+<<<<<<< HEAD
     "applying object-oriented modeling principles",
     "conducting feasibility studies",
     "creating data flow diagrams",
@@ -169,10 +283,22 @@
   ],
   "OOPro - Object-Oriented Programming \u2014 Introduces": [
     "applying encapsulation",
+=======
+    "analyzing business requirements",
+    "applying object-oriented modeling (oom) principles",
+    "conducting systems analysis",
+    "creating system documentation",
+    "designing information systems",
+    "implementing sdlc models",
+    "using prototyping techniques"
+  ],
+  "OOPro - Object-Oriented Programming \u2014 Introduces": [
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "applying object-oriented programming principles",
     "applying polymorphism",
     "building compositions",
     "designing systems",
+<<<<<<< HEAD
     "implementing inheritance",
     "using classes",
     "using java"
@@ -183,6 +309,19 @@
     "maintaining software",
     "managing software projects",
     "modeling software",
+=======
+    "implementing encapsulation",
+    "using inheritance",
+    "using java",
+    "writing classes"
+  ],
+  "SofEng - Software Engineering \u2014 Covers the full s": [
+    "applying uml",
+    "eliciting software requirements",
+    "maintaining software",
+    "managing software projects",
+    "modeling software systems",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "performing quality assurance",
     "testing software"
   ],
@@ -191,16 +330,30 @@
     "applying mathematical logic",
     "constructing proofs",
     "defining functions",
+<<<<<<< HEAD
     "implementing finite state machines",
+=======
+    "designing finite state machines",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "manipulating sets",
     "using recursion"
   ],
   "Techno - Technopreneurship \u2014 Combines tech innova": [
+<<<<<<< HEAD
     "applying design thinking",
     "conducting market research",
     "creating minimum viable products",
     "developing business models",
     "pitching startup ideas"
+=======
+    "analyzing financial statements",
+    "applying design thinking",
+    "building a minimum viable product",
+    "conducting market research",
+    "developing a business model",
+    "managing intellectual property",
+    "pitching a startup idea"
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
   ],
   "Automata - Automata Theory and Formal Languages \u2014 I": [
     "analyzing computational complexity",
@@ -210,16 +363,25 @@
     "using turing machines"
   ],
   "CloudApp - Cloud-Based Application Development \u2014 Fo": [
+<<<<<<< HEAD
     "deploying cloud-integrated apps",
     "designing cloud-based applications",
     "integrating cloud services",
     "managing cloud resources",
     "using cloud apis",
+=======
+    "deploying cloud-based applications",
+    "designing cloud-integrated apps",
+    "implementing security best practices",
+    "integrating cloud services",
+    "managing cloud resources",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "using mobile technologies",
     "using web technologies"
   ],
   "Thesis1 - Thesis 1 \u2014 Students propose and plan com": [
     "applying machine learning algorithms",
+<<<<<<< HEAD
     "conducting data analysis",
     "designing ai models",
     "implementing data science solutions",
@@ -239,6 +401,28 @@
     "evaluating societal impacts of technology",
     "implementing security best practices",
     "interpreting legal frameworks related to technology"
+=======
+    "conducting data mining",
+    "implementing data science solutions",
+    "performing statistical analysis",
+    "presenting research findings",
+    "using data visualization tools"
+  ],
+  "WebDev - Web Development Technologies \u2014 Covers fr": [
+    "applying version control with git",
+    "implementing ai-driven web components",
+    "integrating analytics tools",
+    "using css",
+    "using html",
+    "using javascript frameworks"
+  ],
+  "SocPro - Social Issues and Professional Practice": [
+    "analyzing security risks",
+    "applying security best practices",
+    "assessing societal impacts of technology",
+    "evaluating ethical considerations in software development",
+    "identifying legal implications of computing"
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
   ],
   "OS - Operating Systems \u2014 Teaches concepts lik": [
     "implementing security protocols",
@@ -250,13 +434,18 @@
   ],
   "THESIS 2 - Thesis 2 \u2014 Students develop and deploy t": [
     "deploying ai systems",
+<<<<<<< HEAD
     "managing live deployments",
+=======
+    "managing data-driven systems",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "performing qa testing",
     "writing documentation"
   ],
   "Internship - Internship \u2014 324-hour industry immersion": [
     "applying ai algorithms",
     "building ai models",
+<<<<<<< HEAD
     "creating game assets",
     "developing games",
     "managing game projects",
@@ -287,6 +476,40 @@
     "implementing game logic",
     "using game engines",
     "writing game design documentation"
+=======
+    "developing games",
+    "implementing game mechanics",
+    "managing ai projects",
+    "performing data analysis",
+    "using analytics tools",
+    "visualizing data"
+  ],
+  "ML - Machine Learning \u2014 Introduces ML algorit": [
+    "applying reinforcement learning",
+    "building neural networks",
+    "implementing machine learning algorithms",
+    "performing supervised learning",
+    "performing unsupervised learning",
+    "using python",
+    "using r",
+    "using support vector machines (svms)"
+  ],
+  "AI - Artificial Intelligence \u2014 Covers AI prob": [
+    "applying search algorithms",
+    "performing data analysis",
+    "representing knowledge",
+    "solving ai problems",
+    "using machine learning techniques"
+  ],
+  "GameProg1 - Intro to Game Design and Development \u2014 C": [
+    "applying game design principles",
+    "creating game narratives",
+    "designing game levels",
+    "developing user interfaces for games",
+    "implementing game mechanics",
+    "prototyping game concepts",
+    "using game engines"
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
   ],
   "GameProg 2 - Advanced Game Design and Development \u2014 U": [
     "designing 2d games",
@@ -296,6 +519,7 @@
     "using unity",
     "using unreal"
   ],
+<<<<<<< HEAD
   "GameTech - Game Technologies \u2014 Explores APIs for VR": [],
   "GAMEAI - AI for Games \u2014 Applies AI to NPCs and ga": [
     "applying machine learning models",
@@ -303,6 +527,22 @@
     "implementing pathfinding algorithms",
     "integrating ai into gameplay",
     "scripting ai behaviors",
+=======
+  "GameTech - Game Technologies \u2014 Explores APIs for VR": [
+    "creating game ai",
+    "developing multiplatform games",
+    "implementing game physics",
+    "rendering 3d graphics",
+    "using a game engine",
+    "using ar apis",
+    "using motion sensor apis",
+    "using vr apis"
+  ],
+  "GAMEAI - AI for Games \u2014 Applies AI to NPCs and ga": [
+    "applying machine learning models",
+    "building decision-making systems",
+    "implementing pathfinding algorithms",
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     "using procedural content generation",
     "working with game engines"
   ]

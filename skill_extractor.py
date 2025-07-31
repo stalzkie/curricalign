@@ -122,6 +122,10 @@ def extract_skills_from_jobs(jobs=None):
         for skill in set(extracted_skills):
             skills_found[skill] += 1
 
+<<<<<<< HEAD
+=======
+    # Save to CSV in curricalign folder
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
     csv_path = os.path.join("curricalign", "extracted_skills.csv")
     df = pd.DataFrame(all_extracted)
     df.to_csv(csv_path, index=False)

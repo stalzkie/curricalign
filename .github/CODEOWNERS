@@ -1,0 +1,17 @@
+# CODEOWNERS file
+# Automatically assigns reviewers to pull requests affecting specific parts of the repo
+
+# Global rule for main branch — core team must review
+/main/*            @stalzkie
+
+# Production — must be reviewed by lead and DevOps
+/production/*      @stalzkie
+
+# Stal's dev branch
+/stal-dev/*        @stalzkie
+
+# Naehum's dev branch
+/naehum-dev/*      @Naehum-Dela-Cruz
+
+# Raine's dev branch
+/raine-dev/*       @perfectionless

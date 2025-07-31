@@ -41,6 +41,7 @@ GameProg1 - Intro to Game Design and Development — C,"applying game design pri
 GameProg 2 - Advanced Game Design and Development — U,"designing 2d games, developing game interactivity, implementing game audio, scripting with c#, using unity, using unreal"
 GameTech - Game Technologies — Explores APIs for VR,"creating game ai, developing multiplatform games, implementing game physics, rendering 3d graphics, using a game engine, using ar apis, using motion sensor apis, using vr apis"
 GAMEAI - AI for Games — Applies AI to NPCs and ga,"applying machine learning models, building decision-making systems, implementing pathfinding algorithms, using procedural content generation, working with game engines"
+<<<<<<< HEAD
 course,skills
 CompF - Computing Fundamentals — Overview of the,"analyzing hardware trends, analyzing software trends, developing ict exhibits, implementing security measures, researching computing applications, understanding computer system components"
 Prog1 - Programming Essentials — Focused on prob,"debugging programs, designing programs, implementing programs, testing programs, using cisco standards"
@@ -84,3 +85,5 @@ GameProg1 - Intro to Game Design and Development — C,"creating interactive exp
 GameProg 2 - Advanced Game Design and Development — U,"designing 2d games, developing game interactivity, implementing game audio, scripting with c#, using unity, using unreal"
 GameTech - Game Technologies — Explores APIs for VR,
 GAMEAI - AI for Games — Applies AI to NPCs and ga,"applying machine learning models, designing decision-making systems, implementing pathfinding algorithms, integrating ai into gameplay, scripting ai behaviors, using procedural content generation, working with game engines"
+=======
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7

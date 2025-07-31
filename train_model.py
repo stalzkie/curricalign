@@ -9,6 +9,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_absolute_error, r2_score
 from sentence_transformers import SentenceTransformer, util
+<<<<<<< HEAD
+=======
+
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
 from syllabus_matcher import extract_subject_skills_from_static
 from skill_extractor import extract_skills_from_jobs
 from evaluator import normalize

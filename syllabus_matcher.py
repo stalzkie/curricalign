@@ -10,6 +10,7 @@ import re
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-pro")
+<<<<<<< HEAD
 
 def normalize_skill(skill):
     """
@@ -27,6 +28,8 @@ def clean_skills(raw):
         return [normalize_skill(s) for s in skills if isinstance(s, str) and s.strip()]
     except:
         return []
+=======
+>>>>>>> f982469be23ee3d4f0d449f21a972ed4d29819d7
 
 def extract_skills_with_gemini(text):
     """
