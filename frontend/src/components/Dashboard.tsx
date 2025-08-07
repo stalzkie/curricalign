@@ -18,7 +18,7 @@ import {
   type Course,
   type Job,
   type KPIData
-} from '@/lib/dataService';
+} from '../lib/dataService';
 
 export default function Dashboard() {
   const [skillsData, setSkillsData] = useState<Skill[]>([]);
@@ -84,22 +84,22 @@ export default function Dashboard() {
             <KPICard
               title="Average Alignment Score"
               value={`${kpiData.averageAlignmentScore}%`}
-              icon="📊"
+              icon=" "
             />
             <KPICard
               title="Total Subjects Analyzed"
               value={kpiData.totalSubjectsAnalyzed.toLocaleString()}
-              icon="📚"
+              icon=" "
             />
             <KPICard
               title="Total Job Posts Analyzed"
               value={kpiData.totalJobPostsAnalyzed.toLocaleString()}
-              icon="💼"
+              icon=" "
             />
             <KPICard
               title="Skills Extracted"
               value={kpiData.skillsExtracted.toLocaleString()}
-              icon="⚡"
+              icon=" "
             />
           </div>
         )}

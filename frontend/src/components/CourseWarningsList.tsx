@@ -1,6 +1,6 @@
 'use client';
 
-import { Course } from '@/lib/dataService';
+import { Course } from '@lib/dataService';
 
 interface CourseWarningsListProps {
   data: Course[];

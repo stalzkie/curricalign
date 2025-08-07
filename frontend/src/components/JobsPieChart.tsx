@@ -1,7 +1,7 @@
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { Job } from '@/lib/dataService';
+import { Job } from '../lib/dataService';
 
 interface JobsPieChartProps {
   data: Job[];
@@ -13,6 +13,17 @@ const COLORS = [
 ];
 
 export default function JobsPieChart({ data }: JobsPieChartProps) {
+  // ✅ Calculate total demand
+  const totalDemand = data.reduce((sum, job) => sum + job.demand, 0);
+
+  // ✅ Sort by demand and append percentage to title
+  const sortedData = [...data]
+    .sort((a, b) => b.demand - a.demand)
+    .map(job => ({
+      ...job,
+      title: `${job.title} (${((job.demand / totalDemand) * 100).toFixed(1)}%)`
+    }));
+
   return (
     <div className="btn_border_silver h-96">
       <div className="card_background_dark rounded p-6 h-full">
@@ -20,15 +31,15 @@ export default function JobsPieChart({ data }: JobsPieChartProps) {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={data}
+              data={sortedData}
               cx="50%"
               cy="50%"
               outerRadius={100}
               fill="#8884d8"
               dataKey="demand"
-              label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+              nameKey="title" // Title now includes percentage
             >
-              {data.map((entry, index) => (
+              {sortedData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
@@ -39,6 +50,7 @@ export default function JobsPieChart({ data }: JobsPieChartProps) {
                 borderRadius: '8px',
                 color: '#F9FAFB'
               }}
+              formatter={(value: number, name: string) => [`${value}`, name]}
             />
             <Legend 
               wrapperStyle={{ color: '#F9FAFB', fontSize: '12px' }}

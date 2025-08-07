@@ -1,4 +1,4 @@
-// Mock data service - replace with actual API calls to FastAPI backend
+// === TYPES ===
 export interface Skill {
   name: string;
   demand: number;
@@ -22,118 +22,155 @@ export interface KPIData {
   skillsExtracted: number;
 }
 
-// Mock data - replace with actual API calls
-export const mockSkillsData: Skill[] = [
-  { name: 'JavaScript', demand: 85 },
-  { name: 'Python', demand: 82 },
-  { name: 'React', demand: 78 },
-  { name: 'SQL', demand: 75 },
-  { name: 'Node.js', demand: 70 },
-  { name: 'Java', demand: 68 },
-  { name: 'Machine Learning', demand: 65 },
-  { name: 'AWS', demand: 62 },
-  { name: 'Data Analysis', demand: 60 },
-  { name: 'Docker', demand: 58 },
-  { name: 'Others', demand: 120 }
-];
+const BASE_URL = "/api/dashboard";
 
-export const mockCoursesData: Course[] = [
-  { courseName: 'Advanced Web Development', courseCode: 'CS-401', matchPercentage: 92 },
-  { courseName: 'Data Structures & Algorithms', courseCode: 'CS-301', matchPercentage: 88 },
-  { courseName: 'Database Management Systems', courseCode: 'CS-302', matchPercentage: 85 },
-  { courseName: 'Software Engineering', courseCode: 'CS-403', matchPercentage: 83 },
-  { courseName: 'Machine Learning Fundamentals', courseCode: 'CS-501', matchPercentage: 81 },
-  { courseName: 'Cloud Computing', courseCode: 'CS-502', matchPercentage: 79 },
-  { courseName: 'Mobile App Development', courseCode: 'CS-404', matchPercentage: 77 },
-  { courseName: 'Cybersecurity Basics', courseCode: 'CS-503', matchPercentage: 75 }
-];
-
-export const mockJobsData: Job[] = [
-  { title: 'Software Developer', demand: 25 },
-  { title: 'Data Scientist', demand: 18 },
-  { title: 'Full Stack Developer', demand: 15 },
-  { title: 'DevOps Engineer', demand: 12 },
-  { title: 'ML Engineer', demand: 10 },
-  { title: 'Product Manager', demand: 8 },
-  { title: 'UI/UX Designer', demand: 7 },
-  { title: 'QA Engineer', demand: 5 },
-  { title: 'Others', demand: 15 }
-];
-
-export const mockMissingSkills: string[] = [
-  'Kubernetes',
-  'GraphQL',
-  'TypeScript',
-  'Redis',
-  'Microservices',
-  'Blockchain',
-  'Vue.js',
-  'Angular',
-  'MongoDB',
-  'Jenkins',
-  'Terraform',
-  'Elasticsearch'
-];
-
-export const mockCourseWarnings: Course[] = [
-  { courseName: 'Introduction to COBOL', courseCode: 'CS-201', matchPercentage: 35 },
-  { courseName: 'Assembly Language Programming', courseCode: 'CS-202', matchPercentage: 42 },
-  { courseName: 'Desktop Publishing', courseCode: 'CS-203', matchPercentage: 38 },
-  { courseName: 'Legacy System Maintenance', courseCode: 'CS-204', matchPercentage: 45 }
-];
-
-export const mockKPIData: KPIData = {
-  averageAlignmentScore: 76.8,
-  totalSubjectsAnalyzed: 127,
-  totalJobPostsAnalyzed: 2459,
-  skillsExtracted: 342
-};
-
-// Future API functions to implement with FastAPI backend
+// === 1. Most In-Demand Skills ===
 export async function fetchMostInDemandSkills(): Promise<Skill[]> {
-  // TODO: Replace with actual API call
-  // return await fetch('/api/skills/most-demanded').then(res => res.json());
-  return new Promise(resolve => {
-    setTimeout(() => resolve(mockSkillsData), 1000);
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/skills`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API error ${response.status}: ${errorText}`);
+    }
+
+    const rawSkills: Skill[] = await response.json();
+
+    return rawSkills
+      .filter((s) => s.name && s.name.trim() !== "")
+      .sort((a, b) => b.demand - a.demand);
+  } catch (error) {
+    console.error("❌ Failed to fetch in-demand skills:", error);
+    return [];
+  }
 }
 
+// === 2. Top Matching Courses ===
 export async function fetchTopMatchingCourses(): Promise<Course[]> {
-  // TODO: Replace with actual API call
-  // return await fetch('/api/courses/top-matching').then(res => res.json());
-  return new Promise(resolve => {
-    setTimeout(() => resolve(mockCoursesData), 1000);
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/top-courses`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return Array.isArray(data)
+      ? data.map((item: any) => ({
+          courseName: item.courseName || "Unknown Course",
+          courseCode: item.courseCode || "N/A",
+          matchPercentage: item.matchPercentage || 0,
+        }))
+      : [];
+  } catch (error) {
+    console.error("❌ Failed to fetch top courses:", error);
+    return [];
+  }
 }
 
+// === 3. In-Demand Job Titles (Top 10) ===
 export async function fetchInDemandJobs(): Promise<Job[]> {
-  // TODO: Replace with actual API call
-  // return await fetch('/api/jobs/in-demand').then(res => res.json());
-  return new Promise(resolve => {
-    setTimeout(() => resolve(mockJobsData), 1000);
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/jobs`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    return Array.isArray(data)
+      ? data
+          .filter((item: any) => item.title && item.title.trim() !== "")
+          .sort((a, b) => b.demand - a.demand)
+          .slice(0, 10)
+          .map((item: any) => ({
+            title: item.title,
+            demand: item.demand,
+          }))
+      : [];
+  } catch (error) {
+    console.error("❌ Failed to fetch in-demand jobs:", error);
+    return [];
+  }
 }
 
+// === 4. Missing Skills ===
 export async function fetchMissingSkills(): Promise<string[]> {
-  // TODO: Replace with actual API call
-  // return await fetch('/api/skills/missing').then(res => res.json());
-  return new Promise(resolve => {
-    setTimeout(() => resolve(mockMissingSkills), 1000);
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/missing-skills`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API error ${response.status}: ${errorText}`);
+    }
+
+    const rawSkills: string[] = await response.json();
+
+    const uniqueSet = new Set<string>();
+    for (const entry of rawSkills) {
+      if (typeof entry === "string") {
+        const skills = entry
+          .split(",")
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean);
+        for (const skill of skills) {
+          uniqueSet.add(skill);
+        }
+      }
+    }
+
+    return Array.from(uniqueSet).sort();
+  } catch (error) {
+    console.error("❌ Failed to fetch missing skills:", error);
+    return [];
+  }
 }
 
+// === 5. Course Warnings ===
 export async function fetchCourseWarnings(): Promise<Course[]> {
-  // TODO: Replace with actual API call
-  // return await fetch('/api/courses/warnings').then(res => res.json());
-  return new Promise(resolve => {
-    setTimeout(() => resolve(mockCourseWarnings), 1000);
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/warnings`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return Array.isArray(data)
+      ? data.map((item: any) => ({
+          courseName: item.courseName || "Unknown Course",
+          courseCode: item.courseCode || "N/A",
+          matchPercentage: item.matchPercentage || 0,
+        }))
+      : [];
+  } catch (error) {
+    console.error("❌ Failed to fetch course warnings:", error);
+    return [];
+  }
 }
 
+// === 6. KPI Data ===
 export async function fetchKPIData(): Promise<KPIData> {
-  // TODO: Replace with actual API call
-  // return await fetch('/api/dashboard/kpi').then(res => res.json());
-  return new Promise(resolve => {
-    setTimeout(() => resolve(mockKPIData), 1000);
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/kpi`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return {
+      averageAlignmentScore: data.averageAlignmentScore || 0,
+      totalSubjectsAnalyzed: data.totalSubjectsAnalyzed || 0,
+      totalJobPostsAnalyzed: data.totalJobPostsAnalyzed || 0,
+      skillsExtracted: data.skillsExtracted || 0,
+    };
+  } catch (error) {
+    console.error("❌ FastAPI KPI fetch failed:", error);
+    return {
+      averageAlignmentScore: 0,
+      totalSubjectsAnalyzed: 0,
+      totalJobPostsAnalyzed: 0,
+      skillsExtracted: 0,
+    };
+  }
 }

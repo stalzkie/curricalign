@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from .api.endpoints import router as api_router
+from app.api.endpoints import dashboard, pipeline
 
 app = FastAPI(
     title="CurricAlign API",
@@ -14,3 +15,5 @@ def read_root():
 
 # Mount all API routes under /api
 app.include_router(api_router, prefix="/api")
+app.include_router(dashboard.router)
+app.include_router(pipeline.router)
