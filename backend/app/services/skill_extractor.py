@@ -73,6 +73,15 @@ Extract 5–10 technical skills from this job. Return only a valid Python list.
         print(f"❌ Retry also failed: {e}")
     return []
 
+def fetch_skills_from_supabase():
+    response = supabase.table("job_skills").select("job_skills").execute()
+    all_skills = []
+    for row in response.data:
+        raw = row["job_skills"]
+        if isinstance(raw, str):
+            skills = [s.strip() for s in raw.split(",") if s.strip()]
+            all_skills.extend(skills)
+    return {skill: 1 for skill in all_skills}  # simulate frequency
 
 def extract_skills_from_jobs(jobs=None):
     if jobs is None:

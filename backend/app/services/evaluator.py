@@ -9,10 +9,34 @@ from ..core.supabase_client import supabase
 SIM_THRESHOLD = 0.65
 bert_model = SentenceTransformer("all-MiniLM-L6-v2")
 
-def normalize_skills(skills_str):
-    if not isinstance(skills_str, str):
-        return []
-    return [s.strip().lower() for s in skills_str.split(",") if s.strip()]
+import re
+
+def normalize_skills(skills):
+    """
+    Normalize skills: lowercase, strip, remove special characters where needed.
+    If a skill is already clean, return it.
+    If a skill has dots or symbols (like C#.NET), try splitting or simplifying it.
+    """
+    normalized = []
+
+    for skill in skills:
+        if not isinstance(skill, str):
+            continue
+
+        clean = skill.strip().lower()
+
+        # Replace symbols with space or remove them
+        clean = re.sub(r'[^\w\s#.+]', '', clean)  # keep #, +, .
+        clean = re.sub(r'\s+', ' ', clean).strip()
+
+        # Split on known patterns (e.g. "asp.net core" → ["asp.net", "core"])
+        parts = re.split(r'[\s/,-]+', clean)
+        if parts:
+            normalized.append(" ".join(parts))  # keep as phrase
+        else:
+            normalized.append(clean)
+
+    return normalized
 
 def hybrid_similarity(bert_score, course_skill, job_skill):
     fuzzy_score = token_set_ratio(course_skill, job_skill) / 100
@@ -129,6 +153,61 @@ def compute_subject_scores_and_save():
             print(f"✅ Saved: {course_code} - {score}")
         except Exception as e:
             print(f"❌ Insert failed for {course_code}: {e}")
+
+def compute_subject_scores(subject_skills_map, job_skill_tree):
+    job_skill_list = list(job_skill_tree.keys())
+    job_skill_cleaned = normalize_skills(job_skill_list)
+
+    if not job_skill_cleaned:
+        print("❌ No cleaned job skills available.")
+        return []
+
+    job_embeddings = bert_model.encode(job_skill_cleaned, convert_to_tensor=True)
+
+    scored_subjects = []
+
+    for course_code, raw_skills in subject_skills_map.items():
+        course_skills = normalize_skills(raw_skills)
+        if not course_skills:
+            continue
+
+        try:
+            course_embeddings = bert_model.encode(course_skills, convert_to_tensor=True)
+            cosine_matrix = util.cos_sim(course_embeddings, job_embeddings).cpu().numpy()
+
+            matched_market_skills = []
+            match_scores = []
+
+            for i, course_skill in enumerate(course_skills):
+                similarities = cosine_matrix[i]
+                max_index = np.argmax(similarities)
+                max_score = similarities[max_index]
+                job_skill = job_skill_cleaned[max_index]
+
+                final_score = hybrid_similarity(max_score, course_skill, job_skill)
+                if final_score >= SIM_THRESHOLD:
+                    matched_market_skills.append(job_skill)
+                    match_scores.append(final_score)
+
+            matched = len(match_scores)
+            total = len(course_skills)
+            coverage = matched / total if total else 0
+            avg_sim = np.mean(match_scores) if match_scores else 0
+            score = int(avg_sim * coverage * 100)
+
+            scored_subjects.append({
+                "course": course_code,
+                "skills_taught": course_skills,
+                "skills_in_market": matched_market_skills,
+                "coverage": round(coverage, 3),
+                "avg_similarity": round(avg_sim, 3),
+                "score": score
+            })
+
+        except Exception as e:
+            print(f"❌ Failed to score {course_code}: {e}")
+
+    return scored_subjects
 
 if __name__ == "__main__":
     compute_subject_scores_and_save()

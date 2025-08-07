@@ -17,10 +17,17 @@ def normalize_skill(skill):
 
 
 def clean_skills(raw):
+    import ast
     try:
-        skills = eval(raw) if raw.startswith("[") else []
+        raw = raw.strip()
+        skills = ast.literal_eval(raw)
+        if not isinstance(skills, list):
+            print("⚠️ Gemini output is not a list. Raw:\n", raw)
+            return []
         return [normalize_skill(s) for s in skills if isinstance(s, str) and s.strip()]
-    except:
+    except Exception as e:
+        print(f"❌ Failed to parse Gemini output: {e}")
+        print("Raw output:\n", raw)
         return []
 
 
@@ -89,6 +96,13 @@ Example:
         print(f"❌ Retry also failed: {e}")
         return []
 
+def fetch_subject_skills_from_db():
+    response = supabase.table("course_skills").select("course_code", "course_skills").execute()
+    return {
+        row["course_code"]: row["course_skills"]
+        for row in response.data
+        if row["course_skills"]
+    }
 
 def extract_subject_skills_from_supabase():
     print("📦 Fetching courses from Supabase...")
@@ -98,11 +112,11 @@ def extract_subject_skills_from_supabase():
             .execute().data
     except Exception as e:
         print(f"❌ Failed to fetch courses: {e}")
-        return
+        return {}
 
     if not courses:
         print("⚠️ No courses found in Supabase.")
-        return
+        return {}
 
     for course in courses:
         code = course.get("course_code")
@@ -134,6 +148,18 @@ def extract_subject_skills_from_supabase():
                 print("📤 New version inserted into course_skills table.\n")
         except Exception as e:
             print(f"❌ Supabase insert failed for {code}: {e}\n")
+
+    # ✅ Final return: Map course_code -> list of skills for model training
+    try:
+        raw = supabase.table("course_skills").select("course_code, course_skills").execute().data
+        subject_skills_map = {
+            row["course_code"]: [s.strip() for s in row["course_skills"].split(",") if s.strip()]
+            for row in raw if row.get("course_skills")
+        }
+        return subject_skills_map
+    except Exception as e:
+        print(f"❌ Failed to fetch course_skills: {e}")
+        return {}
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ from sentence_transformers import SentenceTransformer, util
 from backend.app.services.syllabus_matcher import extract_subject_skills_from_supabase
 from backend.app.services.skill_extractor import extract_skills_from_jobs
 from backend.app.services.evaluator import normalize_skills
+from backend.app.services.evaluator import compute_subject_scores
 
 bert_model = SentenceTransformer("all-MiniLM-L6-v2")
 
@@ -34,30 +35,57 @@ def compute_semantic_vector(course_skills, market_skills):
         print(f"❌ BERT vectorization failed: {e}")
         return np.zeros(len(market_skills))
 
+def clean_market_skills(raw_skills: list[str]) -> list[str]:
+    skills = []
+    for skill in raw_skills:
+        if not isinstance(skill, str):
+            continue
+        cleaned = skill.strip().lower()
+        if cleaned:
+            norm = normalize_skills([cleaned])
+            if norm:
+                skills.append(norm[0])
+    return skills
 
-def train_subject_score_model():
+def train_subject_score_model(skip_extraction=False):
     print("📄 Loading syllabus from course_descriptions.py ...")
-    subject_skills_map = extract_subject_skills_from_supabase()
+    if skip_extraction:
+        print("🔁 Skipping subject skill extraction (using existing Supabase data)")
+        from backend.app.services.syllabus_matcher import fetch_subject_skills_from_db
+        subject_skills_map = fetch_subject_skills_from_db()
+    else:
+        subject_skills_map = extract_subject_skills_from_supabase()
     if not subject_skills_map:
         print("❌ No subjects parsed. Exiting.")
         return
 
     print("🌐 Extracting job skill frequency from jobs...")
-    job_skill_tree = extract_skills_from_jobs()
+    if skip_extraction:
+        print("🔁 Skipping job skill extraction (using existing Supabase data)")
+        from backend.app.services.skill_extractor import fetch_skills_from_supabase
+        job_skill_tree = fetch_skills_from_supabase()
+    else:
+        job_skill_tree = extract_skills_from_jobs()
+
     if not job_skill_tree:
         print("❌ No skills extracted from jobs. Exiting.")
         return
 
-    all_market_skills = sorted(set([normalize_skills([skill])[0] for skill in job_skill_tree.keys() if skill.strip()]))
+    raw_skills = list(job_skill_tree.keys())
+    print(f"🔍 Raw skills loaded from Supabase: {raw_skills[:5]} ({len(raw_skills)} total)")
+
+    all_market_skills = sorted(set(clean_market_skills(raw_skills)))
+    print(f"🧹 Cleaned skills: {all_market_skills[:5]} ({len(all_market_skills)} usable)")
+
     if not all_market_skills:
-        print("❌ No usable job skills found after cleaning.")
+        print(f"❌ No usable job skills found after cleaning. Raw skill count: {len(raw_skills)}")
+        print(f"🔎 Example raw skills: {raw_skills[:10]}")
         return
 
     joblib.dump(all_market_skills, "subject_model_features.pkl")
     print(f"📦 Saved normalized feature list ({len(all_market_skills)} skills) to subject_model_features.pkl")
 
     print("🧠 Generating simulated labels using BERT similarity scoring...")
-    from backend.app.services.evaluator import compute_subject_scores  # Avoid circular import
     scored_subjects = compute_subject_scores(subject_skills_map, job_skill_tree)
     if len(scored_subjects) < 2:
         print(f"❌ Not enough training samples ({len(scored_subjects)}). Need at least 2.")
@@ -139,4 +167,4 @@ def train_subject_score_model():
 
 
 if __name__ == "__main__":
-    train_subject_score_model()
+    train_subject_score_model(skip_extraction=True)
