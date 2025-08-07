@@ -14,7 +14,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #080010;
     --foreground: #ededed;
   }
 }
@@ -23,4 +23,43 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.btn_border_silver{
+  @apply p-[2px] bg-gradient-to-t from-[#3D3D3D] via-[#707070] to-[#3D3D3D] rounded mb-2 overflow-hidden
+}
+
+.btn_background_purple {
+  @apply bg-gradient-to-r from-[#D088FF] to-[#9C0BFB] px-4 py-2 rounded w-full
+}
+
+.font_color_purple {
+  @apply bg-gradient-to-r from-[#D088FF] to-[#9C0BFB] text-transparent bg-clip-text;
+}
+
+.card_background_dark {
+  @apply bg-[#14141C];
+}
+
+/* Custom scrollbar styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #1F2937;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #4B5563;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
 }

@@ -1,3 +1,33 @@
+## TL;DR: Steps to Connect Dashboard to Real Data
+
+# 1. Setup Supabase
+Create project at supabase.com
+Run SQL to create 4 tables: courses, job_postings, skills, course_job_alignment
+
+# 2. Create FastAPI Backend
+Create main.py with 6 API endpoints
+Add .env with Supabase keys
+
+# 3. Populate Database (Manual/Scripted)
+Import your course data into courses table
+Scrape/import job postings into job_postings table
+Run analysis to fill course_job_alignment table
+
+# 4. Update Frontend
+Replace mock functions in dataService.ts:
+
+# 5. Run Everything
+
+> # Terminal 1: Start FastAPI
+> uvicorn main:app --reload --port 8000
+> 
+> # Terminal 2: Start Next.js  
+> npm run dev
+
+Bottom Line: Database setup + API creation + data import + 6 fetch function updates = Real dashboard with your data instead of mock data.
+
+## /---/---/---/---/
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
