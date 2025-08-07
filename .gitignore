@@ -1,6 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Frontend (Next.js) dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -20,18 +20,11 @@
 # production
 /build
 
-# misc
-.DS_Store
-*.pem
-
-# debug
+# Frontend debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
 
 # vercel
 .vercel
@@ -39,3 +32,34 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Backend (Python) cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment variables (both frontend and backend)
+.env
+.env*
+
+# Logs and temp files
+*.log
+*.tmp
+*.pem
+
+# macOS files
+.DS_Store
+
+# Jupyter Notebook checkpoints (if you ever use them)
+.ipynb_checkpoints/
+
+# Git BFG cleanup tool
+bfg-*.jar
+curricalign.git.bfg-report/
+
+# VS Code settings (optional)
+.vscode/

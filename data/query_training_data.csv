@@ -1,0 +1,280 @@
+query,is_cs_term,word_count,trend_value,query_score
+python developer jobs,1,3,42,52
+data analyst position,1,3,23,33
+flutter mobile dev,1,3,26,36
+backend engineer hiring,1,3,96,106
+aws solutions architect,1,3,69,79
+unity developer,1,2,81,91
+ios dev internship,1,3,28,38
+machine learning engineer,1,3,48,58
+cybersecurity analyst job,1,3,60,70
+software engineer intern,1,3,49,59
+reactjs frontend job,1,3,87,97
+vuforia developer,1,2,60,70
+cloud engineer remote,1,3,94,104
+ai researcher,1,2,20,30
+business intelligence analyst,1,3,66,76
+c++ software engineer,1,3,46,56
+web dev urgent,1,3,38,48
+frontend engineer opening,1,3,45,55
+tech project manager,1,3,95,105
+support engineer,1,2,28,38
+c# unity developer,1,3,62,72
+3d artist blender,1,3,84,94
+kotlin mobile dev,1,3,94,104
+laravel backend dev,1,3,44,54
+fullstack engineer opening,1,3,75,85
+devops internship,1,2,87,97
+data science entry level,1,4,49,54
+ai chatbot developer,1,3,29,39
+sql dba,1,2,25,35
+it helpdesk,1,2,36,46
+excel data entry,0,3,50,50
+virtual assistant needed,0,3,67,67
+content writer remote,0,3,40,40
+graphic designer,0,2,20,20
+sales executive,0,2,26,26
+social media manager,0,3,68,68
+real estate agent,0,3,41,41
+customer support rep,0,3,73,73
+video editor freelance,0,3,64,64
+online tutor,0,2,37,37
+english transcription,0,2,86,86
+voice actor,0,2,34,34
+medical coder,0,2,71,71
+seo optimization,0,2,47,47
+online researcher,0,2,89,89
+crypto trading,0,2,69,69
+influencer manager,0,2,31,31
+data labeling,0,2,74,74
+blockchain consultant,1,2,29,39
+smart contract auditor,1,3,42,52
+embedded engineer,1,2,21,31
+prompt engineer,1,2,38,48
+roblox scripter,1,2,45,55
+front end security developer computer science jobs,1,7,0,0,0,0
+front end security developer jobs,1,5,0,0,0,0
+front end security engineer jobs,1,5,0,0,0,0
+remote front end security jobs,1,5,0,0,0,0
+front end security software jobs,1,5,0,0,0,0
+front end security IT jobs,1,5,0,0,0,0
+front end security backend jobs,1,5,0,0,0,0
+front end security frontend jobs,1,5,0,0,0,0
+front end security developer computer science jobs,1,7,0,0,0,0
+front end security developer jobs,1,5,0,0,0,0
+python developer computer science jobs,1,5,0,0,0,0
+python developer jobs,1,3,0,0,0,0
+python engineer jobs,1,3,0,10,15,0
+fullstack developer computer science jobs,1,5,0,0,0,0
+fullstack developer jobs,1,3,0,0,0,0
+fullstack engineer jobs,1,3,0,0,0,0
+remote fullstack jobs,1,3,0,0,0,0
+fullstack software jobs,1,3,0,0,0,0
+fullstack IT jobs,1,3,0,0,0,0
+fullstack backend jobs,1,3,0,0,0,0
+fullstack frontend jobs,1,3,0,0,0,0
+fullstack developer computer science jobs,1,5,0,0,0,0
+fullstack developer jobs,1,3,0,0,0,0
+flutter developer computer science jobs,1,5,0,0,0,0
+flutter developer jobs,1,3,0,0,0,0
+flutter engineer jobs,1,3,0,0,0,0
+remote flutter jobs,1,3,0,0,0,0
+flutter software jobs,1,3,0,0,0,0
+flutter IT jobs,1,3,0,0,0,0
+flutter backend jobs,1,3,0,10,13,0
+machine learning developer computer science jobs,1,6,0,0,0,0
+machine learning developer jobs,1,4,0,0,0,0
+machine learning engineer jobs,1,4,0,0,0,0
+remote machine learning jobs,1,4,0,10,12,0
+product design developer computer science jobs,1,6,0,8,16,0
+cybersecurity developer computer science jobs,1,5,0,0,0,0
+cybersecurity developer jobs,1,3,0,0,0,0
+cybersecurity engineer jobs,1,3,0,0,0,0
+remote cybersecurity jobs,1,3,0,0,0,0
+cybersecurity software jobs,1,3,0,0,0,0
+cybersecurity IT jobs,1,3,0,0,0,0
+cybersecurity backend jobs,1,3,0,0,0,0
+cybersecurity frontend jobs,1,3,0,0,0,0
+cybersecurity developer computer science jobs,1,5,0,0,0,0
+cybersecurity developer jobs,1,3,0,0,0,0
+data analytics developer computer science jobs,1,6,0,10,12,0
+android developer computer science jobs,1,5,0,10,13,0
+aws developer computer science jobs,1,5,0,0,0,0
+aws developer jobs,1,3,0,10,14,0
+JobStreet fullstack developer jobs in Philippines,1,6,0,10,14,0
+JobStreet aws developer jobs in Philippines,1,6,0,10,10,0
+JobStreet java developer jobs in Philippines,1,6,0,10,12,0
+JobStreet ios developer jobs in Philippines,1,6,0,10,14,0
+JobStreet data analytics developer jobs in Philippines,1,7,0,10,14,0
+JobStreet software engineering developer jobs in Philippines,1,7,0,10,15,0
+JobStreet backend developer jobs in Philippines,1,6,0,10,16,0
+JobStreet it support developer jobs in Philippines,1,7,0,10,12,0
+JobStreet web developer jobs in Philippines,1,6,0,10,11,0
+JobStreet analyst developer jobs in Philippines,1,6,0,10,9,0
+JobStreet devops developer jobs in Philippines,1,6,0,10,12,0
+JobStreet cybersecurity developer jobs in Philippines,1,6,0,10,12,0
+JobStreet java developer jobs in Philippines,1,6,0,10,14,0
+JobStreet unity developer jobs in Philippines,1,6,0,5,6,0
+JobStreet analyst developer jobs in Philippines,1,6,0,10,14,0
+JobStreet software engineering developer jobs in Philippines,1,7,0,10,15,0
+JobStreet data analytics developer jobs in Philippines,1,7,0,10,13,0
+JobStreet front end security developer jobs in Philippines,1,8,0,1,8,0
+Indeed front end security developer jobs in Philippines,1,8,0,0,0,0
+LinkedIn front end security developer jobs in Philippines,1,8,0,1,7,0
+Glassdoor front end security developer jobs in Philippines,1,8,0,0,0,0
+front end security developer site:jobstreet.com.ph,1,5,0,0,0,0
+front end security developer site:ph.indeed.com,1,5,0,0,0,0
+front end security developer site:linkedin.com/jobs,1,5,0,0,0,0
+front end security developer site:glassdoor.com,1,5,0,0,0,0
+front end security IT jobs in Philippines,1,7,0,1,7,0
+front end security software engineer Philippines,1,6,0,1,7,0
+front end security backend developer Philippines,1,6,0,2,10,0
+JobStreet react developer jobs in Philippines,1,6,0,10,13,0
+JobStreet software developer jobs in Philippines,1,6,0,10,12,0
+JobStreet it support developer jobs in Philippines,1,7,0,10,11,0
+JobStreet ios developer jobs in Philippines,1,6,0,10,11,0
+JobStreet developer developer jobs in Philippines,1,6,0,10,14,0
+JobStreet business intelligence developer jobs in Philippines,1,7,0,10,9,0
+JobStreet project management developer jobs in Philippines,1,7,0,10,8,0
+JobStreet product design developer jobs in Philippines,1,7,0,10,13,0
+JobStreet cybersecurity developer jobs in Philippines,1,6,0,10,10,0
+JobStreet frontend developer jobs in Philippines,1,6,0,10,13,0
+JobStreet unity developer jobs in Philippines,1,6,0,5,6,0
+JobStreet backend developer jobs in Philippines,1,6,0,10,16,0
+JobStreet ios developer jobs in Philippines,1,6,0,10,11,0
+JobStreet aws developer jobs in Philippines,1,6,0,10,11,0
+JobStreet product design developer jobs in Philippines,1,7,0,10,13,0
+JobStreet business intelligence developer jobs in Philippines,1,7,0,10,9,0
+JobStreet front end security developer jobs in Philippines,1,8,0,1,8,0
+Indeed front end security developer jobs in Philippines,1,8,0,0,0,0
+LinkedIn front end security developer jobs in Philippines,1,8,0,1,7,0
+Glassdoor front end security developer jobs in Philippines,1,8,0,0,0,0
+front end security developer site:jobstreet.com.ph,1,5,0,0,0,0
+front end security developer site:ph.indeed.com,1,5,0,0,0,0
+front end security developer site:linkedin.com/jobs,1,5,0,0,0,0
+front end security developer site:glassdoor.com,1,5,0,0,0,0
+front end security IT jobs in Philippines,1,7,0,1,7,0
+front end security software engineer Philippines,1,6,0,1,7,0
+front end security backend developer Philippines,1,6,0,2,10,0
+JobStreet devops developer jobs in Philippines,1,6,0,10,12,0
+JobStreet flutter developer jobs in Philippines,1,6,0,8,12,0
+JobStreet java developer jobs in Philippines,1,6,0,10,14,0
+JobStreet unity developer jobs in Philippines,1,6,0,5,6,0
+JobStreet android developer jobs in Philippines,1,6,0,10,11,0
+JobStreet software engineering developer jobs in Philippines,1,7,0,10,14,0
+JobStreet product design developer jobs in Philippines,1,7,0,10,13,0
+JobStreet cloud engineer developer jobs in Philippines,1,7,0,10,13,0
+JobStreet devops developer jobs in Philippines,1,6,0,10,13,0
+JobStreet aws developer jobs in Philippines,1,6,0,10,12,0
+JobStreet flutter developer jobs in Philippines,1,6,0,5,11,0
+JobStreet front end security developer jobs in Philippines,1,8,0,1,8,0
+Indeed front end security developer jobs in Philippines,1,8,0,0,0,0
+LinkedIn front end security developer jobs in Philippines,1,8,0,0,0,0
+Glassdoor front end security developer jobs in Philippines,1,8,0,0,0,0
+front end security developer site:jobstreet.com.ph,1,5,0,0,0,0
+front end security developer site:ph.indeed.com,1,5,0,0,0,0
+front end security developer site:linkedin.com/jobs,1,5,0,0,0,0
+front end security developer site:glassdoor.com,1,5,0,0,0,0
+front end security IT jobs in Philippines,1,7,0,0,0,0
+front end security software engineer Philippines,1,6,0,0,0,0
+front end security backend developer Philippines,1,6,0,2,11,0
+JobStreet frontend developer jobs in Philippines,1,6,0,10,10,0
+JobStreet unity developer jobs in Philippines,1,6,0,4,5,0
+JobStreet cybersecurity developer jobs in Philippines,1,6,0,10,9,0
+JobStreet developer developer jobs in Philippines,1,6,0,10,20,0
+JobStreet devops developer jobs in Philippines,1,6,0,10,17,0
+JobStreet backend developer jobs in Philippines,1,6,0,10,16,0
+JobStreet aws developer jobs in Philippines,1,6,0,10,18,0
+JobStreet flutter developer jobs in Philippines,1,6,0,5,13,0
+JobStreet software developer jobs in Philippines,1,6,0,10,26,0
+JobStreet frontend developer jobs in Philippines,1,6,0,10,14,0
+JobStreet cybersecurity developer jobs in Philippines,1,6,0,10,11,0
+JobStreet azure developer jobs in Philippines,1,6,0,10,14,0
+JobStreet android developer jobs in Philippines,1,6,0,10,19,0
+JobStreet java developer jobs in Philippines,1,6,0,10,16,0
+JobStreet unity developer jobs in Philippines,1,6,0,4,7,0
+Indeed unity developer jobs in Philippines,1,6,0,1,6,0
+JobStreet analyst developer jobs in Philippines,1,6,0,10,19,0
+JobStreet ios developer jobs in Philippines,1,6,0,10,16,0
+JobStreet c# developer jobs in Philippines,1,6,0,10,19,0
+JobStreet developer developer jobs in Philippines,1,6,0,10,20,0
+JobStreet devops developer jobs in Philippines,1,6,0,10,17,0
+JobStreet software developer jobs in Philippines,1,6,0,10,22,0
+JobStreet azure developer jobs in Philippines,1,6,0,10,17,0
+JobStreet backend developer jobs in Philippines,1,6,0,10,16,0
+JobStreet aws developer jobs in Philippines,1,6,0,9,18,0
+JobStreet flutter developer jobs in Philippines,1,6,0,6,13,0
+JobStreet android developer jobs in Philippines,1,6,0,10,19,0
+JobStreet unity developer jobs in Philippines,1,6,0,2,4,0
+Indeed unity developer jobs in Philippines,1,6,0,1,6,0
+LinkedIn unity developer jobs in Philippines,1,6,0,0,0,0
+Glassdoor unity developer jobs in Philippines,1,6,0,0,0,0
+unity developer site:jobstreet.com.ph,1,3,0,0,0,0
+unity developer site:ph.indeed.com,1,3,0,0,0,0
+unity developer site:linkedin.com/jobs,1,3,0,0,0,0
+unity developer site:glassdoor.com,1,3,0,0,0,0
+unity IT jobs in Philippines,1,5,0,10,9,0
+JobStreet ios developer jobs in Philippines,1,6,0,10,17,0
+JobStreet frontend developer jobs in Philippines,1,6,0,10,14,0
+JobStreet cybersecurity developer jobs in Philippines,1,6,0,10,10,0
+JobStreet java developer jobs in Philippines,1,6,0,10,16,0
+JobStreet analyst developer jobs in Philippines,1,6,0,10,18,0
+JobStreet c# developer jobs in Philippines,1,6,0,10,18,0
+JobStreet developer developer jobs in Philippines,1,6,0,10,20,0
+JobStreet devops developer jobs in Philippines,1,6,0,10,17,0
+JobStreet software developer jobs in Philippines,1,6,0,10,22,0
+JobStreet ios developer jobs in Philippines,1,6,0,10,17,0
+JobStreet unity developer jobs in Philippines,1,6,0,2,4,0
+Indeed unity developer jobs in Philippines,1,6,0,1,6,0
+LinkedIn unity developer jobs in Philippines,1,6,0,0,0,0
+Glassdoor unity developer jobs in Philippines,1,6,0,0,0,0
+unity developer site:jobstreet.com.ph,1,3,0,0,0,0
+unity developer site:ph.indeed.com,1,3,0,0,0,0
+unity developer site:linkedin.com/jobs,1,3,0,0,0,0
+unity developer site:glassdoor.com,1,3,0,0,0,0
+unity IT jobs in Philippines,1,5,0,10,9,0
+unity software engineer Philippines,1,4,0,10,13,0
+unity backend developer Philippines,1,4,0,3,13,0
+JobStreet software engineer salary developer jobs in Philippines,0,8,0,10,0,0
+JobStreet ai machine learning developer jobs in Philippines,0,8,0,10,0,0
+JobStreet what is data developer jobs in Philippines,0,8,0,10,0,0
+JobStreet it support salary developer jobs in Philippines,0,8,0,2,0,0
+Indeed it support salary developer jobs in Philippines,0,8,0,9,0,0
+JobStreet it technical support developer jobs in Philippines,0,8,0,10,0,0
+JobStreet what is project developer jobs in Philippines,0,8,0,10,0,0
+JobStreet cloud solutions architect developer jobs in Philippines,0,8,0,10,0,0
+JobStreet estate developer developer jobs in Philippines,0,7,0,10,0,0
+JobStreet engineer salary developer jobs in Philippines,0,7,0,10,0,0
+JobStreet ai detector developer jobs in Philippines,0,7,0,2,0,0
+Indeed ai detector developer jobs in Philippines,0,7,0,1,0,0
+LinkedIn ai detector developer jobs in Philippines,0,7,0,1,0,0
+Glassdoor ai detector developer jobs in Philippines,0,7,0,0,0,0
+ai detector developer site:jobstreet.com.ph,0,4,0,0,0,0
+ai detector developer site:ph.indeed.com,0,4,0,0,0,0
+ai detector developer site:linkedin.com/jobs,0,4,0,0,0,0
+ai detector developer site:glassdoor.com,0,4,0,0,0,0
+ai detector IT jobs in Philippines,0,6,0,0,0,0
+ai detector backend developer Philippines,0,5,0,3,0,0
+ai detector frontend developer Philippines,0,5,0,0,0,0
+JobStreet technical support developer jobs in Philippines,0,7,0,10,0,0
+JobStreet ui/ux designer developer jobs in Philippines,0,7,0,10,0,0
+JobStreet what is data analytics developer jobs in Philippines,0,9,0,10,0,0
+JobStreet what is web development developer jobs in Philippines,0,9,0,10,0,0
+JobStreet what does it support do developer jobs in Philippines,0,10,0,10,0,0
+JobStreet what is project management developer jobs in Philippines,0,9,0,10,0,0
+JobStreet what is machine learning developer jobs in Philippines,0,9,0,10,0,0
+JobStreet google data analytics developer jobs in Philippines,0,8,0,10,0,0
+JobStreet google analytics developer jobs in Philippines,0,7,0,7,0,0
+Indeed google analytics developer jobs in Philippines,0,7,0,6,0,0
+JobStreet ai gemini developer jobs in Philippines,0,7,0,0,0,0
+Indeed ai gemini developer jobs in Philippines,0,7,0,0,0,0
+LinkedIn ai gemini developer jobs in Philippines,0,7,0,0,0,0
+Glassdoor ai gemini developer jobs in Philippines,0,7,0,0,0,0
+ai gemini developer site:jobstreet.com.ph,0,4,0,0,0,0
+ai gemini developer site:ph.indeed.com,0,4,0,0,0,0
+ai gemini developer site:linkedin.com/jobs,0,4,0,0,0,0
+ai gemini developer site:glassdoor.com,0,4,0,0,0,0
+ai gemini IT jobs in Philippines,0,6,0,0,0,0
+ai gemini software engineer Philippines,0,5,0,0,0,0
+ai gemini backend developer Philippines,0,5,0,0,0,0
+ai gemini frontend developer Philippines,0,5,0,0,0,0
