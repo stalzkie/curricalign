@@ -78,8 +78,8 @@ export default function JobsPieChart({ data }: JobsPieChartProps) {
 
   return (
     <div className="btn_border_silver h-96">
-      <div className="card_background_dark rounded p-6 h-full">
-        <h3 className="text-xl font-bold text-white mb-4">In-Demand Jobs</h3>
+      <div className="card_background rounded p-6 h-full">
+        <h3 className="text-xl font-bold text_defaultColor mb-4">In-Demand Jobs</h3>
 
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
