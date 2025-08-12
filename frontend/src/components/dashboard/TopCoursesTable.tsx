@@ -15,15 +15,15 @@ export default function TopCoursesTable({ data }: TopCoursesTableProps) {
 
   return (
     <div className="btn_border_silver">
-      <div className="card_background_dark rounded p-6">
-        <h3 className="text-xl font-bold text-white mb-4">Top Matching Courses</h3>
+      <div className="card_background rounded p-6">
+        <h3 className="text-xl font-bold text_defaultColor mb-4">Top Matching Courses</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-gray-600">
-                <th className="text-gray-300 font-semibold py-3 px-2">Course Name</th>
-                <th className="text-gray-300 font-semibold py-3 px-2">Course Code</th>
-                <th className="text-gray-300 font-semibold py-3 px-2 text-center">Match %</th>
+                <th className="text_secondaryColor font-semibold py-3 px-2">Course Name</th>
+                <th className="text_secondaryColor font-semibold py-3 px-2">Course Code</th>
+                <th className="text_secondaryColor font-semibold py-3 px-2 text-center">Match %</th>
               </tr>
             </thead>
             <tbody>
@@ -37,8 +37,8 @@ export default function TopCoursesTable({ data }: TopCoursesTableProps) {
                     index % 2 === 0 ? 'bg-gray-800/30' : ''
                   }`}
                 >
-                  <td className="text-white py-3 px-2 font-medium">{course.courseName}</td>
-                  <td className="text-gray-300 py-3 px-2">{course.courseCode}</td>
+                  <td className="text_defaultColor py-3 px-2 font-medium">{course.courseName}</td>
+                  <td className="text_secondaryColor py-3 px-2">{course.courseCode}</td>
                   <td className={`py-3 px-2 text-center font-bold ${getMatchColor(course.matchPercentage)}`}>
                     {course.matchPercentage}%
                   </td>

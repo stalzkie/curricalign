@@ -65,7 +65,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-              <p className="text-gray-400">Loading dashboard data...</p>
+              <p className="text_secondaryColor">Loading dashboard data...</p>
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@ export default function Dashboard() {
   return (
     <div className="p-8 min-h-screen" style={{ background: 'var(--background)' }}>
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-white mb-8">Dashboard</h1>
+        <h1 className="text-4xl font-bold text_defaultColor mb-8">Dashboard</h1>
         
         {/* KPI Cards */}
         {kpiData && (
@@ -125,25 +125,25 @@ export default function Dashboard() {
           <CourseWarningsList data={courseWarnings} />
           
           {/* Additional insights card */}
-          <div className="btn_border_silver">
-            <div className="card_background_dark rounded p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Quick Insights</h3>
+          {/* <div className="btn_border_silver">
+            <div className="card_background rounded p-6">
+              <h3 className="text-xl font-bold text_defaultColor mb-4">Quick Insights</h3>
               <div className="space-y-4">
                 <div className="p-4 bg-gray-800/50 rounded-lg">
                   <h4 className="text-green-400 font-semibold text-sm mb-2">✅ Strong Alignment Areas</h4>
-                  <p className="text-gray-300 text-sm">Web development and database management courses show excellent job market alignment.</p>
+                  <p className="text_triaryColor text-sm">Web development and database management courses show excellent job market alignment.</p>
                 </div>
                 <div className="p-4 bg-gray-800/50 rounded-lg">
                   <h4 className="text-yellow-400 font-semibold text-sm mb-2">⚠️ Improvement Opportunities</h4>
-                  <p className="text-gray-300 text-sm">Consider adding more cloud computing and DevOps content to existing courses.</p>
+                  <p className="text_triaryColor text-sm">Consider adding more cloud computing and DevOps content to existing courses.</p>
                 </div>
                 <div className="p-4 bg-gray-800/50 rounded-lg">
                   <h4 className="text-red-400 font-semibold text-sm mb-2">🔄 Curriculum Updates Needed</h4>
-                  <p className="text-gray-300 text-sm">Legacy technology courses need modernization or replacement.</p>
+                  <p className="text_triaryColor text-sm">Legacy technology courses need modernization or replacement.</p>
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

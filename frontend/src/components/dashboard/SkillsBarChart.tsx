@@ -16,8 +16,8 @@ export default function SkillsBarChart({ data }: SkillsBarChartProps) {
 
   return (
     <div className="btn_border_silver h-96">
-      <div className="card_background_dark rounded p-6 h-full">
-        <h3 className="text-xl font-bold text-white mb-4">Most In-Demand Skills</h3>
+      <div className="card_background rounded p-6 h-full">
+        <h3 className="text-xl font-bold text_defaultColor mb-4">Most In-Demand Skills</h3>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />

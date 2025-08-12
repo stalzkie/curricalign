@@ -38,8 +38,8 @@ export default function CourseWarningsList({ data }: CourseWarningsListProps) {
 
   return (
     <div className="btn_border_silver overflow-hidden"> {/* no h-full here */}
-      <div className="card_background_dark rounded p-6 flex flex-col"> {/* no flex-1 */}
-        <h3 className="text-xl font-bold text-white mb-4">Course Warnings</h3>
+      <div className="card_background rounded p-6 flex flex-col"> {/* no flex-1 */}
+        <h3 className="text-xl font-bold text_defaultColor mb-4">Course Warnings</h3>
 
         <div
           className={`${shouldScroll ? 'overflow-y-auto' : 'overflow-visible'} min-h-0`}

@@ -14,8 +14,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #080010;
-    --foreground: #ededed;
+    --background: #f8f9fa;
+    --foreground: #212529;
   }
 }
 
@@ -26,7 +26,7 @@ body {
 }
 
 .btn_border_silver{
-  @apply p-[2px] bg-gradient-to-t from-[#3D3D3D] via-[#707070] to-[#3D3D3D] rounded mb-2 overflow-hidden
+  @apply p-[2px] bg-gradient-to-t from-[#E5E7EB] via-[#D1D5DB] to-[#E5E7EB] rounded mb-2 overflow-hidden
 }
 
 .btn_background_purple {
@@ -37,8 +37,8 @@ body {
   @apply bg-gradient-to-r from-[#D088FF] to-[#9C0BFB] text-transparent bg-clip-text;
 }
 
-.card_background_dark {
-  @apply bg-[#14141C];
+.card_background {
+  @apply bg-[#F9FAFB];
 }
 
 /* Custom scrollbar styles */
@@ -51,15 +51,25 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: #1F2937;
+  background: #F3F4F6;
   border-radius: 3px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #4B5563;
+  background: #9CA3AF;
   border-radius: 3px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #6B7280;
+}
+
+.text_defaultColor {
+  @apply text-[#111827];
+}
+.text_secondaryColor {
+  @apply text-[#6B7280];
+}
+.text_triaryColor {
+  @apply text-[#9CA3AF];
 }
