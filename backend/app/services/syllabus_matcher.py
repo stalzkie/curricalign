@@ -96,13 +96,31 @@ Example:
         print(f"❌ Retry also failed: {e}")
         return []
 
+
 def fetch_subject_skills_from_db():
     response = supabase.table("course_skills").select("course_code", "course_skills").execute()
     return {
         row["course_code"]: row["course_skills"]
-        for row in response.data
-        if row["course_skills"]
+        for row in (response.data or [])
+        if row.get("course_skills")
     }
+
+
+def get_existing_course_skill_ids():
+    """Return a set of course_ids that already exist in course_skills."""
+    try:
+        res = supabase.table("course_skills").select("course_id").execute()
+        existing = set()
+        for row in (res.data or []):
+            cid = row.get("course_id")
+            if cid is not None:
+                existing.add(str(cid))
+        print(f"📚 Found {len(existing)} existing course_ids in course_skills.")
+        return existing
+    except Exception as e:
+        print(f"❌ Failed to fetch existing course_skills IDs: {e}")
+        return set()
+
 
 def extract_subject_skills_from_supabase():
     print("📦 Fetching courses from Supabase...")
@@ -118,12 +136,23 @@ def extract_subject_skills_from_supabase():
         print("⚠️ No courses found in Supabase.")
         return {}
 
-    for course in courses:
+    # ✅ Skip courses that already have entries in course_skills
+    existing_ids = get_existing_course_skill_ids()
+    pending_courses = [c for c in courses if str(c.get("course_id")) not in existing_ids]
+
+    print(
+        f"🧮 Courses total: {len(courses)} | "
+        f"To process (new only): {len(pending_courses)} | "
+        f"Skipped (already in course_skills): {len(courses) - len(pending_courses)}"
+    )
+
+    for i, course in enumerate(pending_courses, start=1):
         code = course.get("course_code")
         title = course.get("course_title")
         description = course.get("course_description") or ""
+        course_id = course.get("course_id")
 
-        print(f"🔍 Analyzing: {code} - {title}")
+        print(f"🔍 [{i}/{len(pending_courses)}] Analyzing: {code} - {title}")
         matched_skills = extract_skills_with_gemini(description)
 
         if not matched_skills:
@@ -134,7 +163,7 @@ def extract_subject_skills_from_supabase():
 
         try:
             result = supabase.table("course_skills").insert({
-                "course_id": course["course_id"],
+                "course_id": course_id,
                 "course_code": code,
                 "course_title": title,
                 "course_description": description,
@@ -145,16 +174,19 @@ def extract_subject_skills_from_supabase():
             if not result or not hasattr(result, "data") or result.data is None:
                 print(f"❌ Insert returned None for {code}")
             else:
-                print("📤 New version inserted into course_skills table.\n")
+                print("📤 Inserted into course_skills.\n")
         except Exception as e:
             print(f"❌ Supabase insert failed for {code}: {e}\n")
+
+    if not pending_courses:
+        print("👌 Nothing to do. All courses already have skills in course_skills.")
 
     # ✅ Final return: Map course_code -> list of skills for model training
     try:
         raw = supabase.table("course_skills").select("course_code, course_skills").execute().data
         subject_skills_map = {
             row["course_code"]: [s.strip() for s in row["course_skills"].split(",") if s.strip()]
-            for row in raw if row.get("course_skills")
+            for row in (raw or []) if row.get("course_skills")
         }
         return subject_skills_map
     except Exception as e:

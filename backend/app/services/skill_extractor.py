@@ -73,17 +73,44 @@ Extract 5–10 technical skills from this job. Return only a valid Python list.
         print(f"❌ Retry also failed: {e}")
     return []
 
+
 def fetch_skills_from_supabase():
     response = supabase.table("job_skills").select("job_skills").execute()
     all_skills = []
     for row in response.data:
-        raw = row["job_skills"]
+        raw = row.get("job_skills")
         if isinstance(raw, str):
             skills = [s.strip() for s in raw.split(",") if s.strip()]
             all_skills.extend(skills)
     return {skill: 1 for skill in all_skills}  # simulate frequency
 
+
+def get_existing_job_skill_ids():
+    """
+    Returns a set of job_ids that already have extracted skills in job_skills.
+    Skips None values and normalizes to string for consistent comparison.
+    """
+    try:
+        res = supabase.table("job_skills").select("job_id").execute()
+        existing = set()
+        for row in res.data or []:
+            jid = row.get("job_id")
+            if jid is not None:
+                existing.add(str(jid))
+        print(f"📚 Found {len(existing)} existing job_ids in job_skills.")
+        return existing
+    except Exception as e:
+        print(f"❌ Failed to fetch existing job_skills IDs: {e}")
+        return set()
+
+
 def extract_skills_from_jobs(jobs=None):
+    """
+    Process only jobs whose job_id is NOT already present in job_skills.job_id.
+    If 'jobs' is provided, it will still skip those already present.
+    """
+    existing_ids = get_existing_job_skill_ids()
+
     if jobs is None:
         print("📦 Fetching all jobs from Supabase...")
         try:
@@ -96,9 +123,14 @@ def extract_skills_from_jobs(jobs=None):
         print("⚠️ No jobs available to process.")
         return {}
 
+    # Filter out jobs that already have skills extracted
+    pending_jobs = [j for j in jobs if str(j.get("job_id")) not in existing_ids]
+
+    print(f"🧮 Jobs total: {len(jobs)} | To process (new only): {len(pending_jobs)} | Skipped (already have skills): {len(jobs) - len(pending_jobs)}")
+
     skills_found = Counter()
 
-    for i, job in enumerate(jobs):
+    for i, job in enumerate(pending_jobs):
         job_id = job.get("job_id")
         title = job.get("title", "")
         company = job.get("company", "")
@@ -109,7 +141,7 @@ def extract_skills_from_jobs(jobs=None):
         content = " ".join(str(x or "") for x in [title, description, requirements, keywords]).lower()
         content = re.sub(r'\s+', ' ', content).strip()[:2000]
 
-        print(f"🔍 [{i+1}/{len(jobs)}] Extracting skills for job ID {job_id}...")
+        print(f"🔍 [{i+1}/{len(pending_jobs)}] Extracting skills for job ID {job_id}...")
         extracted_skills = extract_skills_with_gemini(content)
 
         if extracted_skills:
@@ -123,7 +155,7 @@ def extract_skills_from_jobs(jobs=None):
                     "job_skills": ", ".join(sorted(set(extracted_skills))),
                     "date_extracted_jobs": datetime.now(timezone.utc).isoformat()
                 }).execute()
-                print("📤 New version inserted into job_skills table.\n")
+                print("📤 Inserted into job_skills table.\n")
             except Exception as e:
                 print(f"❌ Supabase insert failed: {e}\n")
         else:
@@ -131,6 +163,9 @@ def extract_skills_from_jobs(jobs=None):
 
         for skill in set(extracted_skills):
             skills_found[skill] += 1
+
+    if not pending_jobs:
+        print("👌 Nothing to do. All jobs already have skills in job_skills.")
 
     return dict(skills_found)
 

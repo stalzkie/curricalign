@@ -1,0 +1,19 @@
+{
+  "saved_at": "2025-08-12T13:37:22.478686+00:00",
+  "model": "HistGradientBoostingRegressor",
+  "features_numeric": [
+    "trend_value",
+    "is_cs_term",
+    "word_count",
+    "char_len",
+    "unique_token_ratio",
+    "has_digits"
+  ],
+  "features_categorical": [],
+  "cv_mae_mean": 0.0,
+  "cv_mae_std": 0.0,
+  "holdout_mae": 0.0,
+  "holdout_r2": 1.0,
+  "dataset_rows": 205,
+  "dataset_path": "query_training_data.csv"
+}

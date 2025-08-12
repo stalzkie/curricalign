@@ -32,7 +32,7 @@ def clean_title(title: str) -> str:
     title = title.lower()
     title = re.sub(r"\([^)]*\)", "", title)
     title = re.sub(r"\d+\+?\s*(years|yrs)?", "", title)
-    title = re.sub(r"(remote|onsite|homebased|wfh|qc|pasay|makati|hybrid|urgent|asap|start|office|permanent|morning|shift|night|work|pasig|location|earn)", "", title)
+    title = re.sub(r"(remote|onsite|homebased|wfh|qc|pasay|makati|hybrid|urgent|asap|start|office|permanent|morning|shift|night|work|pasig|location|earn|day)", "", title)
     title = re.sub(r"[^a-z0-9\s]", " ", title)
     title = re.sub(r"\s+", " ", title).strip()
     return title
