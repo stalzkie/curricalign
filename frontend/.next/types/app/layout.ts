@@ -1,4 +1,4 @@
-// File: C:\xampp\htdocs\ThesisProjs\curricalign\frontend\src\app\layout.tsx
+// File: C:\Users\VICTUS\curricalign-thesis\frontend\src\app\layout.tsx
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
