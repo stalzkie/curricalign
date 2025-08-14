@@ -20,6 +20,13 @@ import {
   type KPIData
 } from '../../lib/dataService';
 
+import {
+  RiDonutChartLine,    // Average Alignment Score
+  RiBookOpenLine,      // Total Subjects
+  RiBriefcaseLine,     // Total Job Posts
+  RiStackLine          // Skills Extracted
+} from 'react-icons/ri';
+
 export default function Dashboard() {
   const [skillsData, setSkillsData] = useState<Skill[]>([]);
   const [coursesData, setCoursesData] = useState<Course[]>([]);
@@ -64,7 +71,15 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+              <div
+                className="animate-spin rounded-full h-12 w-12 mx-auto mb-4"
+                style={{
+                  borderBottom: '2px solid var(--brand-teal, #025864)',
+                  borderLeft: '2px solid transparent',
+                  borderRight: '2px solid transparent',
+                  borderTop: '2px solid transparent',
+                }}
+              />
               <p className="text_secondaryColor">Loading dashboard data...</p>
             </div>
           </div>
@@ -76,41 +91,46 @@ export default function Dashboard() {
   return (
     <div className="p-8 min-h-screen" style={{ background: 'var(--background)' }}>
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text_defaultColor mb-8">Dashboard</h1>
-        
+        <h1 className="text-2xl font-bold text_defaultColor mb-8">Dashboard</h1>
+
         {/* KPI Cards */}
         {kpiData && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <KPICard
               title="Average Alignment Score"
               value={`${kpiData.averageAlignmentScore}%`}
-              icon=" "
+              icon={<RiDonutChartLine />}
             />
             <KPICard
               title="Total Subjects Analyzed"
               value={kpiData.totalSubjectsAnalyzed.toLocaleString()}
-              icon=" "
+              icon={<RiBookOpenLine />}
             />
             <KPICard
               title="Total Job Posts Analyzed"
               value={kpiData.totalJobPostsAnalyzed.toLocaleString()}
-              icon=" "
+              icon={<RiBriefcaseLine />}
             />
             <KPICard
               title="Skills Extracted"
               value={kpiData.skillsExtracted.toLocaleString()}
-              icon=" "
+              icon={<RiStackLine />}
             />
           </div>
         )}
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Row 1: Most In-Demand Skills (full width) */}
+        <div className="mb-8">
           <SkillsBarChart data={skillsData} />
-          <JobsPieChart data={jobsData} />
         </div>
 
-        {/* Table and Lists Row */}
+        {/* Row 2: In-Demand Jobs & Course Warnings */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <JobsPieChart data={jobsData} />
+          <CourseWarningsList data={courseWarnings} />
+        </div>
+
+        {/* Row 3: Top Matching Courses & Missing Skills */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 items-start">
           <div className="lg:col-span-2 min-h-0">
             <TopCoursesTable data={coursesData} />
@@ -118,32 +138,6 @@ export default function Dashboard() {
           <div className="min-h-0 flex">
             <MissingSkillsList data={missingSkills} />
           </div>
-        </div>
-        
-        {/* Course Warnings */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <CourseWarningsList data={courseWarnings} />
-          
-          {/* Additional insights card */}
-          {/* <div className="btn_border_silver">
-            <div className="card_background rounded p-6">
-              <h3 className="text-xl font-bold text_defaultColor mb-4">Quick Insights</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-gray-800/50 rounded-lg">
-                  <h4 className="text-green-400 font-semibold text-sm mb-2">✅ Strong Alignment Areas</h4>
-                  <p className="text_triaryColor text-sm">Web development and database management courses show excellent job market alignment.</p>
-                </div>
-                <div className="p-4 bg-gray-800/50 rounded-lg">
-                  <h4 className="text-yellow-400 font-semibold text-sm mb-2">⚠️ Improvement Opportunities</h4>
-                  <p className="text_triaryColor text-sm">Consider adding more cloud computing and DevOps content to existing courses.</p>
-                </div>
-                <div className="p-4 bg-gray-800/50 rounded-lg">
-                  <h4 className="text-red-400 font-semibold text-sm mb-2">🔄 Curriculum Updates Needed</h4>
-                  <p className="text_triaryColor text-sm">Legacy technology courses need modernization or replacement.</p>
-                </div>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </div>

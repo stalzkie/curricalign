@@ -1,75 +1,126 @@
 @import "tailwindcss";
 
+/* ===== Design Tokens (Light only) ===== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base surfaces & text */
+  --background: #F7F9FB;      /* page background */
+  --surface:    #ffffff;      /* soft card bg */
+  --foreground: #0F172A;      /* slate-900-ish for strong text */
+  --muted:      #64748B;      /* slate-500 for secondary text */
+  --muted-2:    #94A3B8;      /* slate-400 for tertiary text */
+
+  /* Brand colors from the reference */
+  --brand-teal:   #025864;    /* primary */
+  --brand-green:  #00D47E;    /* accent */
+
+  /* Helpful derived tints */
+  --brand-teal-10:  rgba(2, 88, 100, 0.10);
+  --brand-teal-20:  rgba(2, 88, 100, 0.20);
+  --brand-green-10: rgba(0, 212, 126, 0.10);
+  --brand-green-20: rgba(0, 212, 126, 0.20);
 }
 
+/* Expose vars to Tailwind v4 @theme */
 @theme inline {
   --color-background: var(--background);
+  --color-surface:    var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted:      var(--muted);
+  --color-muted-2:    var(--muted-2);
+
+  --color-brand-teal:  var(--brand-teal);
+  --color-brand-green: var(--brand-green);
+
+  /* Font */
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, "Noto Sans",
+               "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo,
+               Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #f8f9fa;
-    --foreground: #212529;
-  }
-}
-
+/* ===== Base ===== */
+html { scroll-behavior: smooth; }
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
 
+/* ===== Utilities & Components ===== */
+
+/* Outer silver border frame */
 .btn_border_silver{
-  @apply p-[2px] bg-gradient-to-t from-[#E5E7EB] via-[#D1D5DB] to-[#E5E7EB] rounded mb-2 overflow-hidden
+  @apply p-[2px] bg-gradient-to-t from-[#E5E7EB] via-[#D1D5DB] to-[#E5E7EB] rounded mb-2 overflow-hidden;
 }
 
-.btn_background_purple {
-  @apply bg-gradient-to-r from-[#D088FF] to-[#9C0BFB] px-4 py-2 rounded w-full
-}
-
-.font_color_purple {
-  @apply bg-gradient-to-r from-[#D088FF] to-[#9C0BFB] text-transparent bg-clip-text;
-}
-
+/* Card background */
 .card_background {
-  @apply bg-[#F9FAFB];
+  background: var(--surface);
 }
 
-/* Custom scrollbar styles */
-.scrollbar-thin {
-  scrollbar-width: thin;
+/* Primary brand button (replaces purple gradient) */
+.btn_background_purple {
+  /* keep class name for compatibility */
+  background-image: linear-gradient(90deg, var(--brand-teal), var(--brand-green));
+  @apply px-4 py-2 rounded w-full text-white;
 }
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
+/* Brand gradient text (replaces purple gradient text) */
+.font_color_purple {
+  background-image: linear-gradient(90deg, var(--brand-teal), var(--brand-green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
+/* Subtle brand borders or chips (optional helpers) */
+.border-brand { border-color: var(--brand-teal); }
+.bg-teal-soft  { background: var(--brand-teal-10); }
+.bg-green-soft { background: var(--brand-green-10); }
+
+/* Scrollbar */
+.scrollbar-thin { scrollbar-width: thin; }
+.scrollbar-thin::-webkit-scrollbar { width: 6px; }
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: #F3F4F6;
+  background: #EEF2F6;
   border-radius: 3px;
 }
-
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #9CA3AF;
+  background: #B8C2CC;
   border-radius: 3px;
 }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #6B7280;
-}
+/* Text tokens */
+.text_defaultColor   { color: var(--foreground); }
+.text_secondaryColor { color: var(--muted); }
+.text_triaryColor    { color: var(--muted-2); }
 
-.text_defaultColor {
-  @apply text-[#111827];
+/* ===== Course Warning Styles (Pastel motif, unchanged severity colors) ===== */
+
+/* Emphasis text per level */
+.critical-text { @apply text-red-700; }
+.warning-text  { @apply text-amber-700; }
+.lowmatch-text { @apply text-orange-700; }
+
+/* Soft backgrounds (pastel) */
+.critical-bg { @apply bg-red-50; }
+.warning-bg  { @apply bg-amber-50; }
+.lowmatch-bg { @apply bg-orange-50; }
+
+/* Progress bars */
+.progress-bar-critical { @apply bg-red-500; }
+.progress-bar-warning  { @apply bg-amber-500; }
+.progress-bar-lowmatch { @apply bg-orange-500; }
+
+/* Track */
+.progress-track { @apply w-full bg-gray-200 rounded-full h-2; }
+
+/* Card container + hover */
+.warning-card {
+  @apply p-4 rounded-lg border border-gray-200 transition-colors;
 }
-.text_secondaryColor {
-  @apply text-[#6B7280];
-}
-.text_triaryColor {
-  @apply text-[#9CA3AF];
+.warning-card:hover {
+  @apply bg-white;
 }

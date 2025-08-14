@@ -8,47 +8,56 @@ interface SkillsBarChartProps {
 }
 
 export default function SkillsBarChart({ data }: SkillsBarChartProps) {
-  // ✅ Filter out invalid skills and take top 10 by demand
+  // Take top 20 valid skills by demand
   const filteredData = data
-    .filter(skill => skill.name && skill.name.trim() !== '')
+    .filter((s) => s.name && s.name.trim() !== '')
     .sort((a, b) => b.demand - a.demand)
-    .slice(0, 10);
+    .slice(0, 20);
+
+  // Tokens from global.css
+  const colorMuted   = 'var(--muted, #64748B)';
+  const colorMuted2  = 'var(--muted-2, #94A3B8)';
+  const colorSurface = 'var(--surface, #F7F9FB)';
+  const colorFg      = 'var(--foreground, #0F172A)';
+  const brandTealTint= 'var(--brand-teal-20, rgba(2,88,100,0.20))';
 
   return (
-    <div className="btn_border_silver h-96">
+    <div className="btn_border_silver h-[28rem] lg:h-[32rem]">
       <div className="card_background rounded p-6 h-full">
         <h3 className="text-xl font-bold text_defaultColor mb-4">Most In-Demand Skills</h3>
+
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis 
-              dataKey="name" 
-              stroke="#9CA3AF"
+          <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 12, bottom: 100 }}>
+            {/* light, subtle grid */}
+            <CartesianGrid strokeDasharray="3 3" stroke={colorMuted2} />
+
+            {/* axes in muted tokens */}
+            <XAxis
+              dataKey="name"
+              stroke={colorMuted2}
               angle={-45}
               textAnchor="end"
-              height={80}
+              height={100}
               fontSize={12}
             />
-            <YAxis stroke="#9CA3AF" />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: '#1F2937', 
-                border: '1px solid #374151',
-                borderRadius: '8px',
-                color: '#F9FAFB'
+            <YAxis stroke={colorMuted2} />
+
+            {/* light tooltip styled via tokens */}
+            <Tooltip
+              cursor={{ fill: 'rgba(0,0,0,0.03)' }}
+              contentStyle={{
+                backgroundColor: colorSurface as string,
+                border: `1px solid ${brandTealTint}`,
+                borderRadius: 8,
+                color: colorFg as string,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui',
               }}
+              labelStyle={{ color: colorMuted as string, fontWeight: 500 }}
+              itemStyle={{ color: colorFg as string }}
             />
-            <Bar 
-              dataKey="demand" 
-              fill="url(#skillGradient)"
-              radius={[4, 4, 0, 0]}
-            />
-            <defs>
-              <linearGradient id="skillGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#D088FF" />
-                <stop offset="100%" stopColor="#9C0BFB" />
-              </linearGradient>
-            </defs>
+
+            {/* all bars: same solid color */}
+            <Bar dataKey="demand" fill="#059669" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
