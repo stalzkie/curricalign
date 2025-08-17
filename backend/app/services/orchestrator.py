@@ -226,10 +226,12 @@ async def evaluate_and_save_scores() -> Optional[Dict[str, Any]]:
         logging.debug("Exiting evaluate_and_save_scores function. Took %s seconds.", elapsed)
 
 
-async def generate_and_store_pdf_report(gen_pdf: bool, report_data: Optional[Dict[str, Any]]) -> Optional[str]:
+async def generate_and_store_pdf_report(
+    gen_pdf: bool, report_data: Optional[Dict[str, Any]]
+) -> Optional[Dict[str, str]]:
     """
-    Generates the PDF report and optionally copies it to Downloads.
-    Returns the path to the generated PDF.
+    Generates the PDF report.
+    Returns a dict with absolute path and public URL.
     """
     logging.debug("Entering generate_and_store_pdf_report function.")
     if not gen_pdf:
@@ -242,7 +244,7 @@ async def generate_and_store_pdf_report(gen_pdf: bool, report_data: Optional[Dic
     try:
         logging.info("📝 Generating PDF report…")
 
-        # Prefer passed-in data; otherwise fetch from Supabase, offloaded
+        # Prefer passed-in data; otherwise fetch from Supabase
         data_for_pdf = report_data
         if not data_for_pdf:
             logging.warning("No in-memory report data; fetching latest from Supabase for PDF.")
@@ -261,21 +263,27 @@ async def generate_and_store_pdf_report(gen_pdf: bool, report_data: Optional[Dic
 
         logging.info("PDF report generated at: %s", pdf_path)
 
-        # Optional convenience: copy to server user's Downloads (best-effort)
+        # Optional: copy to Downloads
         try:
-            logging.debug("Attempting to copy PDF to Downloads directory...")
             downloads_dir = Path.home() / "Downloads"
             downloads_dir.mkdir(exist_ok=True)
             dest_path = downloads_dir / Path(pdf_path).name  # type: ignore[arg-type]
             if Path(pdf_path).resolve() != dest_path.resolve():  # type: ignore[arg-type]
                 from shutil import copyfile
                 await asyncio.to_thread(copyfile, pdf_path, dest_path)  # type: ignore[arg-type]
-            logging.info("📥 PDF automatically copied to: %s", dest_path)
-            logging.debug("PDF copy completed.")
+            logging.info("📥 PDF also copied to: %s", dest_path)
         except Exception as e:
             logging.warning("Could not copy PDF to Downloads: %s", e)
 
-        return pdf_path
+        # --- NEW: build absolute public URL ---
+        base_url = os.getenv("PUBLIC_BASE_URL", "http://localhost:8000").rstrip("/")
+        filename = Path(pdf_path).name if pdf_path else None
+        report_url = f"{base_url}/app/static/reports/{filename}" if filename else None
+
+        return {
+            "path": pdf_path,
+            "url": report_url,
+        }
 
     except Exception as e:
         msg = f"PDF generation failed: {e}"
