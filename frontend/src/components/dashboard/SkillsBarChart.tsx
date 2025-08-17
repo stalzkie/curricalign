@@ -12,7 +12,7 @@ export default function SkillsBarChart({ data }: SkillsBarChartProps) {
   const filteredData = data
     .filter((s) => s.name && s.name.trim() !== '')
     .sort((a, b) => b.demand - a.demand)
-    .slice(0, 20);
+    .slice(0, 30);
 
   // Tokens from global.css
   const colorMuted   = 'var(--muted, #64748B)';

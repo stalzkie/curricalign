@@ -1,16 +1,16 @@
 import os
 from dotenv import load_dotenv
-from scraper import scrape_jobs_from_google_jobs
-from syllabus_matcher import extract_subject_skills_from_supabase
-from skill_extractor import extract_skills_from_jobs
-from evaluator import compute_subject_scores_and_save
-from pdf_report import generate_pdf_report
-from query_generator import CS_TERMS
-from supabase_client import insert_job
+from backend.app.services.scraper import scrape_jobs_from_google_jobs
+from backend.app.services.syllabus_matcher import extract_subject_skills_from_supabase
+from backend.app.services.skill_extractor import extract_skills_from_jobs
+from backend.app.services.evaluator import compute_subject_scores_and_save
+from backend.app.services.pdf_report import generate_pdf_report
+from backend.app.services.query_generator import CS_TERMS
+from backend.app.core.supabase_client import insert_job
 
 # Load training functions
-from train_model import train_subject_score_model
-from train_query_model import train_query_model
+from backend.app.ml.train_model import train_subject_score_model
+from backend.app.ml.train_query_model import train_query_model
 
 # Load environment variables
 load_dotenv()

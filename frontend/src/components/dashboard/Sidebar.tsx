@@ -20,12 +20,12 @@ interface SidebarItem {
 }
 
 const sidebarItems: SidebarItem[] = [
-  { name: 'Dashboard',       href: '/',         icon: <RiDashboardLine /> },
-  { name: 'Account',         href: '/account',  icon: <RiUser3Line /> },
-  { name: 'Database',        href: '/database', icon: <RiDatabase2Line /> },
-  { name: 'Generate Report', href: '/report',   icon: <RiFileChartLine /> },
-  { name: 'Help',            href: '/help',     icon: <RiQuestionLine /> },
-  { name: 'Logout',          href: '/logout',   icon: <RiLogoutBoxRLine /> },
+  { name: 'Dashboard',       href: '/',  icon: <RiDashboardLine /> },
+  { name: 'Account',         href: '/account',    icon: <RiUser3Line /> },
+  { name: 'Database',        href: '/database',   icon: <RiDatabase2Line /> },
+  { name: 'Generate Report', href: '/report',     icon: <RiFileChartLine /> },
+  { name: 'Help',            href: '/help',       icon: <RiQuestionLine /> },
+  { name: 'Logout',          href: '/logout',     icon: <RiLogoutBoxRLine /> },
 ];
 
 export default function Sidebar() {

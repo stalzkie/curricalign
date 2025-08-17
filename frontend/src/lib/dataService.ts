@@ -1,3 +1,5 @@
+// lib/dataService.ts
+
 // === TYPES ===
 export interface Skill {
   name: string;
@@ -24,147 +26,158 @@ export interface KPIData {
 
 const BASE_URL = "/api/dashboard";
 
-// === 1. Most In-Demand Skills ===
-export async function fetchMostInDemandSkills(): Promise<Skill[]> {
-  try {
-    const response = await fetch(`${BASE_URL}/skills`);
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error ${response.status}: ${errorText}`);
+// ---- Shared fetcher with retry + AbortSignal ----
+async function fetchJSON<T>(
+  url: string,
+  init?: RequestInit,
+  signal?: AbortSignal,
+  retries = 3,
+  retryDelay = 300
+): Promise<T> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, {
+        ...init,
+        signal,
+        cache: "no-store",
+        headers: {
+          ...(init?.headers ?? {}),
+          Accept: "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`GET ${url} failed: ${res.status} ${text}`);
+      }
+      return res.json() as Promise<T>;
+    } catch (error: any) {
+      if (error.name === "AbortError") throw error;
+      if (attempt === retries) throw error;
+      await new Promise((res) => setTimeout(res, retryDelay));
     }
+  }
+  throw new Error(`Failed to fetch ${url}`);
+}
 
-    const rawSkills: Skill[] = await response.json();
-
-    return rawSkills
-      .filter((s) => s.name && s.name.trim() !== "")
-      .sort((a, b) => b.demand - a.demand);
-  } catch (error) {
+// === 1. Most In-Demand Skills ===
+export async function fetchMostInDemandSkills(signal?: AbortSignal): Promise<Skill[]> {
+  try {
+    const rawSkills = await fetchJSON<Skill[]>(`${BASE_URL}/skills`, undefined, signal);
+    return (rawSkills ?? [])
+      .filter((s) => s?.name && s.name.trim() !== "")
+      .sort((a, b) => Number(b?.demand ?? 0) - Number(a?.demand ?? 0));
+  } catch (error: any) {
+    if (error.name === "AbortError") return [];
     console.error("❌ Failed to fetch in-demand skills:", error);
     return [];
   }
 }
 
 // === 2. Top Matching Courses ===
-export async function fetchTopMatchingCourses(): Promise<Course[]> {
+export async function fetchTopMatchingCourses(signal?: AbortSignal): Promise<Course[]> {
   try {
-    const response = await fetch(`${BASE_URL}/top-courses`);
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
+    const data = await fetchJSON<any[]>(`${BASE_URL}/top-courses`, undefined, signal);
     return Array.isArray(data)
-      ? data.map((item: any) => ({
-          courseName: item.courseName || "Unknown Course",
-          courseCode: item.courseCode || "N/A",
-          matchPercentage: item.matchPercentage || 0,
+      ? data.map((item) => ({
+          courseName: item?.courseName || "Unknown Course",
+          courseCode: item?.courseCode || "N/A",
+          matchPercentage: Number(item?.matchPercentage) || 0,
         }))
       : [];
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === "AbortError") return [];
     console.error("❌ Failed to fetch top courses:", error);
     return [];
   }
 }
 
 // === 3. In-Demand Job Titles (Top 10) ===
-export async function fetchInDemandJobs(): Promise<Job[]> {
+export async function fetchInDemandJobs(signal?: AbortSignal): Promise<Job[]> {
   try {
-    const response = await fetch(`${BASE_URL}/jobs`);
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
-
+    const data = await fetchJSON<any[]>(`${BASE_URL}/jobs`, undefined, signal);
     return Array.isArray(data)
       ? data
-          .filter((item: any) => item.title && item.title.trim() !== "")
-          .sort((a, b) => b.demand - a.demand)
+          .filter((item) => item?.title && String(item.title).trim() !== "")
+          .sort((a, b) => Number(b?.demand ?? 0) - Number(a?.demand ?? 0))
           .slice(0, 10)
-          .map((item: any) => ({
-            title: item.title,
-            demand: item.demand,
+          .map((item) => ({
+            title: String(item.title),
+            demand: Number(item.demand) || 0,
           }))
       : [];
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === "AbortError") return [];
     console.error("❌ Failed to fetch in-demand jobs:", error);
     return [];
   }
 }
 
 // === 4. Missing Skills ===
-export async function fetchMissingSkills(): Promise<string[]> {
+export async function fetchMissingSkills(signal?: AbortSignal): Promise<string[]> {
   try {
-    const response = await fetch(`${BASE_URL}/missing-skills`);
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error ${response.status}: ${errorText}`);
-    }
-
-    const rawSkills: string[] = await response.json();
-
-    const uniqueSet = new Set<string>();
-    for (const entry of rawSkills) {
-      if (typeof entry === "string") {
-        const skills = entry
+    const rawSkills = await fetchJSON<(string | string[])[]>(
+      `${BASE_URL}/missing-skills`,
+      undefined,
+      signal
+    );
+    const unique = new Set<string>();
+    for (const entry of rawSkills ?? []) {
+      if (Array.isArray(entry)) {
+        entry.map((s) => String(s)).forEach((s) => unique.add(s.trim().toLowerCase()));
+      } else if (typeof entry === "string") {
+        entry
           .split(",")
           .map((s) => s.trim().toLowerCase())
-          .filter(Boolean);
-        for (const skill of skills) {
-          uniqueSet.add(skill);
-        }
+          .filter(Boolean)
+          .forEach((s) => unique.add(s));
       }
     }
-
-    return Array.from(uniqueSet).sort();
-  } catch (error) {
+    return Array.from(unique).sort();
+  } catch (error: any) {
+    if (error.name === "AbortError") return [];
     console.error("❌ Failed to fetch missing skills:", error);
     return [];
   }
 }
 
 // === 5. Course Warnings ===
-export async function fetchCourseWarnings(): Promise<Course[]> {
+export async function fetchCourseWarnings(signal?: AbortSignal): Promise<Course[]> {
   try {
-    const response = await fetch(`${BASE_URL}/warnings`);
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
+    const data = await fetchJSON<any[]>(`${BASE_URL}/warnings`, undefined, signal);
     return Array.isArray(data)
-      ? data.map((item: any) => ({
-          courseName: item.courseName || "Unknown Course",
-          courseCode: item.courseCode || "N/A",
-          matchPercentage: item.matchPercentage || 0,
+      ? data.map((item) => ({
+          courseName: item?.courseName || "Unknown Course",
+          courseCode: item?.courseCode || "N/A",
+          matchPercentage: Number(item?.matchPercentage) || 0,
         }))
       : [];
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === "AbortError") return [];
     console.error("❌ Failed to fetch course warnings:", error);
     return [];
   }
 }
 
 // === 6. KPI Data ===
-export async function fetchKPIData(): Promise<KPIData> {
+export async function fetchKPIData(signal?: AbortSignal): Promise<KPIData> {
   try {
-    const response = await fetch(`${BASE_URL}/kpi`);
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
+    const data = await fetchJSON<any>(`${BASE_URL}/kpi`, undefined, signal);
     return {
-      averageAlignmentScore: data.averageAlignmentScore || 0,
-      totalSubjectsAnalyzed: data.totalSubjectsAnalyzed || 0,
-      totalJobPostsAnalyzed: data.totalJobPostsAnalyzed || 0,
-      skillsExtracted: data.skillsExtracted || 0,
+      averageAlignmentScore: Number(data?.averageAlignmentScore) || 0,
+      totalSubjectsAnalyzed: Number(data?.totalSubjectsAnalyzed) || 0,
+      totalJobPostsAnalyzed: Number(data?.totalJobPostsAnalyzed) || 0,
+      skillsExtracted: Number(data?.skillsExtracted) || 0,
     };
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === "AbortError") {
+      return {
+        averageAlignmentScore: 0,
+        totalSubjectsAnalyzed: 0,
+        totalJobPostsAnalyzed: 0,
+        skillsExtracted: 0,
+      };
+    }
     console.error("❌ FastAPI KPI fetch failed:", error);
     return {
       averageAlignmentScore: 0,
@@ -174,3 +187,25 @@ export async function fetchKPIData(): Promise<KPIData> {
     };
   }
 }
+
+// ================= Alias Exports (for container compatibility) =============
+
+// Skills (bar chart)
+export const getMostInDemandSkills = fetchMostInDemandSkills;
+export const getTopSkills = fetchMostInDemandSkills;
+export const fetchTopSkills = fetchMostInDemandSkills;
+
+// Top courses table
+export const getTopMatchingCourses = fetchTopMatchingCourses;
+export const getTopCourses = fetchTopMatchingCourses;
+export const fetchTopCourses = fetchTopMatchingCourses;
+
+// In-demand jobs (pie)
+export const getInDemandJobs = fetchInDemandJobs;
+
+// Missing skills list
+export const getMissingSkills = fetchMissingSkills;
+export const loadMissingSkills = fetchMissingSkills;
+
+// Course warnings
+export const getCourseWarnings = fetchCourseWarnings;
