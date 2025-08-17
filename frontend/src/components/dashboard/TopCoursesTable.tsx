@@ -8,7 +8,7 @@ interface TopCoursesTableProps {
 
 export default function TopCoursesTable({ data }: TopCoursesTableProps) {
   const getMatchStyles = (percentage: number) => {
-    // High (>=80): brand green
+    // High (>=80)
     if (percentage >= 80) {
       return {
         bg: 'var(--brand-green-10, rgba(0,212,126,0.10))',
@@ -17,19 +17,19 @@ export default function TopCoursesTable({ data }: TopCoursesTableProps) {
         labelClass: 'font-bold',
       };
     }
-    // Medium (>=60): amber
+    // Medium (>=60)
     if (percentage >= 60) {
       return {
-        bg: 'rgba(245, 158, 11, 0.10)', // amber-500 @10%
-        color: '#B45309',               // amber-700
+        bg: 'rgba(245, 158, 11, 0.10)',
+        color: '#B45309',              
         border: '1px solid rgba(245, 158, 11, 0.25)',
         labelClass: 'font-semibold',
       };
     }
-    // Low (<60): red
+    // Low (<60)
     return {
-      bg: 'rgba(239, 68, 68, 0.10)',   // red-500 @10%
-      color: '#B91C1C',                // red-700
+      bg: 'rgba(239, 68, 68, 0.10)',   
+      color: '#B91C1C',              
       border: '1px solid rgba(239, 68, 68, 0.25)',
       labelClass: 'font-semibold',
     };

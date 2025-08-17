@@ -1,4 +1,3 @@
-// components/dashboard/containers/TopCoursesContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -12,11 +11,11 @@ export default function TopCoursesContainer({
   refetchIntervalMs,
   title = 'Top Matching Courses',
 }: {
-  /** Optional custom fetcher (defaults to dataService.getTopCourses) */
+  // Optional custom fetcher (defaults to dataService.getTopCourses) 
   fetcher?: Fetcher;
-  /** Optional auto-refetch interval in ms (e.g., 60_000) */
+  // Optional auto-refetch interval in ms (e.g., 60_000) 
   refetchIntervalMs?: number;
-  /** Cosmetic title shown in skeleton/error/empty states */
+  // Cosmetic title shown in skeleton/error/empty states
   title?: string;
 }) {
   // Lazy dynamic import to avoid hard crashes if names shift during dev
@@ -48,7 +47,7 @@ export default function TopCoursesContainer({
     refetchInterval: refetchIntervalMs,
   });
 
-  // --- Loading --------------------------------------------------------------
+  // Loading 
   if (isLoading) {
     return (
       <div className="btn_border_silver">
@@ -89,7 +88,7 @@ export default function TopCoursesContainer({
     );
   }
 
-  // --- Error ---------------------------------------------------------------
+  // Error 
   if (isError) {
     return (
       <div className="btn_border_silver">
@@ -113,7 +112,7 @@ export default function TopCoursesContainer({
     c => c?.courseName?.trim() && c?.courseCode?.trim()
   );
 
-  // --- Empty ---------------------------------------------------------------
+  //  Empty 
   if (!courses.length) {
     return (
       <div className="btn_border_silver">
@@ -131,7 +130,7 @@ export default function TopCoursesContainer({
     );
   }
 
-  // --- Success --------------------------------------------------------------
+  //  Success 
   return (
     <section aria-busy={isFetching ? 'true' : 'false'}>
       <TopCoursesTable data={courses} />

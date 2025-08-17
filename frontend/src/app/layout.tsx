@@ -1,11 +1,10 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import ReactQueryProvider from "./providers/ReactQueryProvider";
 import { AuthProvider } from "@/context/AuthContext";
-import ClientShell from "./providers/ClientShell"; // ✅ client wrapper that hides sidebar on /login
+import ClientShell from "./providers/ClientShell"; // client wrapper that hides sidebar on /login
 
 export const metadata: Metadata = {
   title: "CurricAlign",

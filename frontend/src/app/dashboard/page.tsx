@@ -1,4 +1,3 @@
-// app/dashboard/page.tsx
 'use client';
 
 import { useEffect } from 'react';
@@ -12,11 +11,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!loading && !session) {
-      router.replace('/login'); // ✅ not logged in → go to login
+      router.replace('/login'); // not logged in → go to login
     }
   }, [loading, session, router]);
 
   if (loading || !session) return null; // or a spinner/skeleton
 
-  return <Dashboard />; // ✅ Sidebar shows because route isn't /login
+  return <Dashboard />; // Sidebar shows because route isn't /login
 }

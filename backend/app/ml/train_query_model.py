@@ -20,7 +20,7 @@ DATA_PATH = "query_training_data.csv"
 # Columns we’ll use if present (auto-detect)
 CANDIDATE_NUMERIC = [
     "trend_value",
-    "is_cs_term",                # (0/1) from your pipeline
+    "is_cs_term",                # (0/1) from pipeline
     "gemini_is_cs",              # (0/1)
     "gemini_confidence",         # [0..1]
     "semantic_cs_sim",           # cosine to CS centroid
@@ -42,7 +42,7 @@ CANDIDATE_CATEGORICAL = [
     "region"     # e.g., PH
 ]
 
-TARGET_COL = "query_score"  # keep as your current target (0..100 recommended)
+TARGET_COL = "query_score"  # (0..100 recommended)
 
 
 def _safe_bool(x):
@@ -125,7 +125,7 @@ def train_query_model():
         "has_strong_term", "has_moderate_term", "has_negative_term", "is_borderline"
     ])
 
-    # 5) Select available features (auto-detect)
+    # 5) Select available features can auto-detect
     numeric_features = [c for c in CANDIDATE_NUMERIC if c in df.columns]
     categorical_features = [c for c in CANDIDATE_CATEGORICAL if c in df.columns]
 

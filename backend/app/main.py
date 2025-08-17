@@ -35,7 +35,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ---------- CORS ----------
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -48,24 +48,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------- STATIC MOUNTS ----------
 # This file is backend/app/main.py -> parent is backend/app
 APP_DIR = Path(__file__).resolve().parent                  # backend/app
-STATIC_DIR = (APP_DIR / "static").resolve()                # backend/app/static  ✅ correct
+STATIC_DIR = (APP_DIR / "static").resolve()                # backend/app/static 
 REPORTS_DIR = (STATIC_DIR / "reports").resolve()           # backend/app/static/reports
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Serves /static/* (including /static/reports/<file>.pdf)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# ⚠️ DO NOT also mount /api/reports via StaticFiles if you keep the router below
-# app.mount("/api/reports", StaticFiles(directory=str(REPORTS_DIR)), name="reports")
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the CurricAlign API"}
 
-# ---------- ROUTERS ----------
+# ROUTERS
 app.include_router(dashboard.router,    prefix="/api/dashboard", tags=["Dashboard"])
 app.include_router(pipeline.router,     prefix="/api/pipeline",  tags=["Pipeline"])
 app.include_router(orchestrator.router, prefix="/api",           tags=["Orchestrator"])

@@ -1,4 +1,3 @@
-// components/dashboard/containers/CourseWarningsContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -12,11 +11,11 @@ export default function CourseWarningsContainer({
   refetchIntervalMs,
   title = 'Course Warnings',
 }: {
-  /** Optional custom fetcher (defaults to dataService.fetchCourseWarnings / getCourseWarnings) */
+  // custom fetcher (defaults to dataService.fetchCourseWarnings / getCourseWarnings) 
   fetcher?: Fetcher;
-  /** Optional auto-refetch interval in ms (e.g., 60_000) */
+  // auto-refetch interval in ms (e.g., 60_000) 
   refetchIntervalMs?: number;
-  /** Cosmetic title */
+  // Cosmetic title 
   title?: string;
 }) {
   // Lazy dynamic import, resilient to minor name changes
@@ -44,7 +43,7 @@ export default function CourseWarningsContainer({
 
   const warnings = (data ?? []).filter(c => c?.courseCode && c?.courseName);
 
-  // ---- Loading -------------------------------------------------------------
+  // Loading
   if (isLoading) {
     return (
       <div className="btn_border_silver h-full max-h-full overflow-hidden flex flex-col">
@@ -66,7 +65,7 @@ export default function CourseWarningsContainer({
     );
   }
 
-  // ---- Error ---------------------------------------------------------------
+  // Error
   if (isError) {
     return (
       <div className="btn_border_silver h-full max-h-full overflow-hidden flex flex-col">
@@ -86,7 +85,7 @@ export default function CourseWarningsContainer({
     );
   }
 
-  // ---- Empty ---------------------------------------------------------------
+  // Empty
   if (!warnings.length) {
     return (
       <div className="btn_border_silver h-full max-h-full overflow-hidden flex flex-col">
@@ -104,7 +103,7 @@ export default function CourseWarningsContainer({
     );
   }
 
-  // ---- Success -------------------------------------------------------------
+  // Success
   return (
     <section aria-busy={isFetching ? 'true' : 'false'}>
       <CourseWarningsList data={warnings} />

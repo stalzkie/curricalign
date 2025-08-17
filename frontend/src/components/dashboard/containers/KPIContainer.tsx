@@ -1,4 +1,3 @@
-// components/dashboard/containers/KPIContainer.tsx
 'use client';
 
 import { useMemo } from 'react';
@@ -28,11 +27,11 @@ export default function KPIContainer({
   refetchIntervalMs,
   title = 'Key Metrics',
 }: {
-  /** Optional custom fetcher (defaults to dataService.fetchKPIData) */
+  // custom fetcher (defaults to dataService.fetchKPIData) 
   fetcher?: Fetcher;
-  /** Optional auto-refetch interval in ms (e.g. 60_000) */
+  // Optional auto-refetch interval in ms (e.g. 60_000)
   refetchIntervalMs?: number;
-  /** Cosmetic title shown in empty/error states */
+  // Cosmetic title shown in empty/error states 
   title?: string;
 }) {
   const defaultFetcher: Fetcher = async () => {
@@ -74,7 +73,7 @@ export default function KPIContainer({
     safe.totalJobPostsAnalyzed === 0 &&
     safe.skillsExtracted === 0;
 
-  // ---- Loading -------------------------------------------------------------
+  // Loading
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -95,7 +94,7 @@ export default function KPIContainer({
     );
   }
 
-  // ---- Error ---------------------------------------------------------------
+  // Error
   if (isError) {
     return (
       <div className="btn_border_silver">
@@ -117,7 +116,7 @@ export default function KPIContainer({
     );
   }
 
-  // ---- Empty ---------------------------------------------------------------
+  // Empty
   if (isEmpty) {
     return (
       <div className="btn_border_silver">
@@ -139,7 +138,7 @@ export default function KPIContainer({
     );
   }
 
-  // ---- Success -------------------------------------------------------------
+  // Success
   return (
     <section aria-busy={isFetching ? 'true' : 'false'}>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

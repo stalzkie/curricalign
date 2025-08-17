@@ -12,11 +12,11 @@ from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
 
-# NOTE: This assumes you have a supabase_client.py file
-# with your Supabase client configuration.
+# This assumes we have a supabase_client.py file
+# with Supabase client configuration.
 from ..core.supabase_client import supabase
 
-# --- CONFIGURATION ---
+# CONFIGURATION
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
@@ -28,7 +28,7 @@ REPORT_OUTPUT_DIR = Path(__file__).resolve().parents[2] / "static" / "reports"
 REPORT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-# --- PDF REPORT GENERATION FUNCTIONS ---
+# PDF REPORT GENERATION FUNCTIONS
 def generate_ai_summary(report_data: List[Dict[str, Any]]) -> str:
     """
     Uses Gemini (Google Generative AI) to generate an executive summary based on the report data.
@@ -146,7 +146,7 @@ def fetch_report_data_from_supabase() -> List[Dict[str, Any]]:
 
 
 def _default_filename() -> str:
-    # Timestamped file name to avoid collisions/caching issues
+    # Timestamped file name to avoid caching issues
     ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     return f"syllabus_job_alignment-{ts}.pdf"
 
@@ -182,7 +182,7 @@ def generate_pdf_report(report_data: List[Dict[str, Any]], filename: Optional[st
         author="CurricAlign",
     )
 
-    # --- Build story ---
+    # Build story
     story = []
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
@@ -278,7 +278,7 @@ def generate_pdf_report(report_data: List[Dict[str, Any]], filename: Optional[st
     return str(save_path)
 
 
-# --- MAIN EXECUTION BLOCK ---
+# MAIN EXECUTION
 if __name__ == "__main__":
     data = fetch_report_data_from_supabase()
     if data:

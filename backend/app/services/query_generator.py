@@ -13,7 +13,6 @@ from sentence_transformers import SentenceTransformer, util
 import google.generativeai as genai
 from serpapi import GoogleSearch
 from supabase import create_client, Client
-# ------------------------------------------------------------
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -33,10 +32,8 @@ MODEL_PATH = "query_quality_model.pkl"
 USED_KEYWORDS_PATH = ".used_keywords.json"
 MAX_SESSION_HISTORY = 3
 
-# ------------------------------------------------------------
-# Defaults (safe base) and dynamic term loading from Supabase
-# ------------------------------------------------------------
 
+# Defaults (safe base) and dynamic term loading from Supabase
 DEFAULT_STRONG: Set[str] = {
     "python","java","javascript","typescript","c","c++","c#","go","golang","rust","php","ruby","sql",
     "developer","software engineer","backend","frontend","full stack","devops","sre",
@@ -74,9 +71,8 @@ STRONG_CS_TERMS = _load_terms("cs_strong_terms", DEFAULT_STRONG)
 MODERATE_TERMS  = _load_terms("cs_moderate_terms", DEFAULT_MODERATE)
 NEGATIVE_TERMS  = _load_terms("cs_negative_terms", DEFAULT_NEGATIVE)
 
-# ------------------------------------------------------------
+
 # Tokenizer with unigrams+bigrams (keeps c#, c++, .net intact)
-# ------------------------------------------------------------
 
 def _tokens_and_ngrams(text: str) -> Set[str]:
     clean = re.sub(r"[^a-z0-9#+.\s]", " ", text.lower())
@@ -84,9 +80,8 @@ def _tokens_and_ngrams(text: str) -> Set[str]:
     bigrams = [" ".join(p) for p in zip(toks, toks[1:])]
     return set(toks) | set(bigrams)
 
-# ------------------------------------------------------------
+
 # Fast Gate (cheap, deterministic)
-# ------------------------------------------------------------
 
 def is_cs_query_fast(query: str) -> Optional[bool]:
     """
@@ -94,23 +89,21 @@ def is_cs_query_fast(query: str) -> Optional[bool]:
     """
     toks = _tokens_and_ngrams(query)
 
-    # Strong term present → allow
+    # Strong term present = allow
     if any(t in toks for t in STRONG_CS_TERMS):
         return True
 
-    # Negative term with no strong CS term → block
+    # Negative term with no strong CS term = block
     if any(n in toks for n in NEGATIVE_TERMS) and not any(t in toks for t in STRONG_CS_TERMS):
         return False
 
-    # Moderate + CS modifier → allow
+    # Moderate + CS modifier = allow
     if any(m in toks for m in MODERATE_TERMS) and any(c in toks for c in CS_MODIFIERS):
         return True
 
     return None  # borderline
 
-# ------------------------------------------------------------
 # Semantic Gate (centroids) — robust to new tech wording
-# ------------------------------------------------------------
 
 _embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
@@ -148,9 +141,8 @@ def _semantic_gate(query: str) -> Optional[bool]:
         return False
     return None  # still borderline
 
-# ------------------------------------------------------------
+
 # Gemini Cross‑Reference (only for borderline)
-# ------------------------------------------------------------
 
 genai.configure(api_key=GEMINI_API_KEY)
 _gemini = genai.GenerativeModel("gemini-1.5-pro")
@@ -214,9 +206,7 @@ Query: {query}
     _GCACHE[k] = out
     return out
 
-# ------------------------------------------------------------
 # Final “three‑fallback” CS gate
-# ------------------------------------------------------------
 
 def is_cs_query(query: str) -> bool:
     # 1) Fast gate
@@ -237,9 +227,7 @@ def is_cs_query(query: str) -> bool:
     g = gemini_cs_check(query)
     return bool(g["is_cs"] and g["confidence"] >= 0.70)
 
-# ------------------------------------------------------------
 # ML scoring & history helpers
-# ------------------------------------------------------------
 
 # Try to load ML model
 try:
@@ -279,9 +267,8 @@ def ml_trend_score(query: str, value: float) -> float:
         print(f"❌ Prediction failed for '{query}': {e}")
         return fallback_trend_score(query, value)
 
-# ------------------------------------------------------------
+
 # Storage helpers
-# ------------------------------------------------------------
 
 def store_trending_keywords(keywords, scores, region="PH", source="google_trends"):
     print(f"📝 Storing {len(keywords)} trending keywords in Supabase from {source}...")
@@ -301,9 +288,7 @@ def store_trending_keywords(keywords, scores, region="PH", source="google_trends
     except Exception as e:
         print(f"❌ Failed to insert trending keywords: {e}")
 
-# ------------------------------------------------------------
 # Fallback extraction from jobs (filtered by CS gate)
-# ------------------------------------------------------------
 
 def fallback_from_jobs(n=10):
     print("⚙️ Fallback 3: Extracting keywords from job titles...")
@@ -333,9 +318,7 @@ def fallback_from_jobs(n=10):
         # last resort: use strong terms list
         return list(STRONG_CS_TERMS)[:n]
 
-# ------------------------------------------------------------
 # Main: fetch top keywords from Google Trends (with CS filter)
-# ------------------------------------------------------------
 
 def get_top_keywords(region="PH", n=10):
     print(f"\n🌐 Fetching Google Trends for job queries in region: {region}")
@@ -431,7 +414,7 @@ def get_top_keywords(region="PH", n=10):
         store_trending_keywords(fallback, score_map, region, source="google_trends_fallback")
         return fallback
 
-    # No trends → fall back to CS terms or jobs
+    # No trends = fall back to CS terms or jobs
     print("⚠️ Fallback 2: No Google Trends results. Using CS keywords from Supabase/strong terms.")
     fallback_keywords = list(STRONG_CS_TERMS)[:n]
     if not fallback_keywords:
@@ -442,9 +425,7 @@ def get_top_keywords(region="PH", n=10):
     store_trending_keywords(fallback_keywords, score_map, region, source="cs_keywords/strong_terms")
     return fallback_keywords
 
-# ------------------------------------------------------------
-# Optional: surface candidate new terms for promotion
-# ------------------------------------------------------------
+# surface candidate new terms for promotion
 
 def audit_candidates(accepted_queries: List[str]):
     candidates = set()
@@ -460,9 +441,7 @@ def audit_candidates(accepted_queries: List[str]):
         print("💡 Candidate CS terms to consider:", list(sorted(candidates))[:20])
         supabase.table("cs_candidate_terms").insert([{"keyword": k} for k in candidates]).execute()
 
-# ------------------------------------------------------------
 # Entry point
-# ------------------------------------------------------------
 
 if __name__ == "__main__":
     kw = get_top_keywords()

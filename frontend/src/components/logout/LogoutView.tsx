@@ -1,4 +1,3 @@
-// src/app/components/logout/LogoutView.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -22,7 +21,7 @@ export default function LogoutView() {
       setStatus('signingout');
 
       try {
-        // @ts-ignore optional; ignore if unused
+        // @ts-ignore optional ignore if unused
         supabase.getChannels?.().forEach((ch: any) => supabase.removeChannel(ch));
       } catch {}
 

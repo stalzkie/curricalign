@@ -8,11 +8,9 @@ from backend.app.services.pdf_report import generate_pdf_report
 from backend.app.services.query_generator import CS_TERMS
 from backend.app.core.supabase_client import insert_job
 
-# Load training functions
 from backend.app.ml.train_model import train_subject_score_model
 from backend.app.ml.train_query_model import train_query_model
 
-# Load environment variables
 load_dotenv()
 
 def main():

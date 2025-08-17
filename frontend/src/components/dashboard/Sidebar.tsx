@@ -46,7 +46,7 @@ export default function Sidebar() {
           <Link
             href="/"
             className="inline-flex items-center justify-center"
-            style={{ color: 'var(--brand-teal, #025864)' }} // colors SVGs using currentColor
+            style={{ color: 'var(--brand-teal, #025864)' }}
             aria-label="Go to Dashboard"
           >
             {isExpanded ? (

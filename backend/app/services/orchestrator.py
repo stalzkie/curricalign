@@ -10,17 +10,17 @@ import asyncio
 
 from dotenv import load_dotenv
 
-# --- Load environment early ---
+# load variables from .env early so everything below can read them
 load_dotenv()
 
-# --- Configure logging ---
+# set up logging so we can see what's happening while the pipeline runs
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG").upper()
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
     format="%(asctime)s %(levelname)s [orchestrator.service] %(message)s",
 )
 
-# --- Pipeline step imports (sync libs; we offload them to threads) ---
+# import all the pipeline steps (they are mostly sync, so we'll run them in threads)
 from .scraper import scrape_jobs_from_google_jobs
 from .skill_extractor import extract_skills_from_jobs
 from .syllabus_matcher import extract_subject_skills_from_supabase
@@ -32,7 +32,10 @@ from ..core.supabase_client import insert_job
 
 
 def _env_flag(name: str, default: bool) -> bool:
-    """Helper to get boolean flags from environment variables."""
+    """
+    Read a boolean flag from environment variables.
+    Accepts: 1/true/yes/on (case-insensitive) as True.
+    """
     raw = os.getenv(name)
     if raw is None:
         return default
@@ -40,12 +43,18 @@ def _env_flag(name: str, default: bool) -> bool:
 
 
 async def _yield_now():
-    """Micro-yield to let the event loop flush SSE frames."""
+    """
+    Tiny pause so the event loop can send Server-Sent-Events (SSE) to the frontend.
+    This keeps the UI feeling responsive.
+    """
     await asyncio.sleep(0)
 
 
 def _chunks(iterable: Iterable[Any], size: int) -> Iterable[list[Any]]:
-    """Yield lists of length <= size from an iterable."""
+    """
+    Split an iterable into small lists (batches) of length <= size.
+    Useful so big inserts don't block the loop for too long.
+    """
     batch: list[Any] = []
     for item in iterable:
         batch.append(item)
@@ -58,15 +67,12 @@ def _chunks(iterable: Iterable[Any], size: int) -> Iterable[list[Any]]:
 
 async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
     """
-    Performs job scraping and ingests data into Supabase.
-    Returns statistics about scraped and inserted jobs.
+    1) Scrape jobs (SerpAPI → Google Jobs)
+    2) Insert them into Supabase in batches
+    3) Return some stats (counts + timing)
     """
     logging.debug("Entering scrape_and_ingest function.")
-    results: Dict[str, Any] = {
-        "scraped_jobs": 0,
-        "inserted_jobs": 0,
-        "errors": [],
-    }
+    results: Dict[str, Any] = {"scraped_jobs": 0, "inserted_jobs": 0, "errors": []}
 
     if not scrape_enabled:
         logging.info("Skipping scrape step (scrape_enabled=False).")
@@ -78,24 +84,31 @@ async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
         logging.info("🌐 Scraping job listings from Google Jobs via SerpApi…")
         logging.debug("Calling scrape_jobs_from_google_jobs (offloaded to thread)...")
 
-        # Offload sync scraping to a worker thread
+        # run the blocking scraper in a thread so we don't block the event loop
         all_jobs = await asyncio.to_thread(scrape_jobs_from_google_jobs)
         results["scraped_jobs"] = len(all_jobs) if all_jobs else 0
-        logging.debug("scrape_jobs_from_google_jobs completed. Found %d jobs.", results["scraped_jobs"])
+        logging.debug(
+            "scrape_jobs_from_google_jobs completed. Found %d jobs.",
+            results["scraped_jobs"],
+        )
 
-        # Allow the loop to flush any pending SSE frames
+        # let SSE frames flush
         await _yield_now()
 
         if not all_jobs:
             logging.warning("No new jobs scraped. Proceeding with existing job data in Supabase.")
         else:
             inserted = 0
-            # Insert in batches; yield between batches so SSE stays snappy
-            BATCH_SIZE = 50
-            logging.debug("Attempting to insert %d jobs (batch size: %d).", results["scraped_jobs"], BATCH_SIZE)
+            BATCH_SIZE = 50  # small batches to keep things snappy
+
+            logging.debug(
+                "Attempting to insert %d jobs (batch size: %d).",
+                results["scraped_jobs"],
+                BATCH_SIZE,
+            )
 
             for batch in _chunks(all_jobs, BATCH_SIZE):
-                # Insert each job in a worker thread to avoid blocking
+                # insert each job in a worker thread
                 for job in batch:
                     try:
                         await asyncio.to_thread(insert_job, job)
@@ -106,27 +119,36 @@ async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
                         logging.exception(msg)
                         results["errors"].append(msg)
 
-                # Yield after each batch to keep SSE flowing
                 logging.debug("Inserted %d/%d so far…", inserted, results["scraped_jobs"])
-                await _yield_now()
+                await _yield_now()  # keep the stream alive
 
             results["inserted_jobs"] = inserted
-            logging.info("Inserted %d/%d scraped jobs into Supabase.", inserted, results["scraped_jobs"])
+            logging.info(
+                "Inserted %d/%d scraped jobs into Supabase.",
+                inserted,
+                results["scraped_jobs"],
+            )
 
     except Exception as e:
         msg = f"Scrape/ingest step failed: {e}"
         logging.exception(msg)
         results["errors"].append(msg)
-        raise  # Re-raise to be caught by the orchestrator endpoint
+        # raise so the orchestrator endpoint can handle/report it
+        raise
     finally:
         results["timing_sec"] = round(time.perf_counter() - t0, 3)
-        logging.debug("Exiting scrape_and_ingest function. Took %s seconds.", results["timing_sec"])
+        logging.debug(
+            "Exiting scrape_and_ingest function. Took %s seconds.",
+            results["timing_sec"],
+        )
     return results
 
 
 async def extract_skills(extract_enabled: bool, use_stored_data: bool) -> None:
     """
-    Extracts skills from job descriptions and optionally from uploaded/DB PDF content.
+    Extract skills from:
+      - job descriptions (always if enabled)
+      - course PDFs/DB (only if not using stored data)
     """
     logging.debug("Entering extract_skills function.")
     if not extract_enabled:
@@ -139,7 +161,7 @@ async def extract_skills(extract_enabled: bool, use_stored_data: bool) -> None:
         logging.info("🧠 Extracting skills from job descriptions…")
         logging.debug("Calling extract_skills_from_jobs (offloaded to thread)...")
 
-        # Offload sync extractor
+        # run synchronous extractor on a worker thread
         await asyncio.to_thread(extract_skills_from_jobs)
         logging.debug("extract_skills_from_jobs completed.")
 
@@ -147,7 +169,9 @@ async def extract_skills(extract_enabled: bool, use_stored_data: bool) -> None:
 
         if not use_stored_data:
             logging.info("📘 Extracting course/subject skills from PDF/DB…")
-            logging.debug("Calling extract_subject_skills_from_supabase (offloaded to thread)...")
+            logging.debug(
+                "Calling extract_subject_skills_from_supabase (offloaded to thread)..."
+            )
             await asyncio.to_thread(extract_subject_skills_from_supabase)
             logging.debug("extract_subject_skills_from_supabase completed.")
             await _yield_now()
@@ -166,7 +190,8 @@ async def extract_skills(extract_enabled: bool, use_stored_data: bool) -> None:
 
 async def retrain_ml_models(retrain: bool) -> None:
     """
-    Retrains the machine learning models.
+    Retrain ML models when the flag is True.
+    This can take time, so we run each trainer in a thread.
     """
     logging.debug("Entering retrain_ml_models function.")
     if not retrain:
@@ -200,7 +225,10 @@ async def retrain_ml_models(retrain: bool) -> None:
 
 async def evaluate_and_save_scores() -> Optional[Dict[str, Any]]:
     """
-    Computes subject success scores and saves them, returning the report data.
+    Run the evaluator:
+      - compute course alignment scores
+      - save them to Supabase
+      - return any report data the evaluator gives back (if any)
     """
     logging.debug("Entering evaluate_and_save_scores function.")
     t0 = time.perf_counter()
@@ -209,7 +237,7 @@ async def evaluate_and_save_scores() -> Optional[Dict[str, Any]]:
         logging.info("📊 Computing subject success scores…")
         logging.debug("Calling compute_subject_scores_and_save (offloaded to thread)...")
 
-        # Offload sync evaluation
+        # compute + save in a background thread
         report = await asyncio.to_thread(compute_subject_scores_and_save)
         logging.debug("compute_subject_scores_and_save completed.")
         await _yield_now()
@@ -230,8 +258,9 @@ async def generate_and_store_pdf_report(
     gen_pdf: bool, report_data: Optional[Dict[str, Any]]
 ) -> Optional[Dict[str, str]]:
     """
-    Generates the PDF report.
-    Returns a dict with absolute path and public URL.
+    Generate the PDF report and return paths:
+      { "path": "/abs/path/to/file.pdf", "url": "http://.../reports/file.pdf" }
+    If gen_pdf is False, we skip this step.
     """
     logging.debug("Entering generate_and_store_pdf_report function.")
     if not gen_pdf:
@@ -244,7 +273,7 @@ async def generate_and_store_pdf_report(
     try:
         logging.info("📝 Generating PDF report…")
 
-        # Prefer passed-in data; otherwise fetch from Supabase
+        # use already-computed data if available, else fetch from DB
         data_for_pdf = report_data
         if not data_for_pdf:
             logging.warning("No in-memory report data; fetching latest from Supabase for PDF.")
@@ -263,7 +292,7 @@ async def generate_and_store_pdf_report(
 
         logging.info("PDF report generated at: %s", pdf_path)
 
-        # Optional: copy to Downloads
+        # (nice-to-have) also copy the PDF to user's Downloads folder
         try:
             downloads_dir = Path.home() / "Downloads"
             downloads_dir.mkdir(exist_ok=True)
@@ -273,17 +302,15 @@ async def generate_and_store_pdf_report(
                 await asyncio.to_thread(copyfile, pdf_path, dest_path)  # type: ignore[arg-type]
             logging.info("📥 PDF also copied to: %s", dest_path)
         except Exception as e:
+            # not critical — we just warn and continue
             logging.warning("Could not copy PDF to Downloads: %s", e)
 
-        # --- NEW: build absolute public URL ---
+        # build a public URL so the frontend can open/download it
         base_url = os.getenv("PUBLIC_BASE_URL", "http://localhost:8000").rstrip("/")
         filename = Path(pdf_path).name if pdf_path else None
         report_url = f"{base_url}/app/static/reports/{filename}" if filename else None
 
-        return {
-            "path": pdf_path,
-            "url": report_url,
-        }
+        return {"path": pdf_path, "url": report_url}
 
     except Exception as e:
         msg = f"PDF generation failed: {e}"
@@ -292,4 +319,7 @@ async def generate_and_store_pdf_report(
     finally:
         elapsed = round(time.perf_counter() - t0, 3)
         logging.info("PDF generation timing: %s sec", elapsed)
-        logging.debug("Exiting generate_and_store_pdf_report function. Took %s seconds.", elapsed)
+        logging.debug(
+            "Exiting generate_and_store_pdf_report function. Took %s seconds.",
+            elapsed,
+        )

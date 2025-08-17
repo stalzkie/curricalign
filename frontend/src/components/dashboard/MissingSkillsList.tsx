@@ -10,7 +10,6 @@ export default function MissingSkillsList({ data }: MissingSkillsListProps) {
   const firstItemRef = useRef<HTMLDivElement | null>(null);
   const [itemHeight, setItemHeight] = useState<number | null>(null);
 
-  // Tailwind space-y-2 = 0.5rem gap between rows
   const GAP_Y = 8;
 
   useEffect(() => {
@@ -29,7 +28,7 @@ export default function MissingSkillsList({ data }: MissingSkillsListProps) {
   return (
     <div className="btn_border_silver h-full max-h-full overflow-hidden flex flex-col">
       <div className="card_background rounded p-6 flex-1 flex flex-col">
-        <h3 className="text-xl font-bold mb-4" style={{ color: '#EF4444' /* red-700 */ }}>Missing Skills</h3>
+        <h3 className="text-xl font-bold mb-4" style={{ color: '#EF4444'}}>Missing Skills</h3>
 
         {/* Scroll area sized to ~10 items */}
         <div
@@ -54,12 +53,12 @@ export default function MissingSkillsList({ data }: MissingSkillsListProps) {
                 <span className="text_defaultColor font-medium">{skill}</span>
 
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm" style={{ color: '#B91C1C' /* red-700 */ }}>
+                  <span className="text-sm" style={{ color: '#B91C1C'}}>
                     Missing
                   </span>
                   <div
                     className="w-2 h-2 rounded-full"
-                    style={{ background: '#EF4444' /* red-500 */ }}
+                    style={{ background: '#EF4444' }}
                     aria-hidden="true"
                   />
                 </div>

@@ -1,4 +1,3 @@
-// components/dashboard/InDemandJobsContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -12,11 +11,11 @@ export default function InDemandJobsContainer({
   title = 'In-Demand Jobs',
   refetchIntervalMs,
 }: {
-  /** Optional custom fetcher (defaults to dataService.getInDemandJobs) */
+  // custom fetcher (defaults to dataService.getInDemandJobs) */
   fetcher?: Fetcher;
-  /** Optional panel title */
+  // panel title */
   title?: string;
-  /** Optional auto-refetch interval in ms (e.g., 60_000) */
+  // auto-refetch interval in ms (e.g., 60_000) */
   refetchIntervalMs?: number;
 }) {
   // lazy import so this file doesn’t hard-crash if the function name differs during dev
@@ -43,7 +42,7 @@ export default function InDemandJobsContainer({
     refetchInterval: refetchIntervalMs,
   });
 
-  // ---- UI states -----------------------------------------------------------
+  // UI states
   if (isLoading) {
     return (
       <div className="btn_border_silver h-96">

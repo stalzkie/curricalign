@@ -6,7 +6,7 @@ export default function ReportsViewer() {
   const [files, setFiles] = useState<string[]>([]);
 
   useEffect(() => {
-    // ✅ Requires backend to serve index.json (list of report files)
+    // Requires backend to serve index.json (list of report files)
     fetch("/static/reports/index.json")
       .then((res) => res.json())
       .then((data) => setFiles(data))

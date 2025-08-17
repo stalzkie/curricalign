@@ -8,13 +8,10 @@ interface SkillsBarChartProps {
 }
 
 export default function SkillsBarChart({ data }: SkillsBarChartProps) {
-  // Take top 20 valid skills by demand
   const filteredData = data
     .filter((s) => s.name && s.name.trim() !== '')
     .sort((a, b) => b.demand - a.demand)
-    .slice(0, 30);
-
-  // Tokens from global.css
+    .slice(0, 30); // skill number limit
   const colorMuted   = 'var(--muted, #64748B)';
   const colorMuted2  = 'var(--muted-2, #94A3B8)';
   const colorSurface = 'var(--surface, #F7F9FB)';

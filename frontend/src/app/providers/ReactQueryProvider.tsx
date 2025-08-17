@@ -11,7 +11,7 @@ export default function ReactQueryProvider({ children }: PropsWithChildren) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Keep data “fresh” for 5 mins; navigating back within this window shows cached data instantly
+            // Keep data “fresh” for 5 mins navigating back within this window shows cached data instantly
             staleTime: 5 * 60 * 1000,
             // Keep cache in memory for 30 mins after unused
             gcTime: 30 * 60 * 1000,
@@ -26,7 +26,7 @@ export default function ReactQueryProvider({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={client}>
       {children}
-      {/* DevTools: toggle in dev only */}
+      {/* DevTools toggle in dev only */}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

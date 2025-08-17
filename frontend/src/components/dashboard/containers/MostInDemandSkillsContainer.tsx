@@ -1,4 +1,3 @@
-// components/dashboard/containers/MostInDemandSkillsContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -12,11 +11,11 @@ export default function MostInDemandSkillsContainer({
   refetchIntervalMs,
   title = 'Most In-Demand Skills',
 }: {
-  /** Optional custom fetcher (defaults to dataService.getMostInDemandSkills) */
+  // Optional custom fetcher (defaults to dataService.getMostInDemandSkills)
   fetcher?: Fetcher;
-  /** Optional auto-refetch interval in ms (e.g., 60_000) */
+  // Optional auto-refetch interval in ms (e.g., 60_000) 
   refetchIntervalMs?: number;
-  /** Optional title (cosmetic) */
+  // Optional title (cosmetic) 
   title?: string;
 }) {
   // Lazy dynamic import so minor renames in dataService don’t crash dev
@@ -48,7 +47,7 @@ export default function MostInDemandSkillsContainer({
     refetchInterval: refetchIntervalMs,
   });
 
-  // ---- Loading -------------------------------------------------------------
+  // Loading
   if (isLoading) {
     return (
       <div className="btn_border_silver h-[28rem] lg:h-[32rem]">
@@ -70,7 +69,7 @@ export default function MostInDemandSkillsContainer({
     );
   }
 
-  // ---- Error ---------------------------------------------------------------
+  // Error
   if (isError) {
     return (
       <div className="btn_border_silver h-[28rem] lg:h-[32rem]">
@@ -92,7 +91,7 @@ export default function MostInDemandSkillsContainer({
 
   const skills = (data ?? []).filter(s => s?.name?.trim());
 
-  // ---- Empty ---------------------------------------------------------------
+  // Empty
   if (!skills.length) {
     return (
       <div className="btn_border_silver h-[28rem] lg:h-[32rem]">
@@ -110,7 +109,7 @@ export default function MostInDemandSkillsContainer({
     );
   }
 
-  // ---- Success -------------------------------------------------------------
+  // Success 
   return (
     <section aria-busy={isFetching ? 'true' : 'false'}>
       <SkillsBarChart data={skills} />

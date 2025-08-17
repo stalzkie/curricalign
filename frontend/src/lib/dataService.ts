@@ -1,6 +1,4 @@
-// lib/dataService.ts
-
-// === TYPES ===
+// TYPES 
 export interface Skill {
   name: string;
   demand: number;
@@ -26,7 +24,7 @@ export interface KPIData {
 
 const BASE_URL = "/api/dashboard";
 
-// ---- Shared fetcher with retry + AbortSignal ----
+// Shared fetcher with retry + AbortSignal
 async function fetchJSON<T>(
   url: string,
   init?: RequestInit,
@@ -60,7 +58,7 @@ async function fetchJSON<T>(
   throw new Error(`Failed to fetch ${url}`);
 }
 
-// === 1. Most In-Demand Skills ===
+// 1. Most In-Demand Skills
 export async function fetchMostInDemandSkills(signal?: AbortSignal): Promise<Skill[]> {
   try {
     const rawSkills = await fetchJSON<Skill[]>(`${BASE_URL}/skills`, undefined, signal);
@@ -74,7 +72,7 @@ export async function fetchMostInDemandSkills(signal?: AbortSignal): Promise<Ski
   }
 }
 
-// === 2. Top Matching Courses ===
+// 2. Top Matching Courses
 export async function fetchTopMatchingCourses(signal?: AbortSignal): Promise<Course[]> {
   try {
     const data = await fetchJSON<any[]>(`${BASE_URL}/top-courses`, undefined, signal);
@@ -92,7 +90,7 @@ export async function fetchTopMatchingCourses(signal?: AbortSignal): Promise<Cou
   }
 }
 
-// === 3. In-Demand Job Titles (Top 10) ===
+// 3. In-Demand Job Titles (Top 10)
 export async function fetchInDemandJobs(signal?: AbortSignal): Promise<Job[]> {
   try {
     const data = await fetchJSON<any[]>(`${BASE_URL}/jobs`, undefined, signal);
@@ -113,7 +111,7 @@ export async function fetchInDemandJobs(signal?: AbortSignal): Promise<Job[]> {
   }
 }
 
-// === 4. Missing Skills ===
+// 4. Missing Skills
 export async function fetchMissingSkills(signal?: AbortSignal): Promise<string[]> {
   try {
     const rawSkills = await fetchJSON<(string | string[])[]>(
@@ -141,7 +139,7 @@ export async function fetchMissingSkills(signal?: AbortSignal): Promise<string[]
   }
 }
 
-// === 5. Course Warnings ===
+// 5. Course Warnings
 export async function fetchCourseWarnings(signal?: AbortSignal): Promise<Course[]> {
   try {
     const data = await fetchJSON<any[]>(`${BASE_URL}/warnings`, undefined, signal);
@@ -159,7 +157,7 @@ export async function fetchCourseWarnings(signal?: AbortSignal): Promise<Course[
   }
 }
 
-// === 6. KPI Data ===
+// 6. KPI Data
 export async function fetchKPIData(signal?: AbortSignal): Promise<KPIData> {
   try {
     const data = await fetchJSON<any>(`${BASE_URL}/kpi`, undefined, signal);
@@ -188,9 +186,9 @@ export async function fetchKPIData(signal?: AbortSignal): Promise<KPIData> {
   }
 }
 
-// ================= Alias Exports (for container compatibility) =============
+// Alias Exports (for container compatibility)
 
-// Skills (bar chart)
+// Skills
 export const getMostInDemandSkills = fetchMostInDemandSkills;
 export const getTopSkills = fetchMostInDemandSkills;
 export const fetchTopSkills = fetchMostInDemandSkills;
@@ -200,7 +198,7 @@ export const getTopMatchingCourses = fetchTopMatchingCourses;
 export const getTopCourses = fetchTopMatchingCourses;
 export const fetchTopCourses = fetchTopMatchingCourses;
 
-// In-demand jobs (pie)
+// In-demand jobs 
 export const getInDemandJobs = fetchInDemandJobs;
 
 // Missing skills list

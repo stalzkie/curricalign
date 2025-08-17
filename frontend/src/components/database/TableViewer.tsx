@@ -1,4 +1,3 @@
-// src/components/database/TableViewer.tsx
 'use client';
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
@@ -43,7 +42,7 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
     }
   }, [anyModalOpen]);
 
-  /** 🔄 Fetch */
+  /** Fetch */
   const fetchData = useCallback(async () => {
     const { data: rows, error } = await supabase.from(tableName).select('*');
     if (error) {
@@ -65,7 +64,7 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
     };
   }, [tableName, fetchData]);
 
-  /** ✍️ Edit helpers */
+  /** Edit helpers */
   const getRowKey = (row: any) => row?.id ?? row?.pk ?? row?.key;
   const startEdit = (row: any) => {
     setEditingRow({ ...(row ?? {}) });
@@ -76,7 +75,7 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
     setEditingKey(null);
   };
 
-  /** 💾 Save */
+  /** Save */
   const handleSave = async () => {
     if (!editingRow) return;
     const id = editingRow.id ?? editingKey;
@@ -88,7 +87,7 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
     fetchData();
   };
 
-  /** ➕ Create */
+  /** Create */
   const handleCreate = async () => {
     const payload: Record<string, any> = {};
     for (const c of createCols) payload[c] = newRow[c] ?? null;
@@ -99,14 +98,14 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
     fetchData();
   };
 
-  /** ❌ Delete */
+  /** Delete */
   const handleDelete = async (id: any) => {
     const { error } = await supabase.from(tableName).delete().eq('id', id);
     if (error) return console.error(`[${tableName}] Delete error:`, error);
     fetchData();
   };
 
-  /** 🔍 Filters (only visible cols) */
+  /** Filters (only visible cols) */
   const filtered = useMemo(
     () =>
       data

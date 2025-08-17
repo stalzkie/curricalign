@@ -1,4 +1,3 @@
-// components/dashboard/containers/MissingSkillsContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -11,11 +10,11 @@ export default function MissingSkillsContainer({
   refetchIntervalMs,
   title = 'Missing Skills',
 }: {
-  /** Optional custom fetcher (defaults to dataService.getMissingSkills) */
+  // custom fetcher (defaults to dataService.getMissingSkills)
   fetcher?: Fetcher;
-  /** Optional auto-refetch interval in ms (e.g., 60_000) */
+  // auto-refetch interval in ms (e.g., 60_000)
   refetchIntervalMs?: number;
-  /** Optional panel title; purely cosmetic here */
+  // panel title; purely cosmetic here
   title?: string;
 }) {
   // Lazy import to avoid hard crash if the function name changes during dev
@@ -46,7 +45,7 @@ export default function MissingSkillsContainer({
     refetchInterval: refetchIntervalMs,
   });
 
-  // --- Loading skeleton -----------------------------------------------------
+  // Loading skeleton
   if (isLoading) {
     return (
       <div className="btn_border_silver h-full max-h-full overflow-hidden flex flex-col">
@@ -73,7 +72,7 @@ export default function MissingSkillsContainer({
     );
   }
 
-  // --- Error state ----------------------------------------------------------
+  // Error state
   if (isError) {
     return (
       <div className="btn_border_silver h-full max-h-full overflow-hidden flex flex-col">
@@ -97,7 +96,7 @@ export default function MissingSkillsContainer({
 
   const skills = data ?? [];
 
-  // --- Empty state ----------------------------------------------------------
+  // Empty state
   if (!skills.length) {
     return (
       <div className="btn_border_silver h-full max-h-full overflow-hidden flex flex-col">
@@ -117,7 +116,7 @@ export default function MissingSkillsContainer({
     );
   }
 
-  // --- Success --------------------------------------------------------------
+  //  Success
   return (
     <section aria-busy={isFetching ? 'true' : 'false'}>
       <MissingSkillsList data={skills} />
