@@ -11,42 +11,62 @@
       "static/chunks/_app-pages-browser_node_modules_tanstack_query-devtools_build_DevtoolsPanelComponent_RN252AT2_js.js"
     ]
   },
+  "..\\node_modules\\@supabase\\auth-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch": {
+    "id": "..\\node_modules\\@supabase\\auth-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch",
+    "files": []
+  },
+  "..\\node_modules\\@supabase\\functions-js\\dist\\module\\helper.js -> @supabase/node-fetch": {
+    "id": "..\\node_modules\\@supabase\\functions-js\\dist\\module\\helper.js -> @supabase/node-fetch",
+    "files": []
+  },
+  "..\\node_modules\\@supabase\\realtime-js\\dist\\module\\RealtimeClient.js -> @supabase/node-fetch": {
+    "id": "..\\node_modules\\@supabase\\realtime-js\\dist\\module\\RealtimeClient.js -> @supabase/node-fetch",
+    "files": []
+  },
+  "..\\node_modules\\@supabase\\storage-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch": {
+    "id": "..\\node_modules\\@supabase\\storage-js\\dist\\module\\lib\\helpers.js -> @supabase/node-fetch",
+    "files": []
+  },
   "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts": {
     "id": "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts",
     "files": [
       "static/chunks/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js"
     ]
   },
-  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
-    "id": "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_app",
+  "components\\dashboard\\containers\\CourseWarningsContainer.tsx -> ../../../lib/dataService": {
+    "id": "components\\dashboard\\containers\\CourseWarningsContainer.tsx -> ../../../lib/dataService",
     "files": [
-      "static/chunks/_pages-dir-browser_node_modules_next_dist_pages__app_js.js"
-    ]
-  },
-  "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
-    "id": "..\\node_modules\\next\\dist\\client\\index.js -> ../pages/_error",
-    "files": [
-      "static/chunks/_pages-dir-browser_node_modules_next_dist_pages__error_js.js"
+      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
     ]
   },
   "components\\dashboard\\containers\\InDemandJobsContainer.tsx -> ../../../lib/dataService": {
     "id": "components\\dashboard\\containers\\InDemandJobsContainer.tsx -> ../../../lib/dataService",
-    "files": []
+    "files": [
+      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
+    ]
   },
   "components\\dashboard\\containers\\KPIContainer.tsx -> ../../../lib/dataService": {
     "id": "components\\dashboard\\containers\\KPIContainer.tsx -> ../../../lib/dataService",
-    "files": []
+    "files": [
+      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
+    ]
   },
   "components\\dashboard\\containers\\MissingSkillsContainer.tsx -> ../../../lib/dataService": {
     "id": "components\\dashboard\\containers\\MissingSkillsContainer.tsx -> ../../../lib/dataService",
-    "files": []
+    "files": [
+      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
+    ]
   },
   "components\\dashboard\\containers\\MostInDemandSkillsContainer.tsx -> ../../../lib/dataService": {
     "id": "components\\dashboard\\containers\\MostInDemandSkillsContainer.tsx -> ../../../lib/dataService",
-    "files": []
+    "files": [
+      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
+    ]
   },
   "components\\dashboard\\containers\\TopCoursesContainer.tsx -> ../../../lib/dataService": {
     "id": "components\\dashboard\\containers\\TopCoursesContainer.tsx -> ../../../lib/dataService",
-    "files": []
+    "files": [
+      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
+    ]
   }
 }

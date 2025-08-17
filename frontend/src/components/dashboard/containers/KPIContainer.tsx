@@ -19,19 +19,21 @@ function formatNumber(n: number | undefined) {
 }
 function formatPercent(n: number | undefined) {
   if (n == null || Number.isNaN(n)) return '0%';
-  // handle values like 0.82 vs 82 (backend differences)
-  const val = n <= 1 ? n * 100 : n;
+  const val = n <= 1 ? n * 100 : n; // handle 0–1 vs 0–100
   return `${Math.round(val)}%`;
 }
 
 export default function KPIContainer({
   fetcher,
   refetchIntervalMs,
+  title = 'Key Metrics',
 }: {
   /** Optional custom fetcher (defaults to dataService.fetchKPIData) */
   fetcher?: Fetcher;
   /** Optional auto-refetch interval in ms (e.g. 60_000) */
   refetchIntervalMs?: number;
+  /** Cosmetic title shown in empty/error states */
+  title?: string;
 }) {
   const defaultFetcher: Fetcher = async () => {
     const mod = await import('../../../lib/dataService');
@@ -58,15 +60,21 @@ export default function KPIContainer({
 
   const safe = useMemo<KPIData>(
     () => ({
-      averageAlignmentScore: data?.averageAlignmentScore ?? 0,
-      totalSubjectsAnalyzed: data?.totalSubjectsAnalyzed ?? 0,
-      totalJobPostsAnalyzed: data?.totalJobPostsAnalyzed ?? 0,
-      // some older payloads might omit this field
-      skillsExtracted: (data as any)?.skillsExtracted ?? 0,
+      averageAlignmentScore: Number(data?.averageAlignmentScore) || 0,
+      totalSubjectsAnalyzed: Number(data?.totalSubjectsAnalyzed) || 0,
+      totalJobPostsAnalyzed: Number(data?.totalJobPostsAnalyzed) || 0,
+      skillsExtracted: Number((data as any)?.skillsExtracted) || 0,
     }),
     [data]
   );
 
+  const isEmpty =
+    safe.averageAlignmentScore === 0 &&
+    safe.totalSubjectsAnalyzed === 0 &&
+    safe.totalJobPostsAnalyzed === 0 &&
+    safe.skillsExtracted === 0;
+
+  // ---- Loading -------------------------------------------------------------
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -87,12 +95,13 @@ export default function KPIContainer({
     );
   }
 
+  // ---- Error ---------------------------------------------------------------
   if (isError) {
     return (
       <div className="btn_border_silver">
         <div className="card_background rounded p-4 flex items-center justify-between">
           <div>
-            <p className="text_defaultColor font-semibold">KPIs failed to load</p>
+            <p className="text_defaultColor font-semibold">{title} failed to load</p>
             <p className="text-sm text-[var(--muted,#64748B)]">
               {error.message || 'An unknown error occurred.'}
             </p>
@@ -108,6 +117,29 @@ export default function KPIContainer({
     );
   }
 
+  // ---- Empty ---------------------------------------------------------------
+  if (isEmpty) {
+    return (
+      <div className="btn_border_silver">
+        <div className="card_background rounded p-4 flex items-center justify-between">
+          <div>
+            <p className="text_defaultColor font-semibold">{title}</p>
+            <p className="text-sm text-[var(--muted,#64748B)]">
+              No KPI data yet.
+            </p>
+          </div>
+          <button
+            onClick={() => refetch()}
+            className="px-3 py-2 rounded-lg border border-[var(--foreground,#111827)]/20 hover:bg-black/5 transition"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Success -------------------------------------------------------------
   return (
     <section aria-busy={isFetching ? 'true' : 'false'}>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -128,7 +160,7 @@ export default function KPIContainer({
         />
         <KPICard
           title="Skills Extracted"
-          value={formatNumber((safe as any).skillsExtracted)}
+          value={formatNumber(safe.skillsExtracted)}
           icon={<RiLightbulbFill />}
         />
       </div>
