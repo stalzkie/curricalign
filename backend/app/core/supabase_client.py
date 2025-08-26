@@ -1,5 +1,3 @@
-# backend/app/core/supabase_client.py
-
 import os
 import time
 from supabase import create_client, Client
@@ -7,7 +5,6 @@ from dotenv import load_dotenv
 import httpx
 from httpx import RemoteProtocolError
 
-# Load .env
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -16,9 +13,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("❌ SUPABASE_URL and SUPABASE_KEY must be set.")
 
-# ------------------------------
-# Create Supabase client (v1.x)
-# ------------------------------
+# Create Supabase client 
 def create_supabase_client() -> Client:
     """Always create a fresh Supabase client (v1.x compatible)."""
     return create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -30,9 +25,7 @@ def get_supabase_client() -> Client:
     """Create a *new* client each time."""
     return create_supabase_client()
 
-# ------------------------------
 # Retry wrapper
-# ------------------------------
 def supabase_query_with_retry(query_func, max_attempts=3, delay=0.2):
     last_exception = None
     for attempt in range(1, max_attempts + 1):
@@ -48,9 +41,7 @@ def supabase_query_with_retry(query_func, max_attempts=3, delay=0.2):
             time.sleep(delay)
     raise last_exception
 
-# ------------------------------
-# Helper DB functions
-# ------------------------------
+# Helper DB functions-
 def insert_job(job: dict):
     data = {
         "title": job.get("title", ""),

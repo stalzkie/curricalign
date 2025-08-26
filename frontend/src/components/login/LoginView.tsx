@@ -45,7 +45,7 @@ export default function LoginView({ onLogin }: LoginViewProps) {
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <Image
-              src="/logo-wordmark.svg" // ⬅️ replace with your actual path
+              src="/logo-wordmark.svg"
               alt="App Logo"
               width={140}
               height={140}
@@ -53,8 +53,8 @@ export default function LoginView({ onLogin }: LoginViewProps) {
             />
           </div>
 
-          {/* Title */}
-          <h1 className="text-2xl font-bold text_defaultColor text-center mb-6">
+          {/* Title */} 
+          <h1 className="text-2xl font-bold text_defaultColor text-center mb-6"> 
             Welcome Back!
           </h1>
 

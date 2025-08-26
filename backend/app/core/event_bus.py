@@ -1,11 +1,10 @@
-# app/core/event_bus.py
 from __future__ import annotations
 
 import asyncio
 from typing import Any, Dict, List
 import logging  # used to print info/debug messages
 
-# For each job_id, we keep a list of "subscriber queues".
+# For each job_id, it keep a list of "subscriber queues".
 # Think of it like each job has a mailbox, and multiple people can subscribe to get its letters.
 _queues: Dict[str, List[asyncio.Queue]] = {}
 

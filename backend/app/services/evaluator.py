@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer, util
 from rapidfuzz.fuzz import token_set_ratio
 from ..core.supabase_client import supabase
 
-# ---- thresholds ----
+# thresholds
 SIM_THRESHOLD = 0.75         # used only for reporting/averaging after BOTH gates pass
 SEMANTIC_THRESHOLD = 0.75     # new: cosine gate (0..1)
 FUZZY_THRESHOLD = 0.75        # new: token_set_ratio gate (0..1)
@@ -16,10 +16,7 @@ FUZZY_THRESHOLD = 0.75        # new: token_set_ratio gate (0..1)
 # (trainer uses all-MiniLM-L6-v2). Keep this local to evaluator.
 _label_encoder = SentenceTransformer("intfloat/e5-base-v2")
 
-# ----------------------------
 # Helpers for normalization
-# ----------------------------
-
 def _split_comma_skills(val):
     """Accept list or comma-separated string; return list of stripped strings."""
     if val is None:
@@ -39,10 +36,10 @@ def normalize_skills(skills):
     normalized = []
     for skill in skills:
         clean = skill.strip().lower()
-        # Keep #, +, . (e.g., c#, c++, asp.net) and remove other punctuation
+        # Keep #, +, . like c#, c++, asp.net and remove other punctuation
         clean = re.sub(r"[^\w\s#.+]", "", clean)
         clean = re.sub(r"\s+", " ", clean).strip()
-        # Keep the phrase intact (do not explode into single tokens)
+        # Keep the phrase intact and do not explode into single tokens
         if clean:
             normalized.append(clean)
     # Deduplicate while preserving order
@@ -64,9 +61,8 @@ def _encode_norm(texts):
         return np.zeros((0, _label_encoder.get_sentence_embedding_dimension()), dtype=np.float32)
     return _label_encoder.encode(texts, convert_to_numpy=True, normalize_embeddings=True)
 
-# ----------------------------
+
 # Combine ALL rows by id
-# ----------------------------
 
 def get_combined_job_skills():
     """
@@ -148,10 +144,7 @@ def get_combined_course_skills():
     print(f"🧮 Combined course_ids: {len(combined)}")
     return combined
 
-# ----------------------------
-# Main scoring (DB → DB)
-# ----------------------------
-
+# Main scoring (DB to DB)
 def compute_subject_scores_and_save():
     # Build combined sets
     job_groups = get_combined_job_skills()
@@ -207,7 +200,7 @@ def compute_subject_scores_and_save():
             fuzzy_score = token_set_ratio(course_skill, job_skill) / 100.0
             if max_score >= SEMANTIC_THRESHOLD and fuzzy_score >= FUZZY_THRESHOLD:
                 final_score = (0.7 * max_score + 0.3 * fuzzy_score)
-                # Optionally also check SIM_THRESHOLD on the hybrid score
+                # check SIM_THRESHOLD on the hybrid score
                 if final_score >= SIM_THRESHOLD:
                     matched_market_skills.append(job_skill)
                     if rep_job_skill_id:
@@ -237,7 +230,6 @@ def compute_subject_scores_and_save():
                 "course_title": course_title,
                 "skills_taught": ", ".join(course_skills),
                 "skills_in_market": ", ".join(matched_market_skills),
-                # Keep your existing column but store the representative job_skill_id per job match
                 "matched_job_skill_ids": "{" + ", ".join(sorted(matched_job_skill_ids)) + "}",
                 "coverage": round(coverage, 3),
                 "avg_similarity": round(avg_similarity, 3),
@@ -248,10 +240,8 @@ def compute_subject_scores_and_save():
         except Exception as e:
             print(f"❌ Insert failed for {course_code}: {e}")
 
-# ----------------------------
-# Pure function variant (for ML)
-# ----------------------------
 
+# Pure function variant (for ML)
 def compute_subject_scores(subject_skills_map, job_skill_tree):
     # job_skill_tree is expected as {skill: freq} or similar; use its keys
     job_skill_list = list(job_skill_tree.keys())
