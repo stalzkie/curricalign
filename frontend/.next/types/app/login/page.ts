@@ -1,4 +1,4 @@
-// File: C:\Users\VICTUS\curricalign-thesis\frontend\src\app\login\page.tsx
+// File: /Users/stal/Documents/Projects/curricalign/frontend/src/app/login/page.tsx
 import * as entry from '../../../../src/app/login/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

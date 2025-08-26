@@ -24,6 +24,8 @@ router = APIRouter()
 T = TypeVar("T")  # generic type variable
 
 
+# --------------------------- Helpers ---------------------------
+
 # get supabase client (like a database connection) from the app state
 def _get_sb(request: Request):
     sb = getattr(request.app.state, "supabase", None)
@@ -79,6 +81,8 @@ def _split_skills_maybe_list(value: Any) -> List[str]:
     return [str(value).strip().lower()] if str(value).strip() else []
 
 
+# --------------------------- Endpoints ---------------------------
+
 # API route to get the most in-demand skills
 @router.get("/skills")
 def get_in_demand_skills(request: Request):
@@ -106,7 +110,7 @@ def get_top_courses(request: Request):
     sb = _get_sb(request)
     try:
         resp = _retry_supabase_sync(
-            lambda: sb.from_("course_alignment_scores")
+            lambda: sb.from_("course_alignment_scores_clean")   # ✅ switched to clean table
             .select("course_title, course_code, score, calculated_at")
             .order("score", desc=True)
             .execute()
@@ -191,7 +195,7 @@ def get_low_scoring_courses(request: Request):
     sb = _get_sb(request)
     try:
         resp = _retry_supabase_sync(
-            lambda: sb.from_("course_alignment_scores")
+            lambda: sb.from_("course_alignment_scores_clean")   # ✅ switched to clean table
             .select("course_title, course_code, score, calculated_at")
             .lte("score", 50)  # only scores <= 50
             .order("score", desc=False)
@@ -226,7 +230,11 @@ def get_kpi_data(request: Request):
     sb = _get_sb(request)
     try:
         job_resp = _retry_supabase_sync(lambda: sb.from_("job_skills").select("job_skills").execute())
-        course_resp = _retry_supabase_sync(lambda: sb.from_("course_alignment_scores").select("score").execute())
+        course_resp = _retry_supabase_sync(
+            lambda: sb.from_("course_alignment_scores_clean")   # ✅ switched to clean table
+            .select("score")
+            .execute()
+        )
         job_data = job_resp.data or []
         course_data = course_resp.data or []
     except Exception as e:

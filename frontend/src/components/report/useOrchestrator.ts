@@ -26,10 +26,8 @@ function sleep(ms: number) {
 
 function toAbsoluteUrl(url: string): string {
   try {
-    // If it's already absolute, this will succeed.
     return new URL(url).toString();
   } catch {
-    // Make it absolute relative to API_BASE.
     const base = API_BASE?.replace(/\/+$/, '') ?? '';
     const path = url.startsWith('/') ? url : `/${url}`;
     return `${base}${path}`;
@@ -47,7 +45,6 @@ async function waitUntilReachable(url: string, tries = 10, delayMs = 500): Promi
       let res = await fetch(probeUrl, { method: 'HEAD', cache: 'no-store' });
       if (res.ok) return true;
 
-      // If HEAD not supported, try GET without downloading body
       if (res.status === 405 || res.status === 501) {
         res = await fetch(probeUrl, { method: 'GET', cache: 'no-store' });
         if (res.ok) return true;
@@ -114,7 +111,6 @@ export function useOrchestrator() {
         await downloadUrlAsFile(reportUrl, suggested);
       } catch (err) {
         console.error('FRONTEND: Auto-download failed:', err);
-        // allow manual retry by resetting the flag if needed
         downloadStartedRef.current = false;
       }
     })();
@@ -195,7 +191,6 @@ export function useOrchestrator() {
         return;
       }
 
-      // Close any existing stream before opening a new one
       closeStream();
 
       const url = `${ORCHESTRATOR_EVENTS_URL}?jobId=${encodeURIComponent(id)}`;
@@ -222,6 +217,22 @@ export function useOrchestrator() {
         try {
           const payload = JSON.parse(evt.data);
 
+          // --- Handle explicit pipeline error events ---
+          if (payload?.type === 'error') {
+            console.error('PIPELINE ERROR:', payload.failed_at || payload.function, payload.error);
+            // Mark the failed step as error if provided
+            const failedFn: string | undefined = payload.failed_at || payload.function;
+            if (failedFn) {
+              setSteps((prev) =>
+                prev.map((s) => (s.fn === failedFn ? { ...s, status: 'error' } : s))
+              );
+            }
+            setIsProcessing(false);
+            closeStream();
+            if (!cancelledRef.current && id) pollStatus(id);
+            return; // stop handling this message
+          }
+
           if (payload.reportUrl) {
             setReportUrl(String(payload.reportUrl));
             console.log('FRONTEND: Report URL set:', payload.reportUrl);
@@ -242,6 +253,10 @@ export function useOrchestrator() {
                 return { ...s, status: map[st] ?? s.status };
               })
             );
+
+            if (fn === 'final_checking' && st === 'completed') {
+              console.log('FRONTEND: Final Validation step completed.');
+            }
           }
 
           if (fn === 'generate_pdf_report' && st === 'completed') {
@@ -261,11 +276,9 @@ export function useOrchestrator() {
 
       es.onerror = (error) => {
         console.error('FRONTEND: SSE Error occurred:', error);
-        // Let EventSource auto-reconnect; also start polling for resilience
         if (!cancelledRef.current && id) {
           pollStatus(id);
         }
-        // Don't reject; the promise is already resolved via grace or onopen.
       };
     });
   }
@@ -305,12 +318,15 @@ export function useOrchestrator() {
             console.log('FRONTEND: Polling detected process complete.');
             return;
           }
+
+          if (data.steps['final_checking'] === 'completed') {
+            console.log('FRONTEND: Final Validation step completed (via polling).');
+          }
         }
       }
     } catch (pollError) {
       console.error('FRONTEND: Error during polling:', pollError);
     }
-    // use a simple tail-call style recursion with delay
     setTimeout(() => pollStatus(id), 1000);
   }
 
@@ -333,7 +349,6 @@ export function useOrchestrator() {
         retrainModels: false,
       });
 
-      // Ensure polling is active even if SSE is flaky
       pollStatus(currentJobId);
     } catch (error) {
       console.error('FRONTEND: Error in startFromPdf workflow:', error);
@@ -357,7 +372,6 @@ export function useOrchestrator() {
         retrainModels: false,
       });
 
-      // Ensure polling is active even if SSE is flaky
       pollStatus(currentJobId);
     } catch (error) {
       console.error('FRONTEND: Error in startFromStored workflow:', error);

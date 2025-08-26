@@ -13,76 +13,71 @@ from fastapi import APIRouter, BackgroundTasks, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
 
-# importing some helper functions for pub/sub (like event notifications)
+# pub/sub helpers
 from ...core.event_bus import publish, subscribe, unsubscribe, get_status
-# this connects to the actual services that run scraping, extraction, etc.
+# pipeline service (scraping, extraction, evaluation, pdf)
 from ...services import orchestrator as pipeline_service
+# NEW: import the final check
+from ...services.final_checking import run_final_checks
 
 router = APIRouter()
 
-# saves the last generated PDF report url per job
 _last_report_url: Dict[str, str] = {}
-# keeps track of jobs that were cancelled
 cancelled_jobs: set[str] = set()
 
 
-# helper to get current UTC time in ISO format
 def _ts() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-# this sets environment variables based on payload (used like feature toggles)
-def _apply_optional_env_flags(payload: Dict[str, Any]) -> None:
-    if "scrapeEnabled" in payload:
-        os.environ["SCRAPE_ENABLED"] = "true" if payload["scrapeEnabled"] else "false"
-    if "extractEnabled" in payload:
-        os.environ["EXTRACT_ENABLED"] = "true" if payload["extractEnabled"] else "false"
-    if "retrainModels" in payload:
-        os.environ["RETRAIN_MODELS"] = "true" if payload["retrainModels"] else "false"
-    if "generatePdf" in payload:
-        os.environ["GENERATE_PDF"] = "true" if payload["generatePdf"] else "false"
-
-
-# this sends out events about job progress (like "started", "completed")
 def _emit(job_id: str, fn: str, status: str, report_url: Optional[str] = None) -> None:
     event: Dict[str, Any] = {"function": fn, "status": status, "timestamp": _ts()}
     if report_url:
         event["reportUrl"] = report_url
         _last_report_url[job_id] = report_url
-    logging.info(f"[_emit] Publishing: Job={job_id}, Function={fn}, Status={status}, ReportUrl={report_url or 'N/A'}")
+    logging.info(
+        f"[_emit] Publishing: Job={job_id}, Function={fn}, Status={status}, ReportUrl={report_url or 'N/A'}"
+    )
     publish(job_id, event)
 
 
-# just a small pause to let async events flush out
 async def _yield_now() -> None:
     await asyncio.sleep(0)
 
 
-# the BIG background function that runs the whole pipeline
+def _bool_from(payload: Dict[str, Any], payload_key: str, env_key: str, default: bool) -> bool:
+    """Resolve a boolean flag with per-request override and env fallback (no env mutation)."""
+    if payload_key in payload:
+        return bool(payload[payload_key])
+    raw = os.getenv(env_key)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
 async def _background_job(job_id: str, payload: Dict[str, Any]) -> None:
     """
-    This runs all steps one by one:
-    scrape jobs → extract skills → retrain models → evaluate → generate PDF
+    Runs pipeline steps sequentially:
+    scrape → extract → retrain → evaluate → final check → PDF
     """
     logging.info(f"[Background Job] Started for jobId: {job_id} with payload: {payload}")
     source = str(payload.get("source", "fresh")).lower()
     use_stored_data = (source == "stored")
-    retrain_models_flag = payload.get("retrainModels", False)
-    generate_pdf_flag = payload.get("generatePdf", True)
 
-    # apply flags from payload
-    _apply_optional_env_flags(payload)
+    # Per-job flags (no global env mutation)
+    scrape_enabled = _bool_from(payload, "scrapeEnabled", "SCRAPE_ENABLED", True)
+    extract_enabled = _bool_from(payload, "extractEnabled", "EXTRACT_ENABLED", True)
+    retrain_models = _bool_from(payload, "retrainModels", "RETRAIN_MODELS", False)
+    generate_pdf = _bool_from(payload, "generatePdf", "GENERATE_PDF", True)
 
-    # final values after mixing env + payload
-    scrape_enabled = os.getenv("SCRAPE_ENABLED", "true").lower() == "true"
-    extract_enabled = os.getenv("EXTRACT_ENABLED", "true").lower() == "true"
-    retrain_models = os.getenv("RETRAIN_MODELS", "false").lower() == "true" or retrain_models_flag
-    generate_pdf = os.getenv("GENERATE_PDF", "true").lower() == "true" or generate_pdf_flag
-
-    logging.debug(f"[Background Job] Effective flags: Scrape={scrape_enabled}, Extract={extract_enabled}, Retrain={retrain_models}, PDF={generate_pdf}")
+    logging.debug(
+        f"[Background Job] Effective flags: "
+        f"Scrape={scrape_enabled}, Extract={extract_enabled}, Retrain={retrain_models}, PDF={generate_pdf}, "
+        f"UseStoredData={use_stored_data}"
+    )
 
     try:
-        # --- STEP 1: SCRAPE ---
+        # STEP 1: SCRAPE
         if job_id in cancelled_jobs:
             _emit(job_id, "scrape_jobs_from_google_jobs", "cancelled")
             return
@@ -92,7 +87,7 @@ async def _background_job(job_id: str, payload: Dict[str, Any]) -> None:
         _emit(job_id, "scrape_jobs_from_google_jobs", "completed")
         await _yield_now()
 
-        # --- STEP 2: EXTRACT SKILLS ---
+        # STEP 2: EXTRACT SKILLS
         if job_id in cancelled_jobs:
             _emit(job_id, "extract_skills_from_jobs", "cancelled")
             _emit(job_id, "extract_subject_skills_from_supabase", "cancelled")
@@ -100,12 +95,14 @@ async def _background_job(job_id: str, payload: Dict[str, Any]) -> None:
         _emit(job_id, "extract_skills_from_jobs", "started")
         _emit(job_id, "extract_subject_skills_from_supabase", "started")
         await _yield_now()
-        await pipeline_service.extract_skills(extract_enabled=extract_enabled, use_stored_data=use_stored_data)
+        await pipeline_service.extract_skills(
+            extract_enabled=extract_enabled, use_stored_data=use_stored_data
+        )
         _emit(job_id, "extract_skills_from_jobs", "completed")
         _emit(job_id, "extract_subject_skills_from_supabase", "completed")
         await _yield_now()
 
-        # --- STEP 3: RETRAIN MODELS ---
+        # STEP 3: RETRAIN MODELS
         if job_id in cancelled_jobs:
             _emit(job_id, "retrain_ml_models", "cancelled")
             return
@@ -115,32 +112,43 @@ async def _background_job(job_id: str, payload: Dict[str, Any]) -> None:
         _emit(job_id, "retrain_ml_models", "completed")
         await _yield_now()
 
-        # --- STEP 4: EVALUATE COURSES ---
+        # STEP 4: EVALUATE COURSES
         if job_id in cancelled_jobs:
             _emit(job_id, "compute_subject_scores_and_save", "cancelled")
             return
         _emit(job_id, "compute_subject_scores_and_save", "started")
         await _yield_now()
-        report_data = await pipeline_service.evaluate_and_save_scores()
+        raw_report_data = await pipeline_service.evaluate_and_save_scores()
         _emit(job_id, "compute_subject_scores_and_save", "completed")
         await _yield_now()
 
-        # --- STEP 5: GENERATE PDF ---
+        # STEP 4.5: FINAL CHECK (NEW)
+        if job_id in cancelled_jobs:
+            _emit(job_id, "final_checking", "cancelled")
+            return
+        _emit(job_id, "final_checking", "started")
+        await _yield_now()
+        validated_data = await run_final_checks(raw_report_data, strict=True)
+        _emit(job_id, "final_checking", "completed")
+        await _yield_now()
+
+        # STEP 5: GENERATE PDF
         if job_id in cancelled_jobs:
             _emit(job_id, "generate_pdf_report", "cancelled")
             return
         _emit(job_id, "generate_pdf_report", "started")
         await _yield_now()
 
-        pdf_info = await pipeline_service.generate_and_store_pdf_report(gen_pdf=generate_pdf, report_data=report_data)
+        pdf_info = await pipeline_service.generate_and_store_pdf_report(
+            gen_pdf=generate_pdf, report_data=validated_data
+        )
 
         report_url: Optional[str] = None
         if pdf_info and isinstance(pdf_info, dict):
             report_url = pdf_info.get("url")
             pdf_path = pdf_info.get("path")
-            # wait a bit until file actually exists (avoid race condition)
             if pdf_path:
-                for _ in range(20):  # max ~2 seconds
+                for _ in range(20):  # wait ~2s max
                     try:
                         if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 0:
                             break
@@ -152,33 +160,32 @@ async def _background_job(job_id: str, payload: Dict[str, Any]) -> None:
         await asyncio.sleep(0)
 
     except Exception as e:
-        # if something fails, log it and notify frontend
         logging.error(f"[Background Job] Error for job {job_id}: {e}", exc_info=True)
         _emit(job_id, "generate_pdf_report", "error")
-        publish(job_id, {
-            "type": "error",
-            "jobId": job_id,
-            "timestamp": _ts(),
-            "error": str(e),
-            "traceback": traceback.format_exc(),
-        })
+        publish(
+            job_id,
+            {
+                "type": "error",
+                "jobId": job_id,
+                "timestamp": _ts(),
+                "error": str(e),
+                "traceback": traceback.format_exc(),
+            },
+        )
     finally:
-        # clean up cancelled job if it was marked
         if job_id in cancelled_jobs:
             cancelled_jobs.remove(job_id)
         logging.info(f"[Background Job] Finished for jobId: {job_id}")
 
 
-# -------- API ROUTES --------
+# ---------------- API ROUTES ----------------
 
-# create a new job id
 @router.post("/orchestrator/init")
 async def init_orchestrator():
     job_id = str(uuid.uuid4())
     return {"jobId": job_id}
 
 
-# start pipeline in background
 @router.post("/orchestrator/start-pipeline/{jobId}")
 async def start_pipeline(jobId: str, payload: Dict[str, Any], background: BackgroundTasks):
     if not jobId:
@@ -187,12 +194,10 @@ async def start_pipeline(jobId: str, payload: Dict[str, Any], background: Backgr
     return {"status": "started", "jobId": jobId}
 
 
-# request body model for cancelling jobs
 class CancelReq(BaseModel):
     jobId: str
 
 
-# cancel a running job
 @router.post("/orchestrator/cancel")
 async def cancel(req: CancelReq):
     jobId = (req.jobId or "").strip()
@@ -202,7 +207,6 @@ async def cancel(req: CancelReq):
     return {"status": "cancelled", "jobId": jobId}
 
 
-# stream events to frontend (SSE - Server Sent Events)
 @router.get("/orchestrator/events")
 async def events(request: Request, jobId: str):
     if not jobId:
@@ -212,32 +216,53 @@ async def events(request: Request, jobId: str):
     async def event_stream(stream_job_id: str):
         heartbeat = 15.0
         loop = asyncio.get_event_loop()
-        last_sent = loop.time()
-        # SSE requires at least one comment line to keep connection open
+        # initial padding to defeat some proxies
         yield ":" + (" " * 2048) + "\n\n"
+        # initial ping
         yield "event: ping\ndata: connected\n\n"
+        last_sent = loop.time()  # ensure heartbeat timer starts after initial ping
+
         try:
             while True:
                 if await request.is_disconnected():
                     break
+
                 timeout = max(0.0, heartbeat - (loop.time() - last_sent))
                 try:
                     event = await asyncio.wait_for(queue.get(), timeout=timeout)
                 except asyncio.TimeoutError:
-                    # send keep-alive ping
+                    # heartbeat comment line
                     yield f": keep-alive {int(loop.time())}\n\n"
                     last_sent = loop.time()
                     continue
+
                 payload = json.dumps(event, separators=(",", ":"))
                 yield f"data: {payload}\n\n"
                 last_sent = loop.time()
-                # stop stream if PDF finished or error occurred
-                if isinstance(event, dict) and (
-                    (event.get("function") == "generate_pdf_report" and event.get("status") in {"completed", "error"})
-                    or (event.get("type") == "error")
-                ):
-                    await asyncio.sleep(0.1)
-                    break
+
+                # ---- TERMINATION LOGIC (Option B) ----
+                # Close stream on:
+                # 1) Any explicit error (type: error)
+                # 2) PDF step completed/error/cancelled
+                # 3) Any step with status: cancelled
+                if isinstance(event, dict):
+                    etype = event.get("type")
+                    fn = event.get("function")
+                    st = event.get("status")
+
+                    if etype == "error":
+                        await asyncio.sleep(0.1)
+                        break
+
+                    if fn == "generate_pdf_report" and st in {"completed", "error", "cancelled"}:
+                        await asyncio.sleep(0.1)
+                        break
+
+                    if st == "cancelled":
+                        await asyncio.sleep(0.1)
+                        break
+                # --------------------------------------
+
         finally:
             unsubscribe(jobId, queue)
 
@@ -249,7 +274,6 @@ async def events(request: Request, jobId: str):
     return StreamingResponse(event_stream(jobId), media_type="text/event-stream", headers=headers)
 
 
-# return current status of job (steps + last report url)
 @router.get("/orchestrator/status")
 async def status(jobId: str):
     if not jobId:

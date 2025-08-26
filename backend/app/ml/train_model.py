@@ -16,6 +16,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.isotonic import IsotonicRegression
 from sklearn.preprocessing import StandardScaler  # might be used later
+from scipy.stats import loguniform
 
 # sentence embeddings
 from sentence_transformers import SentenceTransformer
