@@ -1,0 +1,36 @@
+course,skills_taught,skills_in_market,score
+CompF,"analyzing computer systems, describing virus behavior, evaluating software applications, explaining computer security, identifying hardware components, presenting ict innovations, researching computing industry trends",,14.0
+Prog1,"analyzing requirements, applying cisco programming standards, debugging programs, designing programs, developing project prototypes, implementing programs, testing programs, using fundamental programming constructs",,48.0
+LITEP,"analyzing problems, communicating technical ideas visually, developing structured solutions, using flowcharts, writing pseudocode",,37.0
+2D,"animating 2d characters, creating movement arcs, designing game assets, designing game environments, designing game objects, implementing animation physics, preparing 2d assets for game integration, using animation software",,10.0
+Prog2,"analyzing requirements, applying programming paradigms, debugging programs, implementing algorithms, leveraging standard libraries, testing software, using data structures, writing clean code",,72.0
+Python,"automating tasks with python, controlling program flow, defining and calling functions, defining variables, developing web applications with python, handling errors in python, manipulating data with python, using data types, using python",,30.0
+SAD,"analyzing information systems, applying system development life cycle, designing information systems, developing information systems, prototyping software, using case tools, using oom tools",,51.0
+3D,"creating 3d assets, developing virtual environments, implementing game mechanics, rigging characters, scripting animation sequences, using 3d animation software, using game engines",,52.0
+DatSci,"applying machine learning, managing big data, mining data, using python, visualizing data",,98.0
+DStruc,"analyzing algorithm efficiency, applying hashing techniques, applying tree algorithms, implementing data structures, implementing searching algorithms, implementing sorting algorithms, performing set operations, using stacks and queues, working with graphs",,10.0
+GameMath,"applying matrices, calculating probability, implementing vector algebra, modeling game behavior, performing statistical analysis, simulating game scenarios, using analytical geometry, using mathematical equations in game development, using mathematical functions in game development",,11.0
+Infom1,"creating er diagrams, designing databases, designing schemas, implementing relational databases, modeling data, writing sql",,81.0
+OOPro,"applying composition, applying inheritance, defining classes, encapsulating data, implementing polymorphism, using abstraction, using java",,14.0
+SofEng,"designing software, gathering requirements, modeling with uml, performing quality assurance, programming applications, testing software, writing documentation",,71.0
+MATH3DS,"applying induction and recursion, applying mathematical logic, calculating discrete probabilities, constructing proofs, designing finite state machines, manipulating sets and functions",,0.0
+ADA,"analyzing algorithm performance, analyzing algorithm space complexity, analyzing algorithm time complexity, applying graph algorithms, implementing divide and conquer algorithms, performing searches and sorts, selecting appropriate algorithms",,0.0
+CompOrg,"interfacing microcontrollers, interfacing with electronic components, managing memory, programming in assembly language, programming microcontrollers, using inputoutput systems, working with peripheral devices",,26.0
+Infom2,"concurrency control, database management systems, database normalization, database security, domainspecific database development, nosql databases, performance tuning",,53.0
+ProElec1,"collecting data, creating dashboards, generating reports, mining data, using power bi, using tableau, visualizing data",,83.0
+MATH3C,"analyzing functions, applying calculus, computing derivatives, computing integrals, modeling with equations, solving equations",,0.0
+Automata,"analyzing computational theory, applying regular expressions, designing compilers, designing finite automata, implementing pushdown automata, processing languages, using formal grammars, working with contextfree grammars",,0.0
+CloudApp,"building apis, deploying cloud applications, implementing cloud security, managing cloud scalability, practicing devops principles, using cloud services",,76.0
+HCI,"applying hci principles, applying usercentered design practices, conducting usability testing, creating guis, evaluating user experience",,19.0
+Math4pS,"applying probability theory, calculating descriptive statistics, conducting hypothesis tests, performing regression analysis, working with probability distributions",,35.0
+CSSAC,"conducting case studies, developing prototypes, presenting technical information, pursuing microcertifications, researching emerging technologies",,56.0
+DatMine,"building predictive models, interpreting analytics, performing classification analysis, performing clustering analysis, performing regression analysis, using r",,47.0
+InfoAs,"analyzing system vulnerabilities, applying cryptography, implementing access control, managing risks, securing web systems",,19.0
+MobApp,"designing user experiences, designing user interfaces, developing mobile applications, integrating data, testing mobile applications, using android apis, using ios apis",,94.0
+NETW1,"applying subnetting, configuring routers, configuring switches, implementing network security, implementing tcpip, managing vlans, troubleshooting networks, using cisco ios",,57.0
+OS,"analyzing file systems, analyzing multiuser environments, handling memory, implementing security measures, managing processes, managing threads, simulating operating systems, synchronizing processes",,12.0
+ProElec3,"building neural networks, deploying machine learning models, developing machine learning models, evaluating machine learning models, implementing support vector machines, performing clustering analysis, using ensemble models",,52.0
+ProElec4,"applying ai in analytics, building decisionmaking models, designing ai systems, implementing search algorithms, representing knowledge",,19.0
+ProLan,"analyzing programming language semantics, analyzing programming language syntax, developing applications, implementing functional programming paradigms, implementing imperative programming paradigms, implementing logic programming paradigms, implementing objectoriented programming paradigms, managing scoping in programming languages, understanding memory models, using control structures",,27.0
+WebDev,"integrating google analytics, managing versions with git, performing rest api interactions, using javascript, using node.js, using react, writing css, writing html",,72.0
+Techno,"conducting product validation, creating financial projections, developing business models, performing market research, pitching business ideas, using presentation software",,15.0

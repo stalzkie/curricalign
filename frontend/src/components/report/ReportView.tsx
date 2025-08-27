@@ -10,7 +10,7 @@ import { useOrchestrator } from './useOrchestrator';
 export default function ReportView() {
   const [file, setFile] = useState<File | null>(null);
   const {
-    steps = [], // ✅ default to empty array if undefined
+    steps = [], // default to empty array if undefined
     isProcessing,
     isComplete,
     reportUrl,

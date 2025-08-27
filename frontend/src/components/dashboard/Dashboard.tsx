@@ -8,12 +8,17 @@ import CourseWarningsContainer from './containers/CourseWarningsContainer';
 import TopCoursesContainer from './containers/TopCoursesContainer';
 import MissingSkillsContainer from './containers/MissingSkillsContainer';
 
+// ✅ Import the new badge
+import UpdateBadge from './UpdateBadge';
+
 export default function Dashboard() {
   return (
     <div className="p-8 min-h-screen" style={{ background: 'var(--background)' }}>
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text_defaultColor">Dashboard</h1>
+          {/* ✅ Show last update time here */}
+          <UpdateBadge />
         </div>
 
         {/* KPI Cards */}

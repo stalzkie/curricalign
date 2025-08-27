@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from supabase import create_client, Client
 
 # Routers
-from .api.endpoints import dashboard, pipeline, orchestrator, report_files
+from .api.endpoints import dashboard, pipeline, orchestrator, report_files, version
 
 # Some environments have quirky HTTP/2 behavior; disable if needed.
 os.environ.setdefault("HTTPX_DISABLE_HTTP2", "1")
@@ -64,6 +64,7 @@ def read_root():
 
 # ROUTERS
 app.include_router(dashboard.router,    prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(version.router,      prefix="/api/dashboard", tags=["Dashboard-Version"])
 app.include_router(pipeline.router,     prefix="/api/pipeline",  tags=["Pipeline"])
 app.include_router(orchestrator.router, prefix="/api",           tags=["Orchestrator"])
 # Keep the validated reports router at /api/reports/{filename}

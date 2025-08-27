@@ -1,11 +1,15 @@
 # backend/app/services/evaluator.py
 from __future__ import annotations
 
+import os
 import re
+import joblib
 import numpy as np
 from uuid import uuid4
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Tuple
+from collections import Counter
+from pathlib import Path
 
 from sentence_transformers import SentenceTransformer
 from rapidfuzz.fuzz import token_set_ratio
@@ -13,12 +17,60 @@ from rapidfuzz.fuzz import token_set_ratio
 from ..core.supabase_client import supabase
 
 # ---------------- Config / thresholds ----------------
-SIM_THRESHOLD = 0.75         # gate after BOTH semantic+fuzzy pass
-SEMANTIC_THRESHOLD = 0.75    # cosine (0..1)
-FUZZY_THRESHOLD   = 0.75     # token_set_ratio (0..1)
+SIM_THRESHOLD = float(os.getenv("SIM_THRESHOLD", 0.75))             # final gate after BOTH semantic+fuzzy
+SEMANTIC_THRESHOLD = float(os.getenv("SEMANTIC_THRESHOLD", 0.75))   # cosine (0..1)
+FUZZY_THRESHOLD   = float(os.getenv("FUZZY_THRESHOLD", 0.75))       # token_set_ratio (0..1)
 
-# Use a model different from train_model.py to reduce label leakage
-_label_encoder = SentenceTransformer("intfloat/e5-base-v2")
+# Default to app/ml/subject_success_model.pkl, override via env MODEL_BUNDLE_FILE
+_DEFAULT_BUNDLE = (
+    Path(__file__).resolve().parents[1]  # backend/app
+    / "ml"
+    / "subject_success_model.pkl"
+)
+MODEL_BUNDLE_FILE = os.getenv("MODEL_BUNDLE_FILE", str(_DEFAULT_BUNDLE))
+
+# Turn ML scoring on/off (heuristic is always available)
+USE_TRAINED_MODEL_SCORE = os.getenv("USE_TRAINED_MODEL_SCORE", "0").lower() in {"1", "true", "yes"}
+
+# ---------------- Bundle / encoder selection ----------------
+_bundle: Dict[str, Any] | None = None
+_bundle_loaded = False
+_embed_model_name: str | None = None
+
+def _try_load_bundle():
+    """Lazy-load the model bundle once; capture encoder name for parity."""
+    global _bundle, _bundle_loaded, _embed_model_name
+    if _bundle_loaded:
+        return
+    try:
+        if os.path.exists(MODEL_BUNDLE_FILE):
+            _bundle = joblib.load(MODEL_BUNDLE_FILE)
+            # expected keys saved by train_model.py
+            assert "embed_model_name" in _bundle and "cluster_centroids" in _bundle
+            _embed_model_name = _bundle.get("embed_model_name")
+            print(f"🧠 Loaded model bundle: {MODEL_BUNDLE_FILE} (embed_model={_embed_model_name})")
+        else:
+            print(f"ℹ️ Model bundle not found at {MODEL_BUNDLE_FILE} (using env/default encoder).")
+    except Exception as e:
+        print(f"⚠️ Failed to load model bundle {MODEL_BUNDLE_FILE}: {e}")
+        _bundle = None
+        _embed_model_name = None
+    finally:
+        _bundle_loaded = True
+
+def _get_encoder() -> SentenceTransformer:
+    """
+    Encoder selection order:
+    1) If bundle loaded, use bundle['embed_model_name']
+    2) Else SKILL_ENCODER_MODEL env
+    3) Else safe default: intfloat/e5-base-v2
+    """
+    _try_load_bundle()
+    name = _embed_model_name or os.getenv("SKILL_ENCODER_MODEL") or "intfloat/e5-base-v2"
+    print(f"🔤 Using sentence encoder: {name}")
+    return SentenceTransformer(name)
+
+_encoder = _get_encoder()
 
 # ---------------- Helpers ----------------
 def _split_comma_skills(val: Any) -> List[str]:
@@ -35,12 +87,13 @@ def normalize_skills(skills: Any) -> List[str]:
     """
     Normalize skills into consistent lowercased tokens; keep phrases (no token explosion).
     Preserve characters that matter to tech names (#, +, .).
+    NOTE: This normalization is used consistently for both job and course skills.
     """
     skills = _split_comma_skills(skills)
     normalized: List[str] = []
     for skill in skills:
         clean = skill.strip().lower()
-        clean = re.sub(r"[^\w\s#.+]", "", clean)
+        clean = re.sub(r"[^\w\s#.+]", "", clean)  # keep [A-Za-z0-9_], spaces, # . +
         clean = re.sub(r"\s+", " ", clean).strip()
         if clean:
             normalized.append(clean)
@@ -56,18 +109,11 @@ def normalize_skills(skills: Any) -> List[str]:
 def _encode_norm(texts: List[str]) -> np.ndarray:
     """Encode with unit-length normalization for stable cosine."""
     if not texts:
-        return np.zeros((0, _label_encoder.get_sentence_embedding_dimension()), dtype=np.float32)
-    return _label_encoder.encode(texts, convert_to_numpy=True, normalize_embeddings=True)
+        return np.zeros((0, _encoder.get_sentence_embedding_dimension()), dtype=np.float32)
+    return _encoder.encode(texts, convert_to_numpy=True, normalize_embeddings=True)
 
 # ---------------- Data assembly ----------------
 def _fetch_courses_map() -> Tuple[Dict[str, Dict[str, Any]], Dict[str, str]]:
-    """
-    Build lookups from the courses table (PK is course_id).
-
-    Returns:
-      id2course: {course_id: {"course_code":..., "course_title":...}}
-      code2id:   {course_code: course_id}
-    """
     rows = (
         supabase.table("courses")
         .select("course_id, course_code, course_title")
@@ -87,10 +133,6 @@ def _fetch_courses_map() -> Tuple[Dict[str, Dict[str, Any]], Dict[str, str]]:
     return id2course, code2id
 
 def get_combined_job_skills() -> List[Dict[str, Any]]:
-    """
-    Fetch ALL job_skills rows, group by job_id, combine & dedupe skills.
-    Choose the latest row per job_id as representative to carry job_skill_id.
-    """
     print("📦 Fetching ALL job_skills rows...")
     rows = supabase.table("job_skills").select("*").execute().data or []
 
@@ -119,16 +161,6 @@ def get_combined_job_skills() -> List[Dict[str, Any]]:
     return combined
 
 def get_combined_course_skills() -> List[Dict[str, Any]]:
-    """
-    Fetch ALL course_skills rows and produce one combined record per course_id.
-    We resolve course_id robustly:
-      - Prefer course_skills.course_id
-      - Else infer via course_code → courses.course_id
-    We also prefer canonical course_code/title from courses, falling back to the row if missing.
-
-    Returns list of:
-      { course_id, course_code, course_title, skills }
-    """
     print("📦 Fetching ALL course_skills rows...")
     rows = supabase.table("course_skills").select("*").execute().data or []
 
@@ -136,29 +168,24 @@ def get_combined_course_skills() -> List[Dict[str, Any]]:
 
     by_course: Dict[str, List[Dict[str, Any]]] = {}
     for r in rows:
-        # resolve course_id
         cid = r.get("course_id")
         if not cid:
             code = (r.get("course_code") or "").strip()
             if code:
                 cid = code2id.get(code)
         if not cid:
-            # cannot resolve this record; skip to avoid failing final checks
             continue
         by_course.setdefault(cid, []).append(r)
 
     combined: List[Dict[str, Any]] = []
     for cid, items in by_course.items():
-        # latest row in course_skills for fallback metadata
         items_sorted = sorted(items, key=lambda x: x.get("date_extracted_course") or "", reverse=True)
         rep = items_sorted[0]
 
-        # prefer canonical metadata from courses; fallback to rep row
         meta = id2course.get(cid, {})
         course_code = meta.get("course_code") or rep.get("course_code") or ""
         course_title = meta.get("course_title") or rep.get("course_title") or ""
 
-        # merge + normalize skills across all rows of this course_id
         all_sk: List[str] = []
         for it in items:
             all_sk.extend(_split_comma_skills(it.get("course_skills")))
@@ -174,24 +201,114 @@ def get_combined_course_skills() -> List[Dict[str, Any]]:
     print(f"🧮 Combined courses (with resolved course_id): {len(combined)}")
     return combined
 
+# ---------------- Persistence: unmatched job skills ----------------
+def _upsert_skill_gap_counts(
+    unmatched_job_skill_norms: List[str],
+    batch_id: str,
+    calculated_at_iso: str,
+) -> None:
+    counts = Counter([s for s in unmatched_job_skill_norms if s and s.strip()])
+    if not counts:
+        print("ℹ️ No unmatched job skills in this batch.")
+        return
+
+    rows = [
+        {
+            "batch_id": batch_id,
+            "skill_norm": skill,
+            "count": int(cnt),
+            "calculated_at": calculated_at_iso,
+        }
+        for skill, cnt in counts.items()
+    ]
+    try:
+        supabase.table("skill_gap_counts").upsert(
+            rows,
+            on_conflict="batch_id,skill_norm",
+            ignore_duplicates=False,
+        ).execute()
+        print(f"✅ Upserted {len(rows)} skill_gap_counts rows for batch {batch_id}")
+    except Exception as e:
+        print(f"❌ Failed to upsert skill_gap_counts for batch {batch_id}: {e}")
+
+# ---------------- (Optional) ML score helpers ----------------
+def _topk_mean(a: np.ndarray, k=3, axis=-1) -> np.ndarray:
+    if a.size == 0:
+        return np.array([], dtype=np.float32)
+    k = max(1, min(k, a.shape[axis]))
+    idx = np.argpartition(a, kth=-k, axis=axis)
+    topk_idx = np.take(idx, indices=range(a.shape[axis]-k, a.shape[axis]), axis=axis)
+    topk_vals = np.take_along_axis(a, topk_idx, axis=axis)
+    return topk_vals.mean(axis=axis)
+
+def _summarize_course_vs_centroids(course_skills: List[str], centroids: np.ndarray) -> np.ndarray:
+    if not course_skills or centroids.size == 0:
+        return np.array([0, 0, 0, 0], dtype=np.float32)
+    cs_emb = _encode_norm(course_skills)
+    sims = cs_emb @ centroids.T
+    max_per_skill = sims.max(axis=1)
+    max_per_cluster = sims.max(axis=0)
+    return np.array([
+        float(max_per_skill.mean()),
+        float((max_per_skill > 0.60).mean()),
+        float(max_per_cluster.mean()),
+        float(max_per_cluster.std()),
+    ], dtype=np.float32)
+
+def _predict_ml_score_if_enabled(course_skills: List[str], job_skill_pairs: List[str]) -> float | None:
+    """
+    Use the trained model bundle to predict a score if enabled and bundle present.
+    Demand-weighted pooling is applied via bundle['cluster_freq'] for perfect train/infer parity.
+    """
+    if not (USE_TRAINED_MODEL_SCORE and _bundle):
+        return None
+    try:
+        centroids: np.ndarray = _bundle["cluster_centroids"]          # [C, D]
+        topk = int(_bundle.get("topk", 3))
+        cluster_freq: np.ndarray | None = _bundle.get("cluster_freq") # [C] or None
+
+        cs_emb = _encode_norm(course_skills)
+        if cs_emb.size == 0 or centroids.size == 0:
+            return 0.0
+
+        sims = cs_emb @ centroids.T                        # [S, C]
+        pooled = _topk_mean(sims, k=topk, axis=0)          # [C]
+
+        # Apply demand weighting as used during training
+        if isinstance(cluster_freq, np.ndarray) and cluster_freq.shape[0] == centroids.shape[0]:
+            pooled = pooled * (0.5 + 0.5 * cluster_freq)
+
+        summary = _summarize_course_vs_centroids(course_skills, centroids)  # [4]
+        feat = np.concatenate([pooled, summary], axis=0)[None, :]  # [1, C+4]
+
+        raw = _bundle["model"].predict(feat)
+        pred = _bundle["calibrator"].predict(raw)
+        return float(pred[0])
+    except Exception as e:
+        print(f"⚠️ ML score prediction failed, falling back to heuristic: {e}")
+        return None
+
 # ---------------- Scoring (DB -> DB) ----------------
 def compute_subject_scores_and_save() -> None:
     """
-    1) Build combined job + course skill sets.
-    2) Encode and score with semantic + fuzzy gates.
-    3) Insert rows into course_alignment_scores with REQUIRED fields:
-       course_id, course_code, course_title, coverage, avg_similarity, score (+ extras).
+    Bidirectional, non-greedy coverage with fuzzy+semantic gates.
+    - For scoring:
+        * Heuristic score = avg(best final per course skill) × coverage × 100
+        * If USE_TRAINED_MODEL_SCORE=1 and bundle present → use ML score instead.
+    - For gaps:
+        * Every JOB-SKILL OCCURRENCE is marked covered if ANY course skill passes the final threshold.
+        * Uncovered occurrences are aggregated to skill_gap_counts.
     """
     job_groups = get_combined_job_skills()
     course_groups = get_combined_course_skills()
 
-    # Flatten job skill space (distinct skills per job, but keep a rep id per job_id)
+    # Flatten job skill occurrences
     job_skill_pairs: List[str] = []
     job_skill_rep_id_lookup: List[Any] = []
     for g in job_groups:
         rep_id = g.get("rep_job_skill_id")
         for s in g["skills"]:
-            job_skill_pairs.append(s)
+            job_skill_pairs.append(s)          # normalized job skill token
             job_skill_rep_id_lookup.append(rep_id)
 
     if not job_skill_pairs:
@@ -202,7 +319,9 @@ def compute_subject_scores_and_save() -> None:
     job_embeddings = _encode_norm(job_skill_pairs)
 
     batch_id = str(uuid4())
-    now_utc = datetime.now(timezone.utc).isoformat()
+    now_utc = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+    matched_job_occurrence = np.zeros(len(job_skill_pairs), dtype=bool)  # ← for gap
 
     for course in course_groups:
         course_id = course["course_id"]
@@ -214,72 +333,103 @@ def compute_subject_scores_and_save() -> None:
             print(f"⚠️ No course skills for {course_code or course_id}. Skipping.")
             continue
 
-        # Encode course skills
+        # Encode course skills and compute cosine similarities [S, J]
         course_embeddings = _encode_norm(course_skills)
-        cosine_matrix = course_embeddings @ job_embeddings.T  # [S, J]
+        cosine_matrix = course_embeddings @ job_embeddings.T
 
         matched_market_skills: List[str] = []
         matched_job_skill_ids: set[str] = set()
-        match_scores: List[float] = []
+
+        best_finals_per_course_skill: List[float] = []
+        course_skill_matched = np.zeros(len(course_skills), dtype=bool)
 
         for i, course_skill in enumerate(course_skills):
-            similarities = cosine_matrix[i]
-            max_index = int(np.argmax(similarities))
-            max_score = float(similarities[max_index])  # semantic cosine in [0,1]
-            job_skill = job_skill_pairs[max_index]
-            rep_job_skill_id = job_skill_rep_id_lookup[max_index]
+            sims = cosine_matrix[i]
+            cand_idx = np.where(sims >= SEMANTIC_THRESHOLD)[0]
+            if cand_idx.size == 0:
+                continue
 
-            fuzzy_score = token_set_ratio(course_skill, job_skill) / 100.0
-            if max_score >= SEMANTIC_THRESHOLD and fuzzy_score >= FUZZY_THRESHOLD:
-                final_score = (0.7 * max_score + 0.3 * fuzzy_score)
-                if final_score >= SIM_THRESHOLD:
+            best_final_for_i = 0.0
+            matched_any_for_i = False
+
+            for j in cand_idx:
+                sem = float(sims[j])
+                job_skill = job_skill_pairs[j]
+                fuzzy = token_set_ratio(course_skill, job_skill) / 100.0
+                if fuzzy < FUZZY_THRESHOLD:
+                    continue
+
+                final = 0.7 * sem + 0.3 * fuzzy
+                if final >= SIM_THRESHOLD:
+                    matched_any_for_i = True
+                    matched_job_occurrence[j] = True      # mark job occurrence covered
                     matched_market_skills.append(job_skill)
+
+                    rep_job_skill_id = job_skill_rep_id_lookup[j]
                     if rep_job_skill_id:
                         matched_job_skill_ids.add(str(rep_job_skill_id))
-                    match_scores.append(final_score)
 
-        matched = len(match_scores)
-        total_skills = len(course_skills)
-        coverage = matched / total_skills if total_skills else 0.0
-        avg_similarity = float(np.mean(match_scores)) if match_scores else 0.0
-        raw_score = avg_similarity * coverage * 100.0
-        score = int(np.clip(raw_score, 0.0, 100.0))
+                    if final > best_final_for_i:
+                        best_final_for_i = final
 
-        if score == 0:
-            print(f"📉 {course_code or course_id}: matched {matched}/{total_skills} (coverage={coverage:.2f}) → score=0")
-        else:
-            print(f"📊 {course_code or course_id}: matched {matched}/{total_skills} → coverage={coverage:.2f}, sim={avg_similarity:.2f}, score={score}")
+            if matched_any_for_i:
+                course_skill_matched[i] = True
+                best_finals_per_course_skill.append(best_final_for_i)
+
+        matched_course_skills = int(course_skill_matched.sum())
+        total_course_skills = len(course_skills)
+        coverage = (matched_course_skills / total_course_skills) if total_course_skills else 0.0
+        avg_similarity = float(np.mean(best_finals_per_course_skill)) if best_finals_per_course_skill else 0.0
+        heuristic_score = int(np.clip(avg_similarity * coverage * 100.0, 0.0, 100.0))
+
+        # Optionally replace with ML score from your trained bundle (uses demand-weighted pooling)
+        final_score = heuristic_score
+        if USE_TRAINED_MODEL_SCORE and _bundle:
+            ml_score = _predict_ml_score_if_enabled(course_skills, job_skill_pairs)
+            if ml_score is not None:
+                final_score = int(np.clip(ml_score, 0.0, 100.0))
 
         # Prepare values for insert
-        # NOTE: If your Postgres column 'matched_job_skill_ids' is text[],
-        # the safest cross-client way is to send it as a Postgres array literal string.
-        # UUID-like strings are quoted to be safe in array literal.
         matched_ids_literal = "{" + ", ".join(f'"{v}"' for v in sorted(matched_job_skill_ids)) + "}"
 
         payload = {
             "batch_id": batch_id,
-            "course_id": course_id,                      # ✅ REQUIRED by final_checking
+            "course_id": course_id,
             "course_code": course_code,
             "course_title": course_title,
-            "skills_taught": ", ".join(course_skills),   # keep as text; change to list if your column is text[]
-            "skills_in_market": ", ".join(matched_market_skills),
+            "skills_taught": ", ".join(course_skills),
+            "skills_in_market": ", ".join(sorted(set(matched_market_skills))),
             "matched_job_skill_ids": matched_ids_literal,
             "coverage": round(coverage, 3),
             "avg_similarity": round(avg_similarity, 3),
-            "score": score,
+            "score": final_score,  # heuristic or ML depending on flag/bundle
             "calculated_at": now_utc,
         }
 
         try:
             supabase.table("course_alignment_scores").insert(payload).execute()
-            print(f"✅ Saved: {course_code or course_id} - {score}")
+            print(f"✅ Saved: {course_code or course_id} - score={final_score} (heuristic={heuristic_score})")
         except Exception as e:
             print(f"❌ Insert failed for {course_code or course_id}: {e}")
+
+    # --------- Aggregate unmatched job skills across the ENTIRE batch ----------
+    unmatched_occ_indices = np.where(~matched_job_occurrence)[0]
+    unmatched_job_skill_norms = [job_skill_pairs[i] for i in unmatched_occ_indices]
+
+    print(f"🧩 Unmatched job-skill occurrences: {len(unmatched_occ_indices)} "
+          f"(unique skills: {len(set(unmatched_job_skill_norms))})")
+
+    _upsert_skill_gap_counts(
+        unmatched_job_skill_norms=unmatched_job_skill_norms,
+        batch_id=batch_id,
+        calculated_at_iso=now_utc,
+    )
 
 # ---------------- Pure function (for ML/tests) ----------------
 def compute_subject_scores(subject_skills_map: Dict[str, Any], job_skill_tree: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Pure scoring variant used for ML/testing; returns a list of dicts (not DB writes).
+    Uses the same encoder chosen above to avoid train/infer drift.
     """
     job_skill_list = list(job_skill_tree.keys())
     job_skill_cleaned = normalize_skills(job_skill_list)
@@ -300,41 +450,43 @@ def compute_subject_scores(subject_skills_map: Dict[str, Any], job_skill_tree: D
             course_embeddings = _encode_norm(course_skills)
             cosine_matrix = course_embeddings @ job_embeddings.T  # [S, J]
 
-            matched_market_skills: List[str] = []
-            match_scores: List[float] = []
-
+            best_finals_per_course_skill: List[float] = []
             for i, course_skill in enumerate(course_skills):
-                similarities = cosine_matrix[i]
-                max_index = int(np.argmax(similarities))
-                max_score = float(similarities[max_index])
-                job_skill = job_skill_cleaned[max_index]
+                sims = cosine_matrix[i]
+                cand_idx = np.where(sims >= SEMANTIC_THRESHOLD)[0]
+                if cand_idx.size == 0:
+                    continue
+                best_final = 0.0
+                for j in cand_idx:
+                    sem = float(sims[j])
+                    job_skill = job_skill_cleaned[j]
+                    fuzzy = token_set_ratio(course_skill, job_skill) / 100.0
+                    if fuzzy < FUZZY_THRESHOLD:
+                        continue
+                    final = 0.7 * sem + 0.3 * fuzzy
+                    if final >= SIM_THRESHOLD and final > best_final:
+                        best_final = final
+                if best_final > 0:
+                    best_finals_per_course_skill.append(best_final)
 
-                fuzzy_score = token_set_ratio(course_skill, job_skill) / 100.0
-                if max_score >= SEMANTIC_THRESHOLD and fuzzy_score >= FUZZY_THRESHOLD:
-                    final_score = (0.7 * max_score + 0.3 * fuzzy_score)
-                    if final_score >= SIM_THRESHOLD:
-                        matched_market_skills.append(job_skill)
-                        match_scores.append(final_score)
-
-            matched = len(match_scores)
+            matched = len(best_finals_per_course_skill)
             total = len(course_skills)
             coverage = matched / total if total else 0.0
-            avg_sim = float(np.mean(match_scores)) if match_scores else 0.0
+            avg_sim = float(np.mean(best_finals_per_course_skill)) if best_finals_per_course_skill else 0.0
             raw_score = avg_sim * coverage * 100.0
 
             scored_subjects.append({
                 "course": course_code,
                 "skills_taught": course_skills,
-                "skills_in_market": matched_market_skills,
                 "coverage": round(coverage, 3),
                 "avg_similarity": round(avg_sim, 3),
                 "score": int(np.clip(raw_score, 0.0, 100.0)),
             })
-
         except Exception as e:
             print(f"❌ Failed to score {course_code}: {e}")
 
     return scored_subjects
+
 
 if __name__ == "__main__":
     compute_subject_scores_and_save()

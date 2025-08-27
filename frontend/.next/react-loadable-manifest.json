@@ -29,38 +29,26 @@
   },
   "components/dashboard/containers/CourseWarningsContainer.tsx -> ../../../lib/dataService": {
     "id": "components/dashboard/containers/CourseWarningsContainer.tsx -> ../../../lib/dataService",
-    "files": [
-      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
-    ]
+    "files": []
   },
   "components/dashboard/containers/InDemandJobsContainer.tsx -> ../../../lib/dataService": {
     "id": "components/dashboard/containers/InDemandJobsContainer.tsx -> ../../../lib/dataService",
-    "files": [
-      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
-    ]
+    "files": []
   },
   "components/dashboard/containers/KPIContainer.tsx -> ../../../lib/dataService": {
     "id": "components/dashboard/containers/KPIContainer.tsx -> ../../../lib/dataService",
-    "files": [
-      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
-    ]
+    "files": []
   },
   "components/dashboard/containers/MissingSkillsContainer.tsx -> ../../../lib/dataService": {
     "id": "components/dashboard/containers/MissingSkillsContainer.tsx -> ../../../lib/dataService",
-    "files": [
-      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
-    ]
+    "files": []
   },
   "components/dashboard/containers/MostInDemandSkillsContainer.tsx -> ../../../lib/dataService": {
     "id": "components/dashboard/containers/MostInDemandSkillsContainer.tsx -> ../../../lib/dataService",
-    "files": [
-      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
-    ]
+    "files": []
   },
   "components/dashboard/containers/TopCoursesContainer.tsx -> ../../../lib/dataService": {
     "id": "components/dashboard/containers/TopCoursesContainer.tsx -> ../../../lib/dataService",
-    "files": [
-      "static/chunks/_app-pages-browser_src_lib_dataService_ts.js"
-    ]
+    "files": []
   }
 }

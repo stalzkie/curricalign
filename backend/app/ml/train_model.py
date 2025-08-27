@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from collections import defaultdict
 from datetime import datetime, timezone   # added timezone to avoid deprecation warnings
+from pathlib import Path  # ← added
 
 # scikit-learn stuff
 from sklearn.cluster import AgglomerativeClustering
@@ -36,10 +37,15 @@ CLUSTER_DISTANCE_THRESHOLD = 0.35  # smaller = more clusters
 TOPK = 3                           # take top-3 most similar skills
 RECENCY_HALFLIFE_DAYS = None       # if set, weights newer skills higher
 
+# ---------------- paths pinned to backend/app/ml ----------------
+ML_DIR = Path(__file__).resolve().parent
+ML_DIR.mkdir(parents=True, exist_ok=True)
+
 # file names where we save intermediate results
-FEATURE_SKILLS_FILE = "subject_model_features.pkl"
-MODEL_BUNDLE_FILE = "subject_success_model.pkl"
-COURSE_SCORES_CSV = "bert_course_scores.csv"
+FEATURE_SKILLS_FILE = ML_DIR / "subject_model_features.pkl"
+MODEL_BUNDLE_FILE   = ML_DIR / "subject_success_model.pkl"
+COURSE_SCORES_CSV   = ML_DIR / "bert_course_scores.csv"
+# ----------------------------------------------------------------
 
 # Utilities
 def _parse_date(s):
@@ -244,6 +250,12 @@ def train_subject_score_model(skip_extraction=False):
     # cluster skills into concepts
     cluster_centroids, cluster_members, labels, market_embeddings = cluster_market_skills(all_market_skills)
 
+    # ---------------- NEW: compute and keep training-time cluster frequency -------------
+    cluster_freq_train = compute_demand_weights_per_cluster(
+        cluster_members, all_market_skills, job_skill_tree, RECENCY_HALFLIFE_DAYS
+    )
+    # -----------------------------------------------------------------------------------
+
     # generate target scores
     scored_subjects = compute_subject_scores(subject_skills_map, job_skill_tree)
     if len(scored_subjects) < 2:
@@ -334,6 +346,8 @@ def train_subject_score_model(skip_extraction=False):
         "cluster_distance_threshold": CLUSTER_DISTANCE_THRESHOLD,
         "recency_halflife_days": RECENCY_HALFLIFE_DAYS,
         "feature_tail": ["avg_skill_coverage", "share_strong_skills", "avg_cluster_hit", "cluster_hit_std"],
+        # NEW: training-time cluster frequency snapshot (optional use downstream)
+        "cluster_freq_train": cluster_freq_train.astype(np.float32),
     }
     joblib.dump(bundle, MODEL_BUNDLE_FILE)
     print(f"✅ Model bundle saved as: {MODEL_BUNDLE_FILE}")
