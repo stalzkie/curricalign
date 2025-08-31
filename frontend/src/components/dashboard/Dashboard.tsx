@@ -18,7 +18,7 @@ export default function Dashboard() {
         <div className="mb-6 flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text_defaultColor">Dashboard</h1>
           {/* ✅ Show last update time here */}
-          <UpdateBadge />
+          <UpdateBadge tableName={''} />
         </div>
 
         {/* KPI Cards */}

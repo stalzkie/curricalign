@@ -10,9 +10,13 @@ const TABLES = [
   "jobs",
   "job_skills",
   "course_skills",
-  "course_alignment_scores",
-  "reports"
+  "course_alignment_scores_clean"
 ];
+
+// Map backend table names → UI labels
+const TABLE_LABELS: Record<string, string> = {
+  course_alignment_scores_clean: "course alignment scores",
+};
 
 export default function DatabaseNav({ active, onChange }: Props) {
   return (
@@ -20,6 +24,8 @@ export default function DatabaseNav({ active, onChange }: Props) {
       <div className="flex flex-wrap gap-2 sm:gap-4 p-4">
         {TABLES.map((t) => {
           const isActive = active === t;
+          const label = TABLE_LABELS[t] ?? t.replace(/_/g, " ");
+
           return (
             <button
               key={t}
@@ -31,7 +37,7 @@ export default function DatabaseNav({ active, onChange }: Props) {
                     : "text_secondaryColor hover:text_defaultColor"
                 }`}
             >
-              {t.replace(/_/g, " ")}
+              {label}
 
               {/* Brand underline for active tab */}
               {isActive && (
