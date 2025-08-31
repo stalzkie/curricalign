@@ -1,3 +1,5 @@
+// src/lib/dataCache.ts
+
 export type CacheEntry<T> = {
   data: T;
   lastChanged: string; // ISO from /version
@@ -5,36 +7,50 @@ export type CacheEntry<T> = {
   etag?: string;       // optional ETag from /version
 };
 
-const DEFAULT_VERSION_URL = "/api/dashboard/version";
-const LS_PREFIX = ""; // e.g., "curricalign:" if you want namespacing
+const DEFAULT_VERSION_URL = '/api/dashboard/version';
+const LS_PREFIX = ''; // e.g., 'curricalign:' if you want namespacing
 const DEFAULT_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days fallback if version is unreachable
 
-// ---- BroadcastChannel for cross-tab invalidation (optional) ----
-const BC_NAME = "dash-cache";
-const bc: BroadcastChannel | null =
-  typeof window !== "undefined" && "BroadcastChannel" in window
-    ? new BroadcastChannel(BC_NAME)
-    : null;
+/* =============================================================================
+   BroadcastChannel for cross-tab invalidation
+============================================================================= */
+
+const BC_NAME = 'dash-cache';
+const hasWindow = typeof window !== 'undefined';
+const hasBC = hasWindow && 'BroadcastChannel' in window;
+
+const bc: BroadcastChannel | null = hasBC ? new BroadcastChannel(BC_NAME) : null;
 
 export function broadcastInvalidate(cacheKey: string) {
-  bc?.postMessage({ type: "invalidate", cacheKey });
+  bc?.postMessage({ type: 'invalidate', cacheKey });
 }
 
 if (bc) {
-  bc.addEventListener("message", (ev: MessageEvent) => {
+  bc.addEventListener('message', (ev: MessageEvent) => {
     const msg = ev?.data;
-    if (msg?.type === "invalidate" && typeof msg?.cacheKey === "string") {
+    if (msg?.type === 'invalidate' && typeof msg?.cacheKey === 'string') {
       try {
+        if (!hasWindow || !('localStorage' in window)) return;
         localStorage.removeItem(msg.cacheKey);
-      } catch {}
+      } catch {
+        /* ignore */
+      }
     }
   });
 }
 
-// ---- localStorage helpers ----
+/* =============================================================================
+   localStorage helpers (SSR safe)
+============================================================================= */
+
+function k(key: string) {
+  return LS_PREFIX + key;
+}
+
 function readCache<T>(key: string): CacheEntry<T> | null {
   try {
-    const raw = localStorage.getItem(LS_PREFIX + key);
+    if (!hasWindow || !('localStorage' in window)) return null;
+    const raw = localStorage.getItem(k(key));
     if (!raw) return null;
     return JSON.parse(raw) as CacheEntry<T>;
   } catch {
@@ -44,15 +60,21 @@ function readCache<T>(key: string): CacheEntry<T> | null {
 
 function writeCache<T>(key: string, entry: CacheEntry<T>) {
   try {
-    localStorage.setItem(LS_PREFIX + key, JSON.stringify(entry));
-  } catch {}
+    if (!hasWindow || !('localStorage' in window)) return;
+    localStorage.setItem(k(key), JSON.stringify(entry));
+  } catch {
+    /* ignore */
+  }
 }
 
 export function clearCache(key: string) {
   try {
-    localStorage.removeItem(LS_PREFIX + key);
-    broadcastInvalidate(LS_PREFIX + key);
-  } catch {}
+    if (!hasWindow || !('localStorage' in window)) return;
+    localStorage.removeItem(k(key));
+    broadcastInvalidate(k(key));
+  } catch {
+    /* ignore */
+  }
 }
 
 export function peekCache<T>(key: string): CacheEntry<T> | null {
@@ -65,7 +87,7 @@ export function getLastChangedFromCache(key: string): string | null {
 }
 
 export function formatLastChanged(iso?: string): string {
-  if (!iso) return "";
+  if (!iso) return '';
   try {
     return new Date(iso).toLocaleString();
   } catch {
@@ -73,7 +95,10 @@ export function formatLastChanged(iso?: string): string {
   }
 }
 
-// ---- HTTP helpers ----
+/* =============================================================================
+   HTTP helpers
+============================================================================= */
+
 async function fetchJSON<T>(
   url: string,
   init?: RequestInit,
@@ -82,31 +107,42 @@ async function fetchJSON<T>(
   const res = await fetch(url, {
     ...init,
     signal,
-    cache: "no-store",
+    cache: 'no-store',
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
       ...(init?.headers ?? {}),
     },
   });
 
   if (res.status === 304) {
-    // Caller decides how to handle 304 (usually use cached data)
-    // We still return shape-compatible object; data is undefined here.
-    return { data: undefined as unknown as T, etag: res.headers.get("ETag") ?? undefined };
+    // Callers treat 304 as "use cached"; we return a compatible shape
+    return { data: undefined as unknown as T, etag: res.headers.get('ETag') ?? undefined };
   }
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
+    const text = await res.text().catch(() => '');
     throw new Error(`GET ${url} failed: ${res.status} ${text}`);
   }
-  const etag = res.headers.get("ETag") ?? undefined;
+
+  const etag = res.headers.get('ETag') ?? undefined;
   const data = (await res.json()) as T;
   return { data, etag };
 }
 
 type VersionResponse = { lastChanged: string };
 
-// ---- Core: version-gated cache fetch ----
+/* =============================================================================
+   Core: version-gated cache fetch
+============================================================================= */
+
+/**
+ * Fetch dashboard data with version guarding:
+ *  1) GET versionUrl (sends If-None-Match if we have an ETag)
+ *     - if 304 and we have cache → return cache
+ *     - if 200, compare lastChanged with cache
+ *  2) If changed or no cache → GET dataUrl, cache with new version/etag
+ *  3) If version fails, optionally serve bounded-stale cache by TTL
+ */
 export async function getWithVersionCache<T>(
   cacheKey: string,
   dataUrl: string,
@@ -122,26 +158,24 @@ export async function getWithVersionCache<T>(
   const ttlMs = opts?.ttlMs ?? DEFAULT_TTL_MS;
   const cached = readCache<T>(cacheKey);
 
-  // --- 1) Check version endpoint first (cheap)
-  // Send If-None-Match with previous ETag to get 304 when unchanged (optional micro-opt)
+  // 1) Check /version first (cheap), with ETag for 304 hits
   const versionInit: RequestInit = {};
   if (cached?.etag) {
-    versionInit.headers = { ...(versionInit.headers || {}), "If-None-Match": cached.etag };
+    versionInit.headers = { ...(versionInit.headers || {}), 'If-None-Match': cached.etag };
   }
 
   try {
     const vRes = await fetch(versionUrl, {
       ...versionInit,
       signal,
-      cache: "no-store",
+      cache: 'no-store',
       headers: {
         ...(versionInit.headers || {}),
-        Accept: "application/json",
+        Accept: 'application/json',
       },
     });
 
     if (vRes.status === 304 && cached) {
-      // Version unchanged → serve cache
       return { data: cached.data, lastChanged: cached.lastChanged };
     }
 
@@ -149,15 +183,15 @@ export async function getWithVersionCache<T>(
       throw new Error(`Version check failed: ${vRes.status}`);
     }
 
-    const vEtag = vRes.headers.get("ETag") ?? undefined;
+    const vEtag = vRes.headers.get('ETag') ?? undefined;
     const { lastChanged } = (await vRes.json()) as VersionResponse;
 
-    // If cache exists and version matches → serve cache
+    // Version same → serve cache
     if (cached && cached.lastChanged === lastChanged) {
       return { data: cached.data, lastChanged: cached.lastChanged };
     }
 
-    // --- 2) Version changed OR no cache → fetch fresh data
+    // 2) Version changed or no cache → fetch fresh data
     const { data } = await fetchJSON<T>(dataUrl, undefined, signal);
     const entry: CacheEntry<T> = {
       data,
@@ -168,15 +202,14 @@ export async function getWithVersionCache<T>(
     writeCache<T>(cacheKey, entry);
     return { data, lastChanged };
   } catch (err) {
-    // --- 3) /version unreachable: optional stale fallback with TTL
+    // 3) If /version fails, serve bounded-stale cache (TTL) if allowed
     if (cached && opts?.allowStaleOnVersionError !== false) {
       const age = Date.now() - new Date(cached.cachedAt).getTime();
       if (age <= ttlMs) {
-        // Serve stale (bounded)
         return { data: cached.data, lastChanged: cached.lastChanged };
       }
     }
-    // As a last resort, try direct fetch (no version guard)
+    // As a last resort, fetch data directly (no version guard)
     if (!signal?.aborted) {
       const { data } = await fetchJSON<T>(dataUrl, undefined, signal);
       const nowIso = new Date().toISOString();
@@ -193,7 +226,9 @@ export async function getWithVersionCache<T>(
   }
 }
 
-// ---- Convenience utilities ----
+/* =============================================================================
+   Convenience utilities
+============================================================================= */
 
 /** Manually set cache (e.g., after optimistic updates). */
 export function setCache<T>(cacheKey: string, data: T, lastChangedISO: string, etag?: string) {
@@ -203,12 +238,13 @@ export function setCache<T>(cacheKey: string, data: T, lastChangedISO: string, e
     cachedAt: new Date().toISOString(),
     etag,
   });
-  broadcastInvalidate(LS_PREFIX + cacheKey); // notify other tabs to reload their copy
+  // notify other tabs to drop their local copy so they re-read on next access
+  broadcastInvalidate(k(cacheKey));
 }
 
 /** Invalidate multiple keys at once. */
 export function clearMany(keys: string[]) {
-  for (const k of keys) clearCache(k);
+  for (const key of keys) clearCache(key);
 }
 
 /** True if a cached entry exists and matches a given lastChanged value. */

@@ -14,6 +14,10 @@ type Row = Record<string, any>;
 
 const CHUNK = 200;             // rows per fetch (infinite scroll)
 const FILTER_DEBOUNCE = 300;   // ms
+const REALTIME_THROTTLE_MS = 1200;
+
+// Only these tables can create new rows
+const CAN_CREATE = new Set(['jobs', 'courses']);
 
 interface CRUDTableViewerProps {
   tableName: string;
@@ -37,6 +41,12 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
+  // Seen PKs to de-dupe (important with realtime + reset)
+  const seenPk = useRef<Set<string | number>>(new Set());
+
+  // In-flight fetch cancellation
+  const fetchAbortRef = useRef<AbortController | null>(null);
+
   // Edit state
   const [editingRow, setEditingRow] = useState<Row | null>(null);
   const [editingKey, setEditingKey] = useState<string | number | null>(null);
@@ -59,6 +69,9 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
     course_alignment_scores_clean: 'course_alignment_score_clean_id',
   };
   const pkCol = PK_BY_TABLE[tableName] ?? 'id';
+
+  // Create permission for current table
+  const canCreate = CAN_CREATE.has(tableName);
 
   /* ---------- Columns config ---------- */
   const readonlyCols = useMemo(
@@ -115,69 +128,97 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
 
   /* ================== Fetch: keyset pagination ================== */
 
+  const buildQuery = useCallback(() => {
+    let q = supabase
+      .from(tableName)
+      .select(selectCols.join(','))
+      .order(pkCol, { ascending: true });
+
+    // keyset cursor
+    if (cursorRef.current != null) {
+      q = q.gt(pkCol, cursorRef.current);
+    }
+
+    // server-side filters (ilike for string-ish columns)
+    for (const [col, val] of Object.entries(debouncedFilters)) {
+      if (val?.trim()) q = q.ilike(col, `%${val.trim()}%`);
+    }
+
+    q = q.limit(CHUNK);
+    return q;
+  }, [tableName, selectCols, debouncedFilters, pkCol]);
+
   const loadMore = useCallback(async () => {
     if (isLoading || !hasMore) return;
+
+    // Cancel any previous fetch (rare but safe)
+    fetchAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    fetchAbortRef.current = ctrl;
 
     setIsLoading(true);
     setErrorMsg(null);
 
     try {
-      let q = supabase
-        .from(tableName)
-        .select(selectCols.join(','))
-        .order(pkCol, { ascending: true });
+      const q = buildQuery();
+      // @ts-ignore – supabase-js v2 supports AbortSignal via .abortSignal()
+      const { data: rows, error } = await (q.abortSignal?.(ctrl.signal) ?? q);
 
-      // keyset cursor
-      if (cursorRef.current != null) {
-        q = q.gt(pkCol, cursorRef.current);
-      }
+      if (ctrl.signal.aborted) return;
 
-      // server-side filters (still ordered by PK to leverage index)
-      for (const [col, val] of Object.entries(debouncedFilters)) {
-        if (val?.trim()) q = q.ilike(col, `%${val.trim()}%`);
-      }
-
-      q = q.limit(CHUNK);
-
-      const { data: rows, error } = await q;
       if (error) {
         setErrorMsg(error.message);
-        setIsLoading(false);
         return;
       }
 
       const newRows = (rows ?? []) as Row[];
       if (newRows.length > 0) {
-        // advance cursor to last PK in this chunk (typed)
+        // advance cursor to last PK in this chunk
         const pkKey = pkCol as keyof Row;
         const last = newRows[newRows.length - 1]?.[pkKey] as string | number | null;
-        cursorRef.current = last;
+        cursorRef.current = last ?? cursorRef.current;
 
-        setData((prev) => [...prev, ...newRows]);
+        // de-dupe using a Set of seen PKs
+        const merged: Row[] = [];
+        for (const r of newRows) {
+          const id = r[pkKey] as string | number;
+          if (!seenPk.current.has(id)) {
+            seenPk.current.add(id);
+            merged.push(r);
+          }
+        }
+
+        setData((prev) => [...prev, ...merged]);
         setHasMore(newRows.length === CHUNK);
       } else {
         setHasMore(false);
       }
     } catch (err: any) {
-      setErrorMsg(err?.message ?? String(err));
+      if (err?.name !== 'AbortError') setErrorMsg(err?.message ?? String(err));
     } finally {
       setIsLoading(false);
     }
-  }, [tableName, selectCols, debouncedFilters, pkCol, hasMore, isLoading]);
+  }, [buildQuery, hasMore, isLoading, pkCol]);
 
   // Reset & initial load when deps change
   const resetAndReload = useCallback(async () => {
+    // cancel any in-flight
+    fetchAbortRef.current?.abort();
+
+    // reset cursors and caches
     cursorRef.current = null;
+    seenPk.current = new Set();
     setData([]);
     setHasMore(true);
+
+    // initial page
     await loadMore();
   }, [loadMore]);
 
   useEffect(() => {
-    // stringify filters safely for dep comparison
     resetAndReload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tableName, selectCols, JSON.stringify(debouncedFilters)]);
+  }, [tableName, selectCols.join(','), JSON.stringify(debouncedFilters)]);
 
   /* ---------- Infinite scroll observer ---------- */
   useEffect(() => {
@@ -196,27 +237,32 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
     return () => obs.disconnect();
   }, [loadMore]);
 
-  /* ---------- Realtime (throttled) ---------- */
+  /* ---------- Realtime (throttled soft refresh) ---------- */
   useEffect(() => {
-    // For very large/active tables you can disable this entirely.
-    let pending = false;
+    let scheduled = false;
+    const schedule = () => {
+      if (scheduled) return;
+      scheduled = true;
+      setTimeout(async () => {
+        invalidateDbCache(tableName); // keeps UpdateBadge accurate
+        cursorRef.current = null;
+        seenPk.current = new Set();
+        setData([]);
+        setHasMore(true);
+        await loadMore();
+        scheduled = false;
+      }, REALTIME_THROTTLE_MS);
+    };
+
     const channel = supabase
       .channel(`${tableName}-changes`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: tableName }, async () => {
-        if (pending) return;
-        pending = true;
-        setTimeout(async () => {
-          invalidateDbCache(tableName); // keeps UpdateBadge accurate
-          await resetAndReload();
-          pending = false;
-        }, 1500);
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: tableName }, schedule)
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [tableName, resetAndReload]);
+  }, [tableName, loadMore]);
 
   /* ================== Edit / CRUD ================== */
 
@@ -235,6 +281,7 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
   const handleSave = async () => {
     if (!editingRow) return;
     const idVal = (editingRow[pkCol as keyof Row] ?? editingKey) as string | number | null;
+
     const { [pkCol]: _omit, ...payload } = editingRow;
     const { error } = await supabase.from(tableName).update(payload).eq(pkCol, idVal);
     if (error) {
@@ -242,7 +289,7 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
       return;
     }
     cancelEdit();
-    resetAndReload();
+    await resetAndReload();
   };
 
   // Delete
@@ -267,7 +314,7 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
     }
     setShowDeleteModal(false);
     setDeleteId(null);
-    resetAndReload();
+    await resetAndReload();
   };
   const cancelDelete = () => {
     setShowDeleteModal(false);
@@ -287,11 +334,21 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
           <div className="flex items-center gap-3">
             <UpdateBadge tableName={tableName} />
             <button
-              onClick={() => setShowCreateModal(true)}
-              className="rounded bg-[var(--brand-teal,#025864)] px-3 py-2 text-white transition hover:opacity-90"
+              onClick={() => resetAndReload()}
+              className="rounded border px-3 py-2 text-sm hover:bg-gray-100"
+              title="Refresh"
             >
-              + Add New
+              Refresh
             </button>
+
+            {canCreate && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="rounded bg-[var(--brand-teal,#025864)] px-3 py-2 text-white transition hover:opacity-90"
+              >
+                + Add New
+              </button>
+            )}
           </div>
         </div>
 
@@ -455,7 +512,7 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
         </div>
 
         {/* Modals */}
-        {showCreateModal && (
+        {canCreate && showCreateModal && (
           <AddRowModal
             tableName={tableName}
             columns={createCols}
