@@ -1,9 +1,11 @@
+// src/components/dashboard/containers/MissingSkillsContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import MissingSkillsList from '../MissingSkillsList';
+import { useVersionWatcher } from '@/lib/useVersionWatcher';
 
-type Fetcher = () => Promise<string[]>;
+type Fetcher = (signal?: AbortSignal) => Promise<string[]>;
 
 export default function MissingSkillsContainer({
   fetcher,
@@ -17,8 +19,11 @@ export default function MissingSkillsContainer({
   // panel title; purely cosmetic here
   title?: string;
 }) {
+  // Recompute when the dashboard version changes
+  const versionIso = useVersionWatcher('missing-skills');
+
   // Lazy import to avoid hard crash if the function name changes during dev
-  const defaultFetcher: Fetcher = async () => {
+  const defaultFetcher: Fetcher = async (signal?: AbortSignal) => {
     const mod = await import('../../../lib/dataService');
     const fn =
       (mod as any).getMissingSkills ||
@@ -29,7 +34,8 @@ export default function MissingSkillsContainer({
         "No missing-skills fetcher found. Export getMissingSkills(): Promise<string[]> from lib/dataService."
       );
     }
-    return fn();
+    // Forward AbortSignal to dataService fetcher (it accepts an optional signal)
+    return fn(signal);
   };
 
   const {
@@ -40,8 +46,9 @@ export default function MissingSkillsContainer({
     error,
     refetch,
   } = useQuery<string[], Error>({
-    queryKey: ['missing-skills'],
-    queryFn: fetcher ?? defaultFetcher,
+    // include versionIso so any change to /version invalidates and refetches
+    queryKey: ['missing-skills', versionIso ?? 'init'],
+    queryFn: ({ signal }) => (fetcher ?? defaultFetcher)(signal),
     refetchInterval: refetchIntervalMs,
   });
 
@@ -116,7 +123,7 @@ export default function MissingSkillsContainer({
     );
   }
 
-  //  Success
+  // Success
   return (
     <section aria-busy={isFetching ? 'true' : 'false'}>
       <MissingSkillsList data={skills} />

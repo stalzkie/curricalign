@@ -1,31 +1,37 @@
+// src/components/dashboard/containers/CourseWarningsContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import CourseWarningsList from '../CourseWarningsList';
 import type { Course } from '../../../lib/dataService';
+import { useVersionWatcher } from '@/lib/useVersionWatcher';
 
-type Fetcher = () => Promise<Course[]>;
+type Fetcher = (signal?: AbortSignal) => Promise<Course[]>;
 
 export default function CourseWarningsContainer({
   fetcher,
   refetchIntervalMs,
   title = 'Course Warnings',
 }: {
-  // custom fetcher (defaults to dataService.fetchCourseWarnings / getCourseWarnings) 
+  // custom fetcher (defaults to dataService.fetchCourseWarnings / getCourseWarnings)
   fetcher?: Fetcher;
-  // auto-refetch interval in ms (e.g., 60_000) 
+  // auto-refetch interval in ms (e.g., 60_000)
   refetchIntervalMs?: number;
-  // Cosmetic title 
+  // Cosmetic title
   title?: string;
 }) {
-  // Lazy dynamic import, resilient to minor name changes
-  const defaultFetcher: Fetcher = async () => {
+  // Watch the dashboard version. When this ISO changes, we'll refetch.
+  const versionIso = useVersionWatcher('warnings');
+
+  // Lazy dynamic import (and pass AbortSignal through)
+  const defaultFetcher: Fetcher = async (signal?: AbortSignal) => {
     const mod = await import('../../../lib/dataService');
     const fn =
       (mod as any).fetchCourseWarnings ||
       (mod as any).getCourseWarnings;
     if (!fn) throw new Error('No course warnings fetcher found in dataService.');
-    return fn();
+    // dataService.fetchCourseWarnings accepts (signal?: AbortSignal)
+    return fn(signal);
   };
 
   const {
@@ -36,12 +42,13 @@ export default function CourseWarningsContainer({
     error,
     refetch,
   } = useQuery<Course[], Error>({
-    queryKey: ['course-warnings'],
-    queryFn: fetcher ?? defaultFetcher,
+    // Include versionIso so cache invalidates & refetches on version change
+    queryKey: ['course-warnings', versionIso ?? 'init'],
+    queryFn: ({ signal }) => (fetcher ?? defaultFetcher)(signal),
     refetchInterval: refetchIntervalMs,
   });
 
-  const warnings = (data ?? []).filter(c => c?.courseCode && c?.courseName);
+  const warnings = (data ?? []).filter((c) => c?.courseCode && c?.courseName);
 
   // Loading
   if (isLoading) {

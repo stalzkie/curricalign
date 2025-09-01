@@ -73,6 +73,30 @@ def _retry_supabase_sync(call: Callable[[], T], attempts: int = 3, base_delay: f
     raise last_exc
 
 
+def get_average_alignment_score_local(sb) -> float:
+    """
+    Calculates the average alignment score by fetching all scores
+    and performing the average calculation in Python.
+    """
+    try:
+        resp = _retry_supabase_sync(
+            lambda: sb.from_("course_alignment_scores_clean")
+            .select("score")
+            .execute()
+        )
+        data = resp.data or []
+    except Exception as e:
+        logging.error(f"Error fetching scores for average calculation: {e!r}")
+        return 0.0
+
+    scores = [r.get("score") for r in data if r.get("score") is not None]
+    if not scores:
+        return 0.0
+
+    avg_score = sum(scores) / len(scores)
+    return round(avg_score, 2)
+
+
 def _split_skills_maybe_list(value: Any) -> List[str]:
     """
     Converts the skills data into a list of lowercase strings.
@@ -447,29 +471,103 @@ def get_low_scoring_courses(request: Request):
 @router.get("/kpi")
 def get_kpi_data(request: Request):
     sb = _get_sb(request)
+
+    def _count_exact(table: str) -> int:
+        # Uses PostgREST Content-Range; no 1000 cap
+        r = _retry_supabase_sync(
+            lambda: sb.from_(table).select("*", count="exact", head=True).execute()
+        )
+        return int(getattr(r, "count", None) or 0)
+
+    # ----- totals (robust, with fallback table for jobs) -----
     try:
-        job_resp = _retry_supabase_sync(lambda: sb.from_("job_skills").select("job_skills").execute())
-        course_resp = _retry_supabase_sync(
+        jobs_total = _count_exact("jobs")
+    except Exception:
+        # fallback to job_skills if jobs table has perms/schema issues
+        try:
+            jobs_total = _count_exact("job_skills")
+        except Exception:
+            jobs_total = 0
+
+    try:
+        subjects_total = _count_exact("course_alignment_scores_clean")
+    except Exception:
+        subjects_total = 0
+
+    # ----- average alignment (robust) -----
+    avg_score = 0.0
+    try:
+        # (A) get latest ts (like /top-courses)
+        latest_ts = None
+        latest_row_resp = _retry_supabase_sync(
             lambda: sb.from_("course_alignment_scores_clean")
-            .select("score")
+            .select("calculated_at")
+            .order("calculated_at", desc=True)
+            .limit(1)
             .execute()
         )
-        job_data = job_resp.data or []
-        course_data = course_resp.data or []
+        if latest_row_resp and latest_row_resp.data:
+            latest_ts = latest_row_resp.data[0].get("calculated_at")
+
+        # (B) aggregate with COALESCE + cast
+        sel = "coalesce(avg(score)::float8, 0) as avg"
+        if latest_ts:
+            avg_resp = _retry_supabase_sync(
+                lambda: sb.from_("course_alignment_scores_clean")
+                .select(sel)
+                .eq("calculated_at", latest_ts)
+                .execute()
+            )
+        else:
+            avg_resp = _retry_supabase_sync(
+                lambda: sb.from_("course_alignment_scores_clean")
+                .select(sel)
+                .execute()
+            )
+
+        if avg_resp and avg_resp.data and len(avg_resp.data) > 0:
+            avg_val = avg_resp.data[0].get("avg", 0)
+            avg_score = round(float(avg_val), 2)
+
+        # (C) Fallback: compute locally in Python if aggregate is zero/empty
+        if not avg_score:  # covers 0.0 and None
+            avg_score = get_average_alignment_score_local(sb)
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching KPI data: {str(e)}")
+        logging.warning(f"[kpi] avg(score) failed: {e!r}")
+        # Final safety: try local fallback if aggregate path crashed
+        try:
+            avg_score = get_average_alignment_score_local(sb)
+        except Exception as e2:
+            logging.warning(f"[kpi] local average fallback failed: {e2!r}")
+            avg_score = 0.0
 
-    scores = [r.get("score") for r in course_data if r.get("score") is not None]
-    avg_score = round(sum(scores) / len(scores), 2) if scores else 0.0
-
-    unique_skills = set()
-    for r in job_data:
-        for s in _split_skills_maybe_list(r.get("job_skills", "")):
-            unique_skills.add(_normalize_skill(s))
+    # ----- skills extracted (sampled; switch to RPC if you need exact) -----
+    skills_extracted = 0
+    try:
+        job_sample = _retry_supabase_sync(
+            lambda: sb.from_("job_skills").select("job_skills").limit(1000).execute()
+        ).data or []
+        uniq = set()
+        for r in job_sample:
+            for s in _split_skills_maybe_list(r.get("job_skills", "")):
+                uniq.add(_normalize_skill(s))
+        skills_extracted = len(uniq)
+    except Exception:
+        pass
 
     return {
         "averageAlignmentScore": avg_score,
-        "totalSubjectsAnalyzed": len(course_data),
-        "totalJobPostsAnalyzed": len(job_data),
-        "skillsExtracted": len(unique_skills),
+        "totalSubjectsAnalyzed": subjects_total,
+        "totalJobPostsAnalyzed": jobs_total,
+        "skillsExtracted": skills_extracted,
     }
+
+
+# ---------- Optional debug endpoint for local average ----------
+
+@router.get("/kpi/local-average")
+def get_kpi_local_average(request: Request):
+    sb = _get_sb(request)
+    avg = get_average_alignment_score_local(sb)
+    return {"averageAlignmentScore": avg}

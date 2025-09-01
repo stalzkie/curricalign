@@ -1,51 +1,39 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { supabase } from '@/lib/supabaseClients';
-import { useQueryClient } from '@tanstack/react-query';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+
+type Status = 'idle' | 'signingout' | 'done' | 'error';
 
 export default function LogoutView() {
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const [status, setStatus] = useState<'idle' | 'signingout' | 'done' | 'error'>('idle');
+  const supabase = createClientComponentClient();
+  const [status, setStatus] = useState<Status>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const ranOnce = useRef(false);
 
-  useEffect(() => {
-    if (ranOnce.current) return;
-    ranOnce.current = true;
-
-    (async () => {
-      setStatus('signingout');
-
-      try {
-        // @ts-ignore optional ignore if unused
-        supabase.getChannels?.().forEach((ch: any) => supabase.removeChannel(ch));
-      } catch {}
-
-      try {
-        queryClient.clear();
-      } catch {}
-
+  const doSignOut = useCallback(async () => {
+    setStatus('signingout');
+    setErrorMsg(null);
+    try {
       const { error } = await supabase.auth.signOut();
-      if (error) {
-        setStatus('error');
-        setErrorMsg(error.message || 'Failed to sign out.');
-        return;
-      }
-
-      try {
-        await fetch('/auth/signout', { method: 'POST' }); // clear SSR cookies
-      } catch (e) {
-        console.warn('Server signout route not reachable:', e);
-      }
-
+      if (error) throw error;
       setStatus('done');
-      setTimeout(() => router.replace('/login'), 400);
-    })();
-  }, [queryClient, router]);
+      // Let middleware refresh cookies on the next navigation
+      setTimeout(() => router.replace('/login'), 200);
+    } catch (e: any) {
+      setStatus('error');
+      setErrorMsg(e?.message || 'Failed to sign out.');
+    }
+  }, [router, supabase]);
+
+  useEffect(() => {
+    if (ranOnce.current) return; // prevent double-run in React StrictMode
+    ranOnce.current = true;
+    void doSignOut();
+  }, [doSignOut]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 sm:px-8 py-12 bg-[var(--background)]">
@@ -54,7 +42,7 @@ export default function LogoutView() {
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <Image
-              src="/logo-wordmark.svg" // match LoginView logo path
+              src="/logo-wordmark.svg"
               alt="App Logo"
               width={140}
               height={140}
@@ -62,14 +50,18 @@ export default function LogoutView() {
             />
           </div>
 
-          <h1 className="text-2xl font-bold text_defaultColor mb-2">Signing you out</h1>
+          <h1 className="text-2xl font-bold text_defaultColor mb-2">
+            Signing you out
+          </h1>
 
           {status === 'signingout' && (
             <p className="text_secondaryColor">Please wait…</p>
           )}
 
           {status === 'done' && (
-            <p className="text_secondaryColor">You’ve been signed out. Redirecting…</p>
+            <p className="text_secondaryColor">
+              You’ve been signed out. Redirecting…
+            </p>
           )}
 
           {status === 'error' && (
@@ -86,7 +78,8 @@ export default function LogoutView() {
                 </button>
                 <button
                   className="rounded border px-3 py-2 hover:bg-gray-50"
-                  onClick={() => location.reload()}
+                  onClick={() => void doSignOut()}
+                  disabled={status !== 'error'} // ✅ Only clickable if still in "error" state
                 >
                   Try Again
                 </button>

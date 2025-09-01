@@ -1,45 +1,55 @@
-// src/components/login/LoginView.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { supabase } from '@/lib/supabaseClients';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import type { Session } from '@supabase/supabase-js';
 
 interface LoginViewProps {
-  onLogin?: (session: any) => void;
+  onLogin?: (session: Session) => void;
 }
 
 export default function LoginView({ onLogin }: LoginViewProps) {
+  const supabase = createClientComponentClient();
   const router = useRouter();
+
+  // form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // UX messages
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    setLoading(false);
+      if (error) throw error;
 
-    if (error) {
-      setError(error.message);
-      return;
+      if (data.session) {
+        onLogin?.(data.session);
+        router.push('/dashboard');
+      } else {
+        setError('No session returned. Please try again.');
+      }
+    } catch (e: any) {
+      setError(e?.message ?? 'Failed to log in.');
+    } finally {
+      setLoading(false);
     }
-
-    onLogin?.(data.session);
-    router.push('/dashboard');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 sm:px-8 py-12 rounded-xl bg-[var(--background)]">
+    <div className="min-h-screen flex items-center justify-center px-6 sm:px-8 py-12 bg-[var(--background)]">
       <div className="btn_border_silver rounded-xl shadow-md w-full max-w-md">
         <div className="card_background rounded-xl p-8">
           {/* Logo */}
@@ -53,8 +63,8 @@ export default function LoginView({ onLogin }: LoginViewProps) {
             />
           </div>
 
-          {/* Title */} 
-          <h1 className="text-2xl font-bold text_defaultColor text-center mb-6"> 
+          {/* Title */}
+          <h1 className="text-2xl font-bold text_defaultColor text-center mb-6">
             Welcome Back!
           </h1>
 
@@ -96,7 +106,7 @@ export default function LoginView({ onLogin }: LoginViewProps) {
             <button
               type="submit"
               disabled={loading}
-              className="btn_background_purple font-medium py-2.5 transition disabled:opacity-60"
+              className="btn_background_purple font-medium py-2.5 transition disabled:opacity-60 w-full"
             >
               {loading ? 'Logging in…' : 'Login'}
             </button>

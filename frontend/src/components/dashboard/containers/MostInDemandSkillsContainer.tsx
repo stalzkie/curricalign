@@ -1,10 +1,12 @@
+// src/components/dashboard/containers/MostInDemandSkillsContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useVersionWatcher } from '@/lib/useVersionWatcher';
 import SkillsBarChart from '../SkillsBarChart';
 import type { Skill } from '../../../lib/dataService';
 
-type Fetcher = () => Promise<Skill[]>;
+type Fetcher = (signal?: AbortSignal) => Promise<Skill[]>;
 
 export default function MostInDemandSkillsContainer({
   fetcher,
@@ -13,13 +15,16 @@ export default function MostInDemandSkillsContainer({
 }: {
   // Optional custom fetcher (defaults to dataService.getMostInDemandSkills)
   fetcher?: Fetcher;
-  // Optional auto-refetch interval in ms (e.g., 60_000) 
+  // Optional auto-refetch interval in ms (e.g., 60_000)
   refetchIntervalMs?: number;
-  // Optional title (cosmetic) 
+  // Optional title (cosmetic)
   title?: string;
 }) {
+  // Re-run the query whenever /api/dashboard/version changes
+  const versionIso = useVersionWatcher('skills');
+
   // Lazy dynamic import so minor renames in dataService don’t crash dev
-  const defaultFetcher: Fetcher = async () => {
+  const defaultFetcher: Fetcher = async (signal?: AbortSignal) => {
     const mod = await import('../../../lib/dataService');
     const fn =
       (mod as any).getMostInDemandSkills ||
@@ -31,7 +36,8 @@ export default function MostInDemandSkillsContainer({
         "No skills fetcher found. Export getMostInDemandSkills(): Promise<Skill[]> from lib/dataService."
       );
     }
-    return fn();
+    // Forward AbortSignal (dataService fetchers accept an optional signal)
+    return fn(signal);
   };
 
   const {
@@ -42,8 +48,9 @@ export default function MostInDemandSkillsContainer({
     error,
     refetch,
   } = useQuery<Skill[], Error>({
-    queryKey: ['most-in-demand-skills'],
-    queryFn: fetcher ?? defaultFetcher,
+    // include versionIso so any change invalidates and refetches
+    queryKey: ['most-in-demand-skills', versionIso ?? 'init'],
+    queryFn: ({ signal }) => (fetcher ?? defaultFetcher)(signal),
     refetchInterval: refetchIntervalMs,
   });
 
@@ -109,7 +116,7 @@ export default function MostInDemandSkillsContainer({
     );
   }
 
-  // Success 
+  // Success
   return (
     <section aria-busy={isFetching ? 'true' : 'false'}>
       <SkillsBarChart data={skills} />

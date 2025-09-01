@@ -1,3 +1,4 @@
+// src/components/dashboard/containers/KPIContainer.tsx
 'use client';
 
 import { useMemo } from 'react';
@@ -10,8 +11,9 @@ import {
   RiLightbulbFill,
 } from 'react-icons/ri';
 import type { KPIData } from '../../../lib/dataService';
+import { useVersionWatcher } from '@/lib/useVersionWatcher';
 
-type Fetcher = () => Promise<KPIData>;
+type Fetcher = (signal?: AbortSignal) => Promise<KPIData>;
 
 function formatNumber(n: number | undefined) {
   return new Intl.NumberFormat().format(n ?? 0);
@@ -27,21 +29,23 @@ export default function KPIContainer({
   refetchIntervalMs,
   title = 'Key Metrics',
 }: {
-  // custom fetcher (defaults to dataService.fetchKPIData) 
-  fetcher?: Fetcher;
-  // Optional auto-refetch interval in ms (e.g. 60_000)
-  refetchIntervalMs?: number;
-  // Cosmetic title shown in empty/error states 
-  title?: string;
+  fetcher?: Fetcher;            // defaults to dataService.fetchKPIData
+  refetchIntervalMs?: number;   // optional auto-refetch interval
+  title?: string;               // cosmetic title
 }) {
-  const defaultFetcher: Fetcher = async () => {
+  // Recompute when the dashboard version changes
+  const versionIso = useVersionWatcher('kpi');
+
+  // Lazy import so name changes in dataService don’t crash this file
+  const defaultFetcher: Fetcher = async (signal?: AbortSignal) => {
     const mod = await import('../../../lib/dataService');
-    if (!('fetchKPIData' in mod)) {
+    const fn = (mod as any).fetchKPIData;
+    if (!fn) {
       throw new Error(
         'dataService.fetchKPIData() not found. Export a function that returns Promise<KPIData>.'
       );
     }
-    return mod.fetchKPIData();
+    return fn(signal);
   };
 
   const {
@@ -52,8 +56,9 @@ export default function KPIContainer({
     error,
     refetch,
   } = useQuery<KPIData, Error>({
-    queryKey: ['kpis'],
-    queryFn: fetcher ?? defaultFetcher,
+    // include versionIso so changes to /version invalidate and refetch
+    queryKey: ['kpis', versionIso ?? 'init'],
+    queryFn: ({ signal }) => (fetcher ?? defaultFetcher)(signal),
     refetchInterval: refetchIntervalMs,
   });
 
@@ -123,9 +128,7 @@ export default function KPIContainer({
         <div className="card_background rounded p-4 flex items-center justify-between">
           <div>
             <p className="text_defaultColor font-semibold">{title}</p>
-            <p className="text-sm text-[var(--muted,#64748B)]">
-              No KPI data yet.
-            </p>
+            <p className="text-sm text-[var(--muted,#64748B)]">No KPI data yet.</p>
           </div>
           <button
             onClick={() => refetch()}

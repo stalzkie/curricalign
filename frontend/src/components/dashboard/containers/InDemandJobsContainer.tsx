@@ -1,32 +1,37 @@
+// src/components/dashboard/containers/InDemandJobsContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import JobsPieChart from '../JobsPieChart';
-import { Job } from '../../../lib/dataService';
+import type { Job } from '../../../lib/dataService';
+import { useVersionWatcher } from '@/lib/useVersionWatcher';
 
-type Fetcher = () => Promise<Job[]>;
+type Fetcher = (signal?: AbortSignal) => Promise<Job[]>;
 
 export default function InDemandJobsContainer({
   fetcher,
   title = 'In-Demand Jobs',
   refetchIntervalMs,
 }: {
-  // custom fetcher (defaults to dataService.getInDemandJobs) */
-  fetcher?: Fetcher;
-  // panel title */
-  title?: string;
-  // auto-refetch interval in ms (e.g., 60_000) */
-  refetchIntervalMs?: number;
+  fetcher?: Fetcher;        // custom fetcher (defaults to dataService.getInDemandJobs)
+  title?: string;           // panel title
+  refetchIntervalMs?: number; // auto-refetch interval in ms (e.g., 60_000)
 }) {
-  // lazy import so this file doesn’t hard-crash if the function name differs during dev
-  const defaultFetcher: Fetcher = async () => {
+  // Refetch whenever the dashboard version changes
+  const versionIso = useVersionWatcher('jobs');
+
+  // Lazy import and pass AbortSignal through (React Query supplies it)
+  const defaultFetcher: Fetcher = async (signal?: AbortSignal) => {
     const mod = await import('../../../lib/dataService');
-    if (!('getInDemandJobs' in mod)) {
+    const fn =
+      (mod as any).getInDemandJobs ||
+      (mod as any).fetchInDemandJobs;
+    if (!fn) {
       throw new Error(
         'dataService.getInDemandJobs() not found. Export a function that returns Promise<Job[]>'
       );
     }
-    return mod.getInDemandJobs();
+    return fn(signal);
   };
 
   const {
@@ -37,8 +42,9 @@ export default function InDemandJobsContainer({
     error,
     refetch,
   } = useQuery<Job[], Error>({
-    queryKey: ['in-demand-jobs'],
-    queryFn: fetcher ?? defaultFetcher,
+    // include versionIso so a new /version invalidates this cache key
+    queryKey: ['in-demand-jobs', versionIso ?? 'init'],
+    queryFn: ({ signal }) => (fetcher ?? defaultFetcher)(signal),
     refetchInterval: refetchIntervalMs,
   });
 

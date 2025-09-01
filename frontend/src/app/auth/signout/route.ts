@@ -1,46 +1,17 @@
+// app/auth/signout/route.ts
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 
 export const runtime = 'nodejs';
 
-export async function POST() {
-  // READ cookies (async + read-only)
-  const cookieStore = await cookies();
-
-  // We’ll WRITE cookies onto this response
-  const response = NextResponse.json({ ok: true });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        // read from request cookies
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        // write onto the response cookies
-        set(name: string, value: string, options: any) {
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-        },
-        remove(name: string, options: any) {
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-            maxAge: 0,
-          });
-        },
-      },
-    }
-  );
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
 
   await supabase.auth.signOut();
 
-  return response;
+  // Optional: support ?next=/somewhere
+  const url = new URL(request.url);
+  const next = url.searchParams.get('next') || '/login';
+  return NextResponse.redirect(new URL(next, url.origin));
 }

@@ -159,7 +159,7 @@ export default function AddRowModal({
           </button>
           <button
             onClick={handleCreate}
-            className="px-3 py-2 bg-[var(--brand-teal,#025864)] text-white rounded hover:opacity-90 disabled:opacity-60"
+            className="px-3 py-2 bg-green-700 text-white rounded hover:bg-green-600 disabled:opacity-60"
             disabled={isSaving}
           >
             {isSaving ? 'Saving…' : 'Create'}

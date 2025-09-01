@@ -1,34 +1,26 @@
-'use client'
+// app/login/page.tsx
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import LoginView from '@/components/login/LoginView';
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClients'
-import LoginView from '@/components/login/LoginView'
-import DatabaseView from '@/components/database/DatabaseView'
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
-export default function LoginPage() {
-  const [session, setSession] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+export default async function LoginPage() {
+  // ✅ Provide an async getter so Next 15's "await cookies()" rule is satisfied
+  const supabase = createServerComponentClient({
+    cookies: async () => cookies(),
+  });
 
-  useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setLoading(false)
-    })
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-    // Listen for auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session)
-      }
-    )
+  if (session) {
+    redirect('/dashboard');
+  }
 
-    return () => {
-      listener.subscription.unsubscribe()
-    }
-  }, [])
-
-  if (loading) return <p className="text-center mt-20">Loading...</p>
-
-  return session ? <DatabaseView /> : <LoginView onLogin={setSession} />
+  return <LoginView />;
 }

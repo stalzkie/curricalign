@@ -11,13 +11,19 @@ export default function ReactQueryProvider({ children }: PropsWithChildren) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Keep data “fresh” for 5 mins navigating back within this window shows cached data instantly
-            staleTime: 5 * 60 * 1000,
-            // Keep cache in memory for 30 mins after unused
-            gcTime: 30 * 60 * 1000,
-            retry: 2, // fewer retries = snappier UX
-            refetchOnWindowFocus: false, // avoid surprise refetches on tab focus
-            refetchOnReconnect: true,
+            // Treat data as fresh indefinitely; we’ll refetch only on version changes or manual refetch
+            staleTime: Infinity,
+            // Keep cache around for a while so back/forward nav is instant
+            gcTime: 30 * 60 * 1000, // 30 minutes
+            // Calm down the auto-refetchers
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
+            refetchOnMount: false,
+            // Gentle retries (avoid flapping on dev server reloads)
+            retry: 1,
+          },
+          mutations: {
+            retry: 1,
           },
         },
       })
@@ -26,7 +32,6 @@ export default function ReactQueryProvider({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={client}>
       {children}
-      {/* DevTools toggle in dev only */}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

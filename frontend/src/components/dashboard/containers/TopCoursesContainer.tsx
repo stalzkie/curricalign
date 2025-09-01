@@ -1,25 +1,30 @@
+// src/components/dashboard/containers/TopCoursesContainer.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useVersionWatcher } from '@/lib/useVersionWatcher';
 import TopCoursesTable from '../TopCoursesTable';
 import type { Course } from '../../../lib/dataService';
 
-type Fetcher = () => Promise<Course[]>;
+type Fetcher = (signal?: AbortSignal) => Promise<Course[]>;
 
 export default function TopCoursesContainer({
   fetcher,
   refetchIntervalMs,
   title = 'Top Matching Courses',
 }: {
-  // Optional custom fetcher (defaults to dataService.getTopCourses) 
+  // Optional custom fetcher (defaults to dataService.getTopCourses)
   fetcher?: Fetcher;
-  // Optional auto-refetch interval in ms (e.g., 60_000) 
+  // Optional auto-refetch interval in ms (e.g., 60_000)
   refetchIntervalMs?: number;
   // Cosmetic title shown in skeleton/error/empty states
   title?: string;
 }) {
+  // Re-run the query whenever the dashboard version changes
+  const versionIso = useVersionWatcher('top-courses');
+
   // Lazy dynamic import to avoid hard crashes if names shift during dev
-  const defaultFetcher: Fetcher = async () => {
+  const defaultFetcher: Fetcher = async (signal?: AbortSignal) => {
     const mod = await import('../../../lib/dataService');
     const fn =
       (mod as any).getTopCourses ||
@@ -28,10 +33,10 @@ export default function TopCoursesContainer({
       (mod as any).fetchTopMatchingCourses;
     if (!fn) {
       throw new Error(
-        "No courses fetcher found. Export getTopCourses(): Promise<Course[]> from lib/dataService."
+        'No courses fetcher found. Export getTopCourses(): Promise<Course[]> from lib/dataService.'
       );
     }
-    return fn();
+    return fn(signal);
   };
 
   const {
@@ -42,8 +47,9 @@ export default function TopCoursesContainer({
     error,
     refetch,
   } = useQuery<Course[], Error>({
-    queryKey: ['top-courses'],
-    queryFn: fetcher ?? defaultFetcher,
+    // include versionIso so any change invalidates and refetches
+    queryKey: ['top-courses', versionIso ?? 'init'],
+    queryFn: ({ signal }) => (fetcher ?? defaultFetcher)(signal),
     refetchInterval: refetchIntervalMs,
   });
 

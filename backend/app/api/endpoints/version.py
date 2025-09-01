@@ -17,22 +17,24 @@ router = APIRouter(tags=["dashboard-version"])
 DASHBOARD_TABLES: Tuple[str, ...] = (
     "jobs",
     "job_skills",
+    "courses",                     # ← add this
     "course_skills",
     "course_alignment_scores_clean",
     "trending_jobs",
-    "skill_gap_counts",  # ← NEW: evaluator writes unmatched skills here
+    "skill_gap_counts",
 )
 
-# Preferred timestamp columns per table (checked in order).
-# If a column doesn't exist or is null-only, we fall back to the next.
+# Preferred timestamp columns per table (checked in order)
 PREFERRED_TS_COLS: Dict[str, Tuple[str, ...]] = {
     "jobs": ("updated_at", "created_at"),
     "job_skills": ("updated_at", "date_extracted_jobs", "created_at", "calculated_at"),
+    "courses": ("updated_at", "created_at"),              # ← add this
     "course_skills": ("updated_at", "date_extracted_course", "created_at"),
     "course_alignment_scores_clean": ("calculated_at", "updated_at", "created_at"),
     "trending_jobs": ("updated_at", "created_at", "calculated_at"),
     "skill_gap_counts": ("calculated_at", "updated_at", "created_at"),
 }
+
 
 # Generic fallback order if a table isn't in PREFERRED_TS_COLS
 DEFAULT_TS_ORDER: Tuple[str, ...] = (
@@ -46,14 +48,10 @@ DEFAULT_TS_ORDER: Tuple[str, ...] = (
 
 
 def _to_dt(ts: Optional[str]) -> Optional[datetime]:
-    """
-    Parse common timestamp formats from Supabase/PostgREST into aware UTC datetimes.
-    Returns None if input is falsy or parsing fails.
-    """
+    """Parse ISO-ish timestamps into aware UTC datetimes; None if invalid."""
     if not ts:
         return None
     try:
-        # Support both Z and +/- offsets
         dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
@@ -72,44 +70,64 @@ def _sha_etag(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _max_ts_from_table_versions(tables: Iterable[str]) -> Optional[datetime]:
+    """
+    Preferred: read the newest updated_at from public.table_versions for the given tables.
+    Requires the "touch_table_version" trigger to be attached to source tables.
+    """
+    try:
+        resp = (
+            supabase.table("table_versions")
+            .select("table_name, updated_at")
+            .in_("table_name", list(tables))
+            .order("updated_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        rows = getattr(resp, "data", None) or []
+        if rows and rows[0].get("updated_at"):
+            return _to_dt(rows[0]["updated_at"])
+        return None
+    except Exception:
+        # table_versions may not exist yet → fall back to scanning data tables
+        return None
+
+
 def _max_ts_for_table(table: str) -> Optional[datetime]:
     """
-    Returns the most recent timestamp for a single table by probing a set of likely columns.
-    We try each candidate column (desc order, limit 1) and return the first non-null value.
+    Fallback: probe likely timestamp columns and return the newest non-NULL value.
+    Uses NULL-safe ordering so NULLs never block freshness.
     """
     cols = PREFERRED_TS_COLS.get(table, DEFAULT_TS_ORDER)
-
     for col in cols:
         try:
-            # Ask only for the column we care about; order desc so the newest non-null should surface.
+            # Supabase/PostgREST supports nulls positioning via order modifiers.
+            # In supabase-py v2, pass nullsfirst=False to push NULLs to the end.
             q = (
                 supabase.table(table)
                 .select(col)
-                .order(col, desc=True)
+                .order(col, desc=True, nullsfirst=False)  # newest non-NULL first
                 .limit(1)
                 .execute()
             )
         except Exception:
-            # Column may not exist; try next candidate
+            # Column may not exist on this table/view → try next candidate
             continue
 
         rows = getattr(q, "data", None) or []
         if not rows:
-            # Table may be empty; try next candidate column
             continue
 
-        # Take the first row's value for this column (ordered desc)
-        value = rows[0].get(col)
-        dt = _to_dt(value)
+        dt = _to_dt(rows[0].get(col))
         if dt:
             return dt
 
-        # If top row is null for this column, try next candidate
-        # (Some tables have mixed nulls / legacy rows.)
+        # If top row is NULL (shouldn't happen with nullslast, but double-safety):
+        # try next candidate column.
     return None
 
 
-def _max_ts_across_tables(tables: Iterable[str]) -> Optional[datetime]:
+def _max_ts_across_tables_via_scan(tables: Iterable[str]) -> Optional[datetime]:
     latest: Optional[datetime] = None
     for t in tables:
         dt = _max_ts_for_table(t)
@@ -126,37 +144,42 @@ def get_dashboard_version(
     """
     Returns a single canonical timestamp for the dashboard's data freshness.
 
-    Responses:
-      200 OK:
-        { "lastChanged": "2025-08-26T13:40:11.123Z" }
+    200 OK:
+      { "lastChanged": "2025-08-26T13:40:11.123Z" }
 
-      304 Not Modified:
-        (empty body) when If-None-Match matches current ETag
+    304 Not Modified:
+      (empty body) when If-None-Match matches current ETag
+
+    NOTE: Include this router with prefix `/api/dashboard` so the frontend hits /api/dashboard/version
+          e.g., app.include_router(version.router, prefix="/api/dashboard")
     """
     try:
-        latest = _max_ts_across_tables(DASHBOARD_TABLES)
+        # 1) Preferred: table_versions (fast & exact)
+        latest = _max_ts_from_table_versions(DASHBOARD_TABLES)
 
-        # If no rows exist anywhere yet, stabilize at epoch
+        # 2) Fallback: scan source tables with NULL-safe ordering
+        if latest is None:
+            latest = _max_ts_across_tables_via_scan(DASHBOARD_TABLES)
+
+        # 3) If still nothing, stabilize at epoch so caches can initialize
         if latest is None:
             latest = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
         last_changed_iso = _fmt_iso(latest)
         etag = _sha_etag(last_changed_iso)
 
-        # Conditional GET
+        # Conditional GET (If-None-Match)
         if if_none_match and if_none_match.strip('"') == etag:
-            # Not changed since client’s last version
-            resp = Response(status_code=304)
-            resp.headers["ETag"] = f'"{etag}"'
-            resp.headers["Cache-Control"] = "no-store"
-            return resp
+            r = Response(status_code=304)
+            r.headers["ETag"] = f'"{etag}"'
+            r.headers["Cache-Control"] = "no-store"
+            return r
 
-        # Normal 200 response
         payload = {"lastChanged": last_changed_iso}
-        resp = JSONResponse(content=payload)
-        resp.headers["ETag"] = f'"{etag}"'
-        resp.headers["Cache-Control"] = "no-store"
-        return resp
+        r = JSONResponse(content=payload)
+        r.headers["ETag"] = f'"{etag}"'
+        r.headers["Cache-Control"] = "no-store"
+        return r
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Version endpoint failed: {exc}")
