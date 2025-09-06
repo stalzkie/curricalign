@@ -50,6 +50,9 @@ def extract_skills_with_gemini(text):
 You are a curriculum analysis expert.
 
 Your task is to read a course description and extract a Python list of **5 to 10 specific technical skills** that a student is likely to learn from the course.
+Do NOT include soft skills or vague terms. Respond ONLY with the Python list.
+
+NOTE: FOCUS ONLY ON TECHNICAL SKILLS.
 
 These should include:
 - Programming languages (e.g., 'python', 'java')

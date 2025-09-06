@@ -44,6 +44,8 @@ Do NOT include:
 - Duplicate or redundant entries
 - Any commentary or markdown
 
+NOTE: FOCUS ONLY ON TECHNICAL SKILLS.
+
 ---
 Example:
 ['python', 'pandas', 'sql', 'data visualization', 'machine learning']

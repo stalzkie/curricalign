@@ -13,7 +13,7 @@ export const ORCHESTRATOR_START_PIPELINE_URL = `${API_BASE}/api/orchestrator/sta
 export const ORCHESTRATOR_CANCEL_URL = '/api/orchestrator/cancel';
 export const ORCHESTRATOR_EVENTS_URL = `${API_BASE}/api/orchestrator/events`;
 export const ORCHESTRATOR_STATUS_URL = `${API_BASE}/api/orchestrator/status`;
-export const PDF_UPLOAD_URL          = `${API_BASE}/api/report/upload-pdf`;
+export const PDF_UPLOAD_URL = '/api/scan-pdf'; // <-- must match FastAPI router
 
 // Pipeline steps in display order
 export const INITIAL_STEPS: ProcessStep[] = [

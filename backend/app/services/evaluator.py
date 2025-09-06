@@ -163,6 +163,7 @@ def get_combined_job_skills() -> List[Dict[str, Any]]:
 def get_combined_course_skills() -> List[Dict[str, Any]]:
     print("📦 Fetching ALL course_skills rows...")
     rows = supabase.table("course_skills").select("*").execute().data or []
+    print(f"🔎 service-visible course_skills rows: {len(rows)}")
 
     id2course, code2id = _fetch_courses_map()
 
@@ -198,7 +199,9 @@ def get_combined_course_skills() -> List[Dict[str, Any]]:
             "skills": merged,
         })
 
-    print(f"🧮 Combined courses (with resolved course_id): {len(combined)}")
+    non_empty = sum(1 for c in combined if c.get("skills"))
+    print(f"🧮 Combined courses (with resolved course_id): {len(combined)}; "
+          f"courses with non-empty skills: {non_empty}")
     return combined
 
 # ---------------- Persistence: unmatched job skills ----------------
@@ -302,6 +305,13 @@ def compute_subject_scores_and_save() -> None:
     job_groups = get_combined_job_skills()
     course_groups = get_combined_course_skills()
 
+    # ✅ HARD GUARD: do not generate alignment scores when no course skills exist
+    total_courses_with_skills = sum(1 for g in course_groups if g.get("skills"))
+    if total_courses_with_skills == 0:
+        print("⛔ No course skills found across all courses. Skipping alignment score writes.")
+        # Optionally: also skip gap counts here to avoid marking ALL job skills as gaps.
+        return
+
     # Flatten job skill occurrences
     job_skill_pairs: List[str] = []
     job_skill_rep_id_lookup: List[Any] = []
@@ -321,7 +331,7 @@ def compute_subject_scores_and_save() -> None:
     batch_id = str(uuid4())
     now_utc = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
-    matched_job_occurrence = np.zeros(len(job_skill_pairs), dtype=bool)  # ← for gap
+    matched_job_occurrence = np.zeros(len(job_skill_pairs), dtype=bool)  # ← for gap coverage
 
     for course in course_groups:
         course_id = course["course_id"]

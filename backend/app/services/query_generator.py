@@ -326,12 +326,12 @@ def get_top_keywords(region="PH", n=10):
     seed_clusters = [
         "developer, software engineer, ai, data, cloud",
         "machine learning, devops, python, backend, frontend",
-        "data analytics, computer science, cyber security, mobile dev",
+        "data analytics, computer science, cyber security, mobile development",
         "web development, javascript, react, angular, vue",
         "full stack, data science, big data, blockchain, ar/vr",
         "it support, network engineer, database admin, system admin",
-        "project management, scrum master, agile, product owner",
-        "ui/ux design, product designer, digital marketing, seo",
+        "software project management, scrum master, agile, software product owner",
+        "ui/ux design, software product designer, digital marketing, seo",
         "cloud architect, solutions architect, enterprise architect"
     ]
 

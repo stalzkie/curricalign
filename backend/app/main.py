@@ -1,32 +1,86 @@
-# backend/app/main.py
+# apps/backend/main.py
 
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
+import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
 from supabase import create_client, Client
 
 # Routers
 from .api.endpoints import dashboard, pipeline, orchestrator, report_files, version
+from .api.endpoints import scan_pdf as scan_pdf_endpoint  # <-- NEW
 
-# Some environments have quirky HTTP/2 behavior; disable if needed.
-os.environ.setdefault("HTTPX_DISABLE_HTTP2", "1")
+# -------------------------------------------------------------------
+# Environment / logging
+# -------------------------------------------------------------------
+os.environ.setdefault("HTTPX_DISABLE_HTTP2", "1")  # Cloudflare/HTTP2 quirks
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(
+    level=getattr(logging, LOG_LEVEL, logging.INFO),
+    format="%(asctime)s %(levelname)s [main] %(message)s",
+)
+
+
+def _get_service_key() -> tuple[str, str]:
+    """
+    Load Supabase URL and a **service** key (not anon).
+    Supports several common env names to avoid misconfig.
+    """
+    url = (
+        os.getenv("SUPABASE_URL")
+        or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+        or ""
+    ).strip()
+
+    # Prefer explicit service role envs; fall back to generic SUPABASE_KEY
+    key = (
+        os.getenv("SUPABASE_SERVICE_ROLE_KEY")   # common
+        or os.getenv("SUPABASE_SERVICE_ROLE")    # alias
+        or os.getenv("SUPABASE_SERVICE_KEY")     # alias
+        or os.getenv("SUPABASE_SERVICE_API_KEY") # alias
+        or os.getenv("SUPABASE_KEY")             # last resort; must be service-level, not anon
+        or ""
+    ).strip()
+
+    if not url or not key:
+        raise RuntimeError(
+            "Missing Supabase credentials. Ensure SUPABASE_URL and a service key "
+            "(e.g., SUPABASE_SERVICE_ROLE_KEY) are set in the environment."
+        )
+    return url, key
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("INFO:     Application startup...")
-    supabase_url = os.environ.get("SUPABASE_URL")
-    supabase_key = os.environ.get("SUPABASE_KEY")
-    if not supabase_url or not supabase_key:
-        raise ValueError("SUPABASE_URL and SUPABASE_KEY must be set in environment.")
-    supabase_client: Client = create_client(supabase_url, supabase_key)
-    app.state.supabase = supabase_client
-    print("INFO:     Supabase client created and attached to app state.")
+    logging.info("Application startup…")
+    url, key = _get_service_key()
+
+    sb: Client = create_client(url, key)
+    app.state.supabase = sb
+    logging.info("Supabase service client attached to app.state.supabase")
+
+    # Quick probe: tiny exact count to confirm RLS/keys are correct.
+    # We wrap in try/except so startup never crashes on a read error.
+    try:
+        resp = (
+            sb.from_("course_alignment_scores_clean")
+            .select("id", count="exact")
+            .range(0, 0)
+            .execute()
+        )
+        cnt = int(getattr(resp, "count", 0) or 0)
+        logging.info("[probe] course_alignment_scores_clean count=%s", cnt)
+    except Exception as e:
+        logging.warning("[probe] count failed: %r", e)
+
     yield
-    print("INFO:     Application shutdown.")
+    logging.info("Application shutdown.")
+
 
 app = FastAPI(
     title="CurricAlign API",
@@ -35,37 +89,69 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# -------------------------------------------------------------------
 # CORS
+# -------------------------------------------------------------------
+# Allow local dev by default; merge in FRONTEND_ORIGIN if provided.
+default_origins = {
+    "http://localhost",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+}
+extra_origin = os.getenv("FRONTEND_ORIGIN", "").strip()
+if extra_origin:
+    default_origins.add(extra_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=list(default_origins),
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"],  # allows multipart/form-data for file uploads
 )
 
-# This file is backend/app/main.py -> parent is backend/app
-APP_DIR = Path(__file__).resolve().parent                  # backend/app
-STATIC_DIR = (APP_DIR / "static").resolve()                # backend/app/static 
-REPORTS_DIR = (STATIC_DIR / "reports").resolve()           # backend/app/static/reports
+# -------------------------------------------------------------------
+# Static files (PDF reports, etc.)
+# -------------------------------------------------------------------
+APP_DIR = Path(__file__).resolve().parent               # apps/backend/app
+STATIC_DIR = (APP_DIR / "static").resolve()             # apps/backend/app/static
+REPORTS_DIR = (STATIC_DIR / "reports").resolve()        # apps/backend/app/static/reports
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
-# Serves /static/* (including /static/reports/<file>.pdf)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
+# -------------------------------------------------------------------
+# Health + Root
+# -------------------------------------------------------------------
+@app.get("/healthz")
+def healthz():
+    """
+    Liveness/readiness probe. Also verifies DB read briefly.
+    """
+    sb: Client | None = getattr(app.state, "supabase", None)
+    if sb is None:
+        raise HTTPException(status_code=500, detail="Supabase client missing")
+
+    try:
+        resp = sb.from_("jobs").select("job_id", count="exact").range(0, 0).execute()
+        jobs = int(getattr(resp, "count", 0) or 0)
+    except Exception as e:
+        logging.warning("[healthz] jobs count failed: %r", e)
+        jobs = -1
+
+    return {"ok": True, "jobsCount": jobs}
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the CurricAlign API"}
 
-# ROUTERS
+# -------------------------------------------------------------------
+# Routers
+# -------------------------------------------------------------------
 app.include_router(dashboard.router,    prefix="/api/dashboard", tags=["Dashboard"])
 app.include_router(version.router,      prefix="/api/dashboard", tags=["Dashboard-Version"])
 app.include_router(pipeline.router,     prefix="/api/pipeline",  tags=["Pipeline"])
 app.include_router(orchestrator.router, prefix="/api",           tags=["Orchestrator"])
-# Keep the validated reports router at /api/reports/{filename}
 app.include_router(report_files.router, prefix="/api",           tags=["Reports"])
+app.include_router(scan_pdf_endpoint.router, prefix="/api",      tags=["Scan PDF"])  # <-- NEW

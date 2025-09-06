@@ -26,29 +26,5 @@
   "../node_modules/@supabase/storage-js/dist/module/lib/helpers.js -> @supabase/node-fetch": {
     "id": "../node_modules/@supabase/storage-js/dist/module/lib/helpers.js -> @supabase/node-fetch",
     "files": []
-  },
-  "components/dashboard/containers/CourseWarningsContainer.tsx -> ../../../lib/dataService": {
-    "id": "components/dashboard/containers/CourseWarningsContainer.tsx -> ../../../lib/dataService",
-    "files": []
-  },
-  "components/dashboard/containers/InDemandJobsContainer.tsx -> ../../../lib/dataService": {
-    "id": "components/dashboard/containers/InDemandJobsContainer.tsx -> ../../../lib/dataService",
-    "files": []
-  },
-  "components/dashboard/containers/KPIContainer.tsx -> ../../../lib/dataService": {
-    "id": "components/dashboard/containers/KPIContainer.tsx -> ../../../lib/dataService",
-    "files": []
-  },
-  "components/dashboard/containers/MissingSkillsContainer.tsx -> ../../../lib/dataService": {
-    "id": "components/dashboard/containers/MissingSkillsContainer.tsx -> ../../../lib/dataService",
-    "files": []
-  },
-  "components/dashboard/containers/MostInDemandSkillsContainer.tsx -> ../../../lib/dataService": {
-    "id": "components/dashboard/containers/MostInDemandSkillsContainer.tsx -> ../../../lib/dataService",
-    "files": []
-  },
-  "components/dashboard/containers/TopCoursesContainer.tsx -> ../../../lib/dataService": {
-    "id": "components/dashboard/containers/TopCoursesContainer.tsx -> ../../../lib/dataService",
-    "files": []
   }
 }

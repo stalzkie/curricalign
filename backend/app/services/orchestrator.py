@@ -29,6 +29,10 @@ from .pdf_report import generate_pdf_report, fetch_clean_report_data
 from ..ml.train_model import train_subject_score_model
 from ..ml.train_query_model import train_query_model
 from ..core.supabase_client import insert_job
+from ..core.supabase_client import supabase  # used for DB guards
+
+# NEW: trending jobs computation (runs after we insert jobs)
+from .trending_jobs import compute_trending_jobs
 
 # Final checking (kept available for callers that need it)
 from .final_checking import run_final_checks
@@ -57,13 +61,14 @@ def _chunks(iterable: Iterable[Any], size: int) -> Iterable[list[Any]]:
 
 
 # ----------------------------------------------------------------------
-# Scraping + ingest
+# Scraping + ingest (+ trending update)
 # ----------------------------------------------------------------------
 async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
     """
     1) Scrape jobs (SerpAPI → Google Jobs)
     2) Insert them into Supabase in batches
-    3) Return some stats (counts + timing)
+    3) (NEW) Recompute trending jobs if UPDATE_TRENDING is enabled
+    4) Return some stats (counts + timing)
     """
     logging.debug("Entering scrape_and_ingest function.")
     results: Dict[str, Any] = {"scraped_jobs": 0, "inserted_jobs": 0, "errors": []}
@@ -80,7 +85,10 @@ async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
 
         all_jobs = await asyncio.to_thread(scrape_jobs_from_google_jobs)
         results["scraped_jobs"] = len(all_jobs) if all_jobs else 0
-        logging.debug("scrape_jobs_from_google_jobs completed. Found %d jobs.", results["scraped_jobs"])
+        logging.debug(
+            "scrape_jobs_from_google_jobs completed. Found %d jobs.",
+            results["scraped_jobs"],
+        )
 
         await _yield_now()
 
@@ -90,7 +98,11 @@ async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
             inserted = 0
             BATCH_SIZE = 50
 
-            logging.debug("Attempting to insert %d jobs (batch size: %d).", results["scraped_jobs"], BATCH_SIZE)
+            logging.debug(
+                "Attempting to insert %d jobs (batch size: %d).",
+                results["scraped_jobs"],
+                BATCH_SIZE,
+            )
 
             for batch in _chunks(all_jobs, BATCH_SIZE):
                 for job in batch:
@@ -103,11 +115,31 @@ async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
                         logging.exception(msg)
                         results["errors"].append(msg)
 
-                logging.debug("Inserted %d/%d so far…", inserted, results["scraped_jobs"])
+                logging.debug(
+                    "Inserted %d/%d so far…", inserted, results["scraped_jobs"]
+                )
                 await _yield_now()
 
             results["inserted_jobs"] = inserted
-            logging.info("Inserted %d/%d scraped jobs into Supabase.", inserted, results["scraped_jobs"])
+            logging.info(
+                "Inserted %d/%d scraped jobs into Supabase.",
+                inserted,
+                results["scraped_jobs"],
+            )
+
+        # --------------- NEW: Trending jobs recompute ---------------
+        update_trending = _env_flag("UPDATE_TRENDING", True)
+        if update_trending:
+            try:
+                logging.info("📈 Updating trending jobs…")
+                # compute_trending_jobs is sync; run it off the event loop
+                await asyncio.to_thread(compute_trending_jobs)
+                logging.info("✅ Trending jobs updated.")
+            except Exception as te:
+                logging.warning("⚠️ compute_trending_jobs failed: %r", te, exc_info=True)
+        else:
+            logging.info("Skipping trending jobs update (UPDATE_TRENDING is disabled).")
+        # ------------------------------------------------------------
 
     except Exception as e:
         msg = f"Scrape/ingest step failed: {e}"
@@ -116,7 +148,10 @@ async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
         raise
     finally:
         results["timing_sec"] = round(time.perf_counter() - t0, 3)
-        logging.debug("Exiting scrape_and_ingest function. Took %s seconds.", results["timing_sec"])
+        logging.debug(
+            "Exiting scrape_and_ingest function. Took %s seconds.",
+            results["timing_sec"],
+        )
     return results
 
 
@@ -124,6 +159,15 @@ async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
 # Extraction
 # ----------------------------------------------------------------------
 async def extract_skills(extract_enabled: bool, use_stored_data: bool) -> None:
+    """
+    Extract skills from jobs and from courses.
+
+    Behavior:
+    - ALWAYS run `extract_subject_skills_from_supabase()` which reads the **courses**
+      table and (re)writes into **course_skills**.
+    - `use_stored_data` only indicates the run originates from existing DB state
+      (not PDF upload); it does NOT suppress creation of course_skills anymore.
+    """
     logging.debug("Entering extract_skills function.")
     if not extract_enabled:
         logging.info("Skipping extraction step (extract_enabled=False).")
@@ -132,18 +176,17 @@ async def extract_skills(extract_enabled: bool, use_stored_data: bool) -> None:
 
     t0 = time.perf_counter()
     try:
+        # ---- Job skills (always try)
         logging.info("🧠 Extracting skills from job descriptions…")
         await asyncio.to_thread(extract_skills_from_jobs)
         logging.debug("extract_skills_from_jobs completed.")
         await _yield_now()
 
-        if not use_stored_data:
-            logging.info("📘 Extracting course/subject skills from PDF/DB…")
-            await asyncio.to_thread(extract_subject_skills_from_supabase)
-            logging.debug("extract_subject_skills_from_supabase completed.")
-            await _yield_now()
-        else:
-            logging.info("Skipping subject skill extraction (use_stored_data=True).")
+        # ---- Course skills (ALWAYS run, source is courses table)
+        logging.info("📘 Extracting course/subject skills from *courses* table…")
+        await asyncio.to_thread(extract_subject_skills_from_supabase)
+        logging.debug("extract_subject_skills_from_supabase completed.")
+        await _yield_now()
 
     except Exception as e:
         msg = f"Skill extraction step failed: {e}"
@@ -192,11 +235,33 @@ async def evaluate_and_save_scores() -> Optional[Dict[str, Any]]:
     """
     Runs the evaluation step which writes to the DB. Some implementations
     may return a report-like structure; others return None and rely on DB reads.
+
+    Guard: if `course_skills` has no rows, skip evaluation to avoid
+    writing spurious scores when there is nothing to score.
     """
     logging.debug("Entering evaluate_and_save_scores function.")
     t0 = time.perf_counter()
     report: Optional[Dict[str, Any]] = None
     try:
+        # Check availability of course_skills WITHOUT HEAD
+        try:
+            resp = (
+                supabase.table("course_skills")
+                .select("id", count="exact")
+                .range(0, 0)  # triggers count with minimal payload
+                .execute()
+            )
+            course_skill_rows = int(getattr(resp, "count", 0) or 0)
+        except Exception as e:
+            logging.warning(
+                "Could not check course_skills count before evaluation: %r", e
+            )
+            course_skill_rows = 0
+
+        if course_skill_rows == 0:
+            logging.info("⛔ No course_skills available; skipping evaluation step.")
+            return None
+
         logging.info("📊 Computing subject success scores…")
         report = await asyncio.to_thread(compute_subject_scores_and_save)
         logging.debug("compute_subject_scores_and_save completed.")
@@ -227,7 +292,9 @@ async def validate_after_evaluation(
     """
     logging.info("🔎 Running final checks on evaluated results…")
     validated = await run_final_checks(report_data, strict=strict)
-    logging.info("✅ Final checks passed. %d rows ready for PDF.", len(validated.get("rows", [])))
+    logging.info(
+        "✅ Final checks passed. %d rows ready for PDF.", len(validated.get("rows", []))
+    )
     return validated
 
 
@@ -263,7 +330,9 @@ async def generate_and_store_pdf_report(
             rows = report_data  # assume caller passed rows directly
             logging.debug("Received list with %d rows for PDF.", len(rows))
         else:
-            logging.warning("No in-memory report data; fetching latest cleaned results for PDF.")
+            logging.warning(
+                "No in-memory report data; fetching latest cleaned results for PDF."
+            )
             rows = await asyncio.to_thread(fetch_clean_report_data)  # already-clean table
 
         if not rows:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import time
+import json
 import logging
 from typing import Dict, List, Any, Callable, TypeVar
 
@@ -16,19 +17,23 @@ except Exception:
 try:
     from httpcore import RemoteProtocolError
 except Exception:
+
     class RemoteProtocolError(Exception):
         pass
 
 # fuzzy matching (optional, with graceful fallback)
 try:
     from rapidfuzz import fuzz as _rf_fuzz
+
     def _fuzzy_ratio(a: str, b: str) -> int:
         # rapidfuzz returns 0..100
         return int(_rf_fuzz.ratio(a, b))
 except Exception:
+
     def _fuzzy_ratio(a: str, b: str) -> int:
         # fallback: exact match only
         return 100 if a == b else 0
+
 
 router = APIRouter()
 T = TypeVar("T")
@@ -46,9 +51,7 @@ def _get_sb(request: Request):
 
 
 def _retry_supabase_sync(call: Callable[[], T], attempts: int = 3, base_delay: float = 0.2) -> T:
-    """
-    Retry wrapper for transient Supabase/HTTP errors.
-    """
+    """ Retry wrapper for transient Supabase/HTTP errors. """
     last_exc: Exception | None = None
     for i in range(1, attempts + 1):
         try:
@@ -73,26 +76,38 @@ def _retry_supabase_sync(call: Callable[[], T], attempts: int = 3, base_delay: f
     raise last_exc
 
 
+def _fetch_all_rows(sb, table: str, columns: str, chunk: int = 1000, order_col: str | None = None) -> List[Dict[str, Any]]:
+    """
+    Paginate with optional stable ORDER BY to avoid dup/miss rows across pages.
+    """
+    out: List[Dict[str, Any]] = []
+    start = 0
+    while True:
+        end = start + chunk - 1
+        if order_col:
+            q = sb.from_(table).select(columns).order(order_col, desc=False).range(start, end)
+        else:
+            q = sb.from_(table).select(columns).range(start, end)
+        resp = _retry_supabase_sync(lambda: q.execute())
+        rows = resp.data or []
+        out.extend(rows)
+        if len(rows) < chunk:
+            break
+        start += chunk
+    return out
+
+
 def get_average_alignment_score_local(sb) -> float:
-    """
-    Calculates the average alignment score by fetching all scores
-    and performing the average calculation in Python.
-    """
+    """ Calculates the average alignment score by fetching all scores and performing the average calculation in Python. """
     try:
-        resp = _retry_supabase_sync(
-            lambda: sb.from_("course_alignment_scores_clean")
-            .select("score")
-            .execute()
-        )
-        data = resp.data or []
+        rows = _fetch_all_rows(sb, "course_alignment_scores_clean", "score", chunk=1000, order_col=None)
     except Exception as e:
         logging.error(f"Error fetching scores for average calculation: {e!r}")
         return 0.0
 
-    scores = [r.get("score") for r in data if r.get("score") is not None]
+    scores = [r.get("score") for r in rows if r.get("score") is not None]
     if not scores:
         return 0.0
-
     avg_score = sum(scores) / len(scores)
     return round(avg_score, 2)
 
@@ -101,17 +116,34 @@ def _split_skills_maybe_list(value: Any) -> List[str]:
     """
     Converts the skills data into a list of lowercase strings.
     Handles:
-      - ['Python', 'SQL']
-      - "Python, SQL"
-      - None
+    - ['Python', 'SQL']
+    - "Python, SQL"
+    - '["Python","SQL"]'   <-- JSON string list
+    - None
     """
     if value is None:
         return []
+
+    # True list
     if isinstance(value, list):
         return [str(s).strip().lower() for s in value if str(s).strip()]
+
+    # JSON text list
     if isinstance(value, str):
-        return [s.strip().lower() for s in value.split(",") if s.strip()]
-    return [str(value).strip().lower()] if str(value).strip() else []
+        s = value.strip()
+        if s.startswith("[") and s.endswith("]"):
+            try:
+                arr = json.loads(s)
+                if isinstance(arr, list):
+                    return [str(x).strip().lower() for x in arr if str(x).strip()]
+            except Exception:
+                pass
+        # comma-delimited fallback
+        return [x.strip().lower() for x in s.split(",") if x.strip()]
+
+    # Fallback scalar
+    sval = str(value).strip().lower()
+    return [sval] if sval else []
 
 
 # ---------- Normalization & dedupe for skills ----------
@@ -125,7 +157,7 @@ _PREFIXES = (
     "experience in ",
     "proficient in ",
     "familiar with ",
-    "building ",      # only remove when it's a leading verb
+    "building ",       # only remove when it's a leading verb
     "developing ",
     "creating ",
     "designing ",
@@ -138,13 +170,14 @@ _PREFIXES = (
 _PUNCT_RE = re.compile(r"[^a-z0-9\+\#\s]+")
 _WS_RE = re.compile(r"\s+")
 
+
 def _normalize_skill(raw: str) -> str:
     """
     Canonical normalization for grouping:
-      - lowercase, trim
-      - strip common leading phrases/verbs ("using ", "building ", ...)
-      - remove most punctuation (keep + and #), collapse whitespace
-      - very light plural trim (trailing 's' for longer tokens)
+    - lowercase, trim
+    - strip common leading phrases/verbs ("using ", "building ", ...)
+    - remove most punctuation (keep + and #), collapse whitespace
+    - very light plural trim (trailing 's' for longer tokens)
     """
     s = (raw or "").strip().lower()
     for p in _PREFIXES:
@@ -158,17 +191,17 @@ def _normalize_skill(raw: str) -> str:
         s = s[:-1]
     return s
 
+
 def _dedupe_frequency(freq: Dict[str, int], threshold: int = 85) -> Dict[str, int]:
     """
     Fuzzy-dedupe a frequency dict {skill: count}:
-      - iterate by highest count first
-      - merge into an existing representative if fuzzy ratio >= threshold
+    - iterate by highest count first
+    - merge into an existing representative if fuzzy ratio >= threshold
     """
     if not freq:
         return {}
     items = sorted(freq.items(), key=lambda kv: kv[1], reverse=True)
     merged: Dict[str, int] = {}
-
     for skill, count in items:
         norm = _normalize_skill(skill)
         if not norm:
@@ -201,14 +234,14 @@ ALIASES: Dict[str, str] = {
 
 # Generic noise tokens to ignore
 STOPWORDS = {
-    "and", "or", "of", "the", "to", "in", "for", "with", "on", "using",
-    "experience", "knowledge", "background", "skills", "skill", "ability",
+    "and", "or", "of", "the", "to", "in", "for", "with", "on",
+    "using", "experience", "knowledge", "background",
+    "skills", "skill", "ability",
 }
 
+
 def _fold_aliases_counts(freq: Dict[str, int], aliases: Dict[str, str]) -> Dict[str, int]:
-    """
-    Fold a {skill: count} dict through ALIASES so variants accumulate into a canonical key.
-    """
+    """ Fold a {skill: count} dict through ALIASES so variants accumulate into a canonical key. """
     if not freq:
         return {}
     out: Dict[str, int] = {}
@@ -217,20 +250,17 @@ def _fold_aliases_counts(freq: Dict[str, int], aliases: Dict[str, str]) -> Dict[
         out[canon] = out.get(canon, 0) + v
     return out
 
+
 def _fold_aliases_set(items: List[str] | set[str], aliases: Dict[str, str]) -> set[str]:
-    """
-    Map each normalized course skill through ALIASES so coverage aligns with job variants.
-    """
+    """ Map each normalized course skill through ALIASES so coverage aligns with job variants. """
     result: set[str] = set()
     for k in items:
         result.add(aliases.get(k, k))
     return result
 
+
 def _build_normalized_counts(rows: List[Dict[str, Any]], field: str) -> Dict[str, int]:
-    """
-    Split + normalize a field and return frequency counts, filtering noise.
-    Works for both `job_skills` and `course_skills`.
-    """
+    """ Split + normalize a field and return frequency counts, filtering noise. Works for both job_skills and course_skills. """
     freq: Dict[str, int] = {}
     for r in rows:
         for raw in _split_skills_maybe_list(r.get(field, "")):
@@ -244,10 +274,9 @@ def _build_normalized_counts(rows: List[Dict[str, Any]], field: str) -> Dict[str
             freq[norm] = freq.get(norm, 0) + 1
     return freq
 
+
 def _build_normalized_set(rows: List[Dict[str, Any]], field: str) -> set[str]:
-    """
-    Split + normalize a field and return a distinct set, filtering noise.
-    """
+    """ Split + normalize a field and return a distinct set, filtering noise. """
     s: set[str] = set()
     for r in rows:
         for raw in _split_skills_maybe_list(r.get(field, "")):
@@ -262,18 +291,64 @@ def _build_normalized_set(rows: List[Dict[str, Any]], field: str) -> set[str]:
     return s
 
 
+def _is_fuzzy_member(term: str, population: set[str], threshold: int = 88) -> bool:
+    """
+    Returns True if term fuzzily matches any member of population with ratio >= threshold.
+    Uses RapidFuzz if available; otherwise degrades to exact-match check.
+    """
+    if not term or not population:
+        return False
+    for p in population:
+        if _fuzzy_ratio(term, p) >= threshold:
+            return True
+    return False
+
+
+# --------------------------- Matched (market) skills reader ---------------------------
+
+def _get_matched_course_skills(sb) -> set[str]:
+    """
+    Fetch a set of normalized, alias-folded skills coming from the market that courses already cover
+    (so they should NOT be considered missing). Reads skills_in_market from course_alignment_scores_clean.
+    Handles list or comma-separated strings per row.
+    """
+    try:
+        rows = _fetch_all_rows(sb, "course_alignment_scores_clean", "skills_in_market", chunk=1000, order_col=None)
+    except Exception:
+        rows = []
+
+    matched_set: set[str] = set()
+    if rows:
+        for r in rows:
+            for raw in _split_skills_maybe_list(r.get("skills_in_market")):
+                norm = _normalize_skill(raw)
+                if not norm:
+                    continue
+                if norm in STOPWORDS:
+                    continue
+                if len(norm) < 2:
+                    continue
+                matched_set.add(norm)
+
+    # Fold aliases so coverage aligns with job variants
+    if matched_set:
+        matched_set = _fold_aliases_set(matched_set, ALIASES)
+    return matched_set
+
+
 # --------------------------- Endpoints ---------------------------
 
 @router.get("/skills")
 def get_in_demand_skills(request: Request):
     """
     Return in-demand skills with normalization + fuzzy dedupe.
+    IMPORTANT: paginates through ALL job_skills rows (no 1k cap) in stable order by job_skill_id.
     Example: [{"name": "python", "demand": 233}, ...]
     """
     sb = _get_sb(request)
     try:
-        resp = _retry_supabase_sync(lambda: sb.from_("job_skills").select("job_skills").execute())
-        data = resp.data or []
+        # stable ordered pagination by job_skill_id to ensure no dup/miss across pages
+        data = _fetch_all_rows(sb, "job_skills", "job_skill_id, job_skills", chunk=1000, order_col="job_skill_id")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching skills: {str(e)}")
 
@@ -285,7 +360,10 @@ def get_in_demand_skills(request: Request):
                 continue
             raw_freq[norm] = raw_freq.get(norm, 0) + 1
 
-    cleaned = _dedupe_frequency(raw_freq, threshold=85)
+    # Fold aliases BEFORE fuzzy dedupe so "reactjs" and "react js" funnel into "react"
+    folded = _fold_aliases_counts(raw_freq, ALIASES)
+    cleaned = _dedupe_frequency(folded, threshold=85)
+
     sorted_skills = sorted(cleaned.items(), key=lambda x: x[1], reverse=True)
     return [{"name": name, "demand": demand} for name, demand in sorted_skills]
 
@@ -294,13 +372,9 @@ def get_in_demand_skills(request: Request):
 def get_top_courses(request: Request):
     sb = _get_sb(request)
     try:
-        resp = _retry_supabase_sync(
-            lambda: sb.from_("course_alignment_scores_clean")
-            .select("course_title, course_code, score, calculated_at")
-            .order("score", desc=True)
-            .execute()
+        records = _fetch_all_rows(
+            sb, "course_alignment_scores_clean", "course_title, course_code, score, calculated_at", chunk=1000, order_col=None
         )
-        records = resp.data or []
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching top courses: {str(e)}")
 
@@ -327,13 +401,7 @@ def get_top_courses(request: Request):
 def get_trending_jobs(request: Request):
     sb = _get_sb(request)
     try:
-        resp = _retry_supabase_sync(
-            lambda: sb.from_("trending_jobs")
-            .select("title, trending_score")
-            .order("trending_score", desc=True)
-            .execute()
-        )
-        records = resp.data or []
+        records = _fetch_all_rows(sb, "trending_jobs", "title, trending_score", chunk=1000, order_col=None)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching trending jobs: {str(e)}")
 
@@ -349,30 +417,31 @@ def get_missing_skills(
     request: Request,
     min: int = Query(default=None, ge=1, description="Minimum count threshold (defaults to ~1% of job rows, min 5)"),
     latest_only: bool = Query(default=True, description="If true, use evaluator's latest batch only"),
+    fuzzy_threshold: int = Query(default=88, ge=0, le=100, description="Fuzzy ratio threshold for variant exclusion"),
 ):
     """
     Prefer evaluator output (skill_gap_counts), fallback to deterministic API-side calc.
-
-    Flow:
-      1) Determine default threshold: ~1% of job rows (min 5), unless ?min= provided.
-      2) Try to read evaluator’s aggregated unmatched skills from `skill_gap_counts`.
-         - If latest_only=True, pick the newest batch_id by calculated_at.
-         - Return rows with count >= threshold, ordered by count desc.
-      3) If no rows, fallback:
-         - Normalize both sides deterministically, fold small alias map,
-           compute exact set diff with counts, apply threshold.
+    Extra logic:
+    - Reads skills_in_market from course_alignment_scores_clean.
+    - Uses fuzzy matching to exclude variations present in the matched set.
     """
     sb = _get_sb(request)
 
-    # ---- 1) Threshold
+    # ---- 1) Threshold (use ordered pagination on job_skills by job_skill_id)
     try:
-        job_count_resp = _retry_supabase_sync(lambda: sb.from_("job_skills").select("id").execute())
-        total_job_rows = len(job_count_resp.data or [])
+        job_rows_for_threshold = _fetch_all_rows(sb, "job_skills", "job_skill_id", chunk=1000, order_col="job_skill_id")
+        total_job_rows = len(job_rows_for_threshold)
     except Exception:
         total_job_rows = 1
     threshold = min if isinstance(min, int) else max(5, int(round((total_job_rows or 1) * 0.01)))
 
-    # ---- 2) Evaluator output first (preferred)
+    # ---- 2) Matched/covered market skills from course_alignment_scores_clean
+    try:
+        matched_set = _get_matched_course_skills(sb)
+    except Exception:
+        matched_set = set()
+
+    # ---- 3) Evaluator output first (preferred)
     try:
         if latest_only:
             latest = _retry_supabase_sync(
@@ -408,44 +477,64 @@ def get_missing_skills(
         logging.warning(f"[dashboard] reading {SKILL_GAP_TABLE} failed, will fallback: {e!r}")
 
     if resp and resp.data:
-        out = [{"skill": r["skill_norm"], "count": int(r["count"])} for r in resp.data if r.get("skill_norm")]
+        # Filter out skills that appear among matched skills (exact or fuzzy variants)
+        out = []
+        for r in resp.data:
+            raw_skill = r.get("skill_norm")
+            if not raw_skill:
+                continue
+            norm = _normalize_skill(raw_skill)
+            if not norm:
+                continue
+            # alias to canonical
+            norm = ALIASES.get(norm, norm)
+            # exclude if present exactly or fuzzily among matched skills
+            if (norm in matched_set) or _is_fuzzy_member(norm, matched_set, threshold=fuzzy_threshold):
+                continue
+            out.append({"skill": norm, "count": int(r.get("count", 0))})
         return out
 
-    # ---- 3) Fallback: deterministic API-side calculation (normalize → alias-fold → exact diff)
+    # ---- 4) Fallback: deterministic API-side calculation (normalize → alias-fold)
     try:
-        job_resp = _retry_supabase_sync(lambda: sb.from_("job_skills").select("job_skills").execute())
-        course_resp = _retry_supabase_sync(lambda: sb.from_("course_skills").select("course_skills").execute())
-        job_rows = job_resp.data or []
-        course_rows = course_resp.data or []
+        job_rows = _fetch_all_rows(sb, "job_skills", "job_skill_id, job_skills", chunk=1000, order_col="job_skill_id")
+        course_rows = _fetch_all_rows(sb, "course_skills", "course_skills", chunk=1000, order_col=None)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching skills for fallback: {str(e)}")
 
     job_freq = _build_normalized_counts(job_rows, "job_skills")
     course_set = _build_normalized_set(course_rows, "course_skills")
+
+    # Alias fold both sides
     job_freq = _fold_aliases_counts(job_freq, ALIASES)
     course_set = _fold_aliases_set(course_set, ALIASES)
 
-    missing = [
-        {"skill": skill, "count": count}
-        for skill, count in job_freq.items()
-        if (skill not in course_set) and (count >= threshold)
-    ]
+    # Merge course coverage with matched_set (market skills already covered by courses)
+    if matched_set:
+        course_set |= matched_set
+
+    missing = []
+    for skill, count in job_freq.items():
+        if count < threshold:
+            continue
+        # Exclude if covered exactly or fuzzily by course/matched skills
+        if (skill in course_set) or _is_fuzzy_member(skill, course_set, threshold=fuzzy_threshold):
+            continue
+        missing.append({"skill": skill, "count": count})
+
     missing.sort(key=lambda x: x["count"], reverse=True)
     return missing
 
 
 @router.get("/warnings")
 def get_low_scoring_courses(request: Request):
+    """
+    Keep behavior from your new code (latest batch), BUT restore the score <= 50 filter.
+    """
     sb = _get_sb(request)
     try:
-        resp = _retry_supabase_sync(
-            lambda: sb.from_("course_alignment_scores_clean")
-            .select("course_title, course_code, score, calculated_at")
-            .lte("score", 50)
-            .order("score", desc=False)
-            .execute()
+        records = _fetch_all_rows(
+            sb, "course_alignment_scores_clean", "course_title, course_code, score, calculated_at", chunk=1000, order_col=None
         )
-        records = resp.data or []
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching warnings: {str(e)}")
 
@@ -458,47 +547,64 @@ def get_low_scoring_courses(request: Request):
     else:
         recent = [r for r in records if r.get("calculated_at") == latest_batch]
 
+    # RESTORE the low-score filter and sort ascending by score
+    low = [r for r in recent if (r.get("score") is not None and r.get("score") <= 50)]
+    low.sort(key=lambda r: r.get("score", 999999))
+
     return [
         {
             "courseName": r.get("course_title") or "Unknown Course",
             "courseCode": r.get("course_code") or "N/A",
             "matchPercentage": r.get("score") or 0,
         }
-        for r in recent
+        for r in low
     ]
+
+
+def _count_exact(sb, table: str, id_candidates: list[str] | None = None) -> int:
+    """
+    Robust row count that works across supabase-py versions without HEAD.
+    Tries a list of id columns; falls back to '*' selection.
+    """
+    id_candidates = id_candidates or ["id"]
+    for col in id_candidates:
+        try:
+            r = _retry_supabase_sync(
+                lambda: sb.from_(table).select(col, count="exact").range(0, 0).execute()
+            )
+            c = int(getattr(r, "count", 0) or 0)
+            return c
+        except Exception:
+            continue
+    try:
+        r = _retry_supabase_sync(
+            lambda: sb.from_(table).select("*", count="exact").range(0, 0).execute()
+        )
+        return int(getattr(r, "count", 0) or 0)
+    except Exception:
+        return 0
 
 
 @router.get("/kpi")
 def get_kpi_data(request: Request):
     sb = _get_sb(request)
 
-    def _count_exact(table: str) -> int:
-        # Uses PostgREST Content-Range; no 1000 cap
-        r = _retry_supabase_sync(
-            lambda: sb.from_(table).select("*", count="exact", head=True).execute()
-        )
-        return int(getattr(r, "count", None) or 0)
-
     # ----- totals (robust, with fallback table for jobs) -----
-    try:
-        jobs_total = _count_exact("jobs")
-    except Exception:
+    # Your jobs table uses job_id (text). Try that first.
+    jobs_total = _count_exact(sb, "jobs", id_candidates=["job_id", "id", "uid"])
+    if jobs_total == 0:
         # fallback to job_skills if jobs table has perms/schema issues
-        try:
-            jobs_total = _count_exact("job_skills")
-        except Exception:
-            jobs_total = 0
+        jobs_total = _count_exact(sb, "job_skills", id_candidates=["job_skill_id", "id", "job_id"])
 
     try:
-        subjects_total = _count_exact("course_alignment_scores_clean")
+        subjects_total = _count_exact(sb, "course_alignment_scores_clean", id_candidates=["id"])
     except Exception:
         subjects_total = 0
 
     # ----- average alignment (robust) -----
     avg_score = 0.0
     try:
-        # (A) get latest ts (like /top-courses)
-        latest_ts = None
+        # (A) get latest ts
         latest_row_resp = _retry_supabase_sync(
             lambda: sb.from_("course_alignment_scores_clean")
             .select("calculated_at")
@@ -506,52 +612,41 @@ def get_kpi_data(request: Request):
             .limit(1)
             .execute()
         )
-        if latest_row_resp and latest_row_resp.data:
-            latest_ts = latest_row_resp.data[0].get("calculated_at")
+        latest_ts = latest_row_resp.data[0].get("calculated_at") if (latest_row_resp and latest_row_resp.data) else None
 
-        # (B) aggregate with COALESCE + cast
+        # (B) aggregate
         sel = "coalesce(avg(score)::float8, 0) as avg"
         if latest_ts:
             avg_resp = _retry_supabase_sync(
-                lambda: sb.from_("course_alignment_scores_clean")
-                .select(sel)
-                .eq("calculated_at", latest_ts)
-                .execute()
+                lambda: sb.from_("course_alignment_scores_clean").select(sel).eq("calculated_at", latest_ts).execute()
             )
         else:
-            avg_resp = _retry_supabase_sync(
-                lambda: sb.from_("course_alignment_scores_clean")
-                .select(sel)
-                .execute()
-            )
+            avg_resp = _retry_supabase_sync(lambda: sb.from_("course_alignment_scores_clean").select(sel).execute())
 
         if avg_resp and avg_resp.data and len(avg_resp.data) > 0:
             avg_val = avg_resp.data[0].get("avg", 0)
             avg_score = round(float(avg_val), 2)
 
-        # (C) Fallback: compute locally in Python if aggregate is zero/empty
         if not avg_score:  # covers 0.0 and None
             avg_score = get_average_alignment_score_local(sb)
-
     except Exception as e:
         logging.warning(f"[kpi] avg(score) failed: {e!r}")
-        # Final safety: try local fallback if aggregate path crashed
         try:
             avg_score = get_average_alignment_score_local(sb)
         except Exception as e2:
             logging.warning(f"[kpi] local average fallback failed: {e2!r}")
             avg_score = 0.0
 
-    # ----- skills extracted (sampled; switch to RPC if you need exact) -----
+    # ----- skills extracted (stable ordered scan) -----
     skills_extracted = 0
     try:
-        job_sample = _retry_supabase_sync(
-            lambda: sb.from_("job_skills").select("job_skills").limit(1000).execute()
-        ).data or []
+        job_rows = _fetch_all_rows(sb, "job_skills", "job_skill_id, job_skills", chunk=1000, order_col="job_skill_id")
         uniq = set()
-        for r in job_sample:
+        for r in job_rows:
             for s in _split_skills_maybe_list(r.get("job_skills", "")):
-                uniq.add(_normalize_skill(s))
+                norm = _normalize_skill(s)
+                if norm:
+                    uniq.add(norm)
         skills_extracted = len(uniq)
     except Exception:
         pass
@@ -564,10 +659,22 @@ def get_kpi_data(request: Request):
     }
 
 
-# ---------- Optional debug endpoint for local average ----------
-
-@router.get("/kpi/local-average")
-def get_kpi_local_average(request: Request):
+@router.get("/raw-skills-count")
+def get_raw_skills(request: Request):
+    """
+    Returns a raw, non-normalized count of skills directly from job_skills, over ALL rows.
+    Example: [{"name": "Python", "count": 233}, {"name": "JavaScript", "count": 150}]
+    """
     sb = _get_sb(request)
-    avg = get_average_alignment_score_local(sb)
-    return {"averageAlignmentScore": avg}
+    try:
+        data = _fetch_all_rows(sb, "job_skills", "job_skill_id, job_skills", chunk=1000, order_col="job_skill_id")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching raw skills: {str(e)}")
+
+    raw_freq: Dict[str, int] = {}
+    for record in data:
+        for skill in _split_skills_maybe_list(record.get("job_skills", "")):
+            raw_freq[skill] = raw_freq.get(skill, 0) + 1
+
+    sorted_skills = sorted(raw_freq.items(), key=lambda x: x[1], reverse=True)
+    return [{"name": name, "count": count} for name, count in sorted_skills]
