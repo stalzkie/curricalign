@@ -398,6 +398,9 @@
   .ml-4 {
     margin-left: calc(var(--spacing) * 4);
   }
+  .ml-5 {
+    margin-left: calc(var(--spacing) * 5);
+  }
   .ml-16 {
     margin-left: calc(var(--spacing) * 16);
   }
@@ -574,6 +577,12 @@
   .cursor-pointer {
     cursor: pointer;
   }
+  .list-decimal {
+    list-style-type: decimal;
+  }
+  .list-disc {
+    list-style-type: disc;
+  }
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
@@ -618,6 +627,13 @@
   }
   .gap-8 {
     gap: calc(var(--spacing) * 8);
+  }
+  .space-y-1 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 1) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 1) * calc(1 - var(--tw-space-y-reverse)));
+    }
   }
   .space-y-2 {
     :where(& > :not(:last-child)) {
@@ -716,9 +732,6 @@
   .border-\[rgba\(0\,212\,126\,0\.25\)\] {
     border-color: rgba(0,212,126,0.25);
   }
-  .border-\[rgba\(2\,88\,100\,0\.18\)\] {
-    border-color: rgba(2,88,100,0.18);
-  }
   .border-\[rgba\(2\,88\,100\,0\.22\)\] {
     border-color: rgba(2,88,100,0.22);
   }
@@ -745,9 +758,6 @@
   }
   .bg-\[rgba\(0\,212\,126\,0\.10\)\] {
     background-color: rgba(0,212,126,0.10);
-  }
-  .bg-\[rgba\(2\,88\,100\,0\.06\)\] {
-    background-color: rgba(2,88,100,0.06);
   }
   .bg-\[rgba\(2\,88\,100\,0\.08\)\] {
     background-color: rgba(2,88,100,0.08);
