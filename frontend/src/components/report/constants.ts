@@ -1,7 +1,7 @@
 // constants.ts
 import type { ProcessStep } from './types';
 
-const DEFAULT_API_BASE = 'http://localhost:8000';
+const DEFAULT_API_BASE = 'https://hiway-production-ec0e.up.railway.app'; 
 export const API_BASE =
   (process.env.NEXT_PUBLIC_API_BASE || DEFAULT_API_BASE).replace(/\/$/, '');
 
@@ -10,10 +10,10 @@ export const ORCHESTRATOR_INIT_URL   = `${API_BASE}/api/orchestrator/init`;
 // Modified endpoint to explicitly start the pipeline for a given jobId
 export const ORCHESTRATOR_START_PIPELINE_URL = `${API_BASE}/api/orchestrator/start-pipeline`;
 
-export const ORCHESTRATOR_CANCEL_URL = '/api/orchestrator/cancel';
+export const ORCHESTRATOR_CANCEL_URL = `${API_BASE}/api/orchestrator/cancel`; // 👈 use API_BASE here too
 export const ORCHESTRATOR_EVENTS_URL = `${API_BASE}/api/orchestrator/events`;
 export const ORCHESTRATOR_STATUS_URL = `${API_BASE}/api/orchestrator/status`;
-export const PDF_UPLOAD_URL = '/api/scan-pdf'; // <-- must match FastAPI router
+export const PDF_UPLOAD_URL = `${API_BASE}/api/scan-pdf`; // 👈 match FastAPI router
 
 // Pipeline steps in display order
 export const INITIAL_STEPS: ProcessStep[] = [
