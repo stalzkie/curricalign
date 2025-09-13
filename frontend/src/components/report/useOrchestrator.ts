@@ -8,6 +8,7 @@ import {
   ORCHESTRATOR_INIT_URL,
   ORCHESTRATOR_START_PIPELINE_URL,
   ORCHESTRATOR_STATUS_URL,
+  ORCHESTRATOR_CANCEL_URL,
   PDF_UPLOAD_URL,
   API_BASE,
 } from './constants';
@@ -24,11 +25,13 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/** Always return a clean absolute URL. */
 function toAbsoluteUrl(url: string): string {
   try {
+    // Already absolute?
     return new URL(url).toString();
   } catch {
-    const base = API_BASE?.replace(/\/+$/, '') ?? '';
+    const base = (API_BASE ?? '').replace(/\/+$/, '');
     const path = url.startsWith('/') ? url : `/${url}`;
     return `${base}${path}`;
   }
@@ -132,18 +135,16 @@ export function useOrchestrator() {
 
   /**
    * Upload the PDF to the backend scan endpoint.
-   * IMPORTANT: backend expects field name 'pdf' => async def scan_pdf_endpoint(pdf: UploadFile = File(...))
-   * Returns the JSON body so callers can read parsed_rows if desired.
+   * Backend expects field name 'pdf' => async def scan_pdf_endpoint(pdf: UploadFile = File(...))
    */
   async function uploadPdf(file: File): Promise<{ inserted: any[]; parsed_rows: any[]; raw_text_len: number }> {
     const form = new FormData();
-    form.append('pdf', file); // <-- FIX: must be 'pdf', not 'file'
-    const url = toAbsoluteUrl(PDF_UPLOAD_URL); // ensure absolute URL
+    form.append('pdf', file);
+    const url = toAbsoluteUrl(PDF_UPLOAD_URL);
 
     const res = await fetch(url, { method: 'POST', body: form });
     const text = await res.text().catch(() => '');
     if (!res.ok) {
-      // Typical FastAPI error body shape: {"detail": "..."}
       let detail = '';
       try {
         const j = JSON.parse(text);
@@ -153,7 +154,6 @@ export function useOrchestrator() {
       throw new Error(`scan-pdf error: ${explain}`);
     }
 
-    // Parse success body
     let data: any = {};
     try {
       data = JSON.parse(text || '{}');
@@ -166,16 +166,17 @@ export function useOrchestrator() {
   }
 
   async function initOrchestratorJob() {
-    console.log('FRONTEND: Requesting new jobId from backend...');
-    const res = await fetch(toAbsoluteUrl(ORCHESTRATOR_INIT_URL), {
+    const url = toAbsoluteUrl(ORCHESTRATOR_INIT_URL);
+    console.log('FRONTEND: Requesting new jobId from backend...', url);
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
       body: JSON.stringify({}),
     });
     const txt = await res.text().catch(() => '');
-    if (!res.ok) {
-      throw new Error(txt || 'Failed to initialize orchestrator job');
-    }
+    if (!res.ok) throw new Error(txt || 'Failed to initialize orchestrator job');
+
     const data = (txt ? JSON.parse(txt) : {}) as any;
     if (data?.jobId) {
       setJobId(String(data.jobId));
@@ -190,7 +191,8 @@ export function useOrchestrator() {
     source: OrchestratorSource,
     flags: RunFlags = {}
   ) {
-    console.log('FRONTEND: Requesting backend to START pipeline for jobId:', id);
+    const url = toAbsoluteUrl(`${ORCHESTRATOR_START_PIPELINE_URL}/${encodeURIComponent(id)}`);
+    console.log('FRONTEND: START pipeline', { id, url });
     const payload = {
       source,
       scrapeEnabled: flags.scrapeEnabled ?? true,
@@ -199,18 +201,14 @@ export function useOrchestrator() {
       generatePdf: flags.generatePdf ?? true,
     };
 
-    const res = await fetch(
-      toAbsoluteUrl(`${ORCHESTRATOR_START_PIPELINE_URL}/${encodeURIComponent(id)}`),
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      }
-    );
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      body: JSON.stringify(payload),
+    });
     const txt = await res.text().catch(() => '');
-    if (!res.ok) {
-      throw new Error(txt || `Failed to start pipeline for jobId ${id}`);
-    }
+    if (!res.ok) throw new Error(txt || `Failed to start pipeline for jobId ${id}`);
     console.log('FRONTEND: Backend acknowledged pipeline start for jobId:', id);
   }
 
@@ -317,10 +315,8 @@ export function useOrchestrator() {
   async function pollStatus(id: string) {
     if (cancelledRef.current || isComplete) return;
     try {
-      const res = await fetch(
-        `${toAbsoluteUrl(ORCHESTRATOR_STATUS_URL)}?jobId=${encodeURIComponent(id)}`,
-        { cache: 'no-store' }
-      );
+      const url = `${toAbsoluteUrl(ORCHESTRATOR_STATUS_URL)}?jobId=${encodeURIComponent(id)}`;
+      const res = await fetch(url, { cache: 'no-store' });
       if (res.ok) {
         const data = (await res.json()) as {
           steps?: Record<'pending' | 'in_progress' | 'completed' | 'error' | string, any>;
@@ -423,7 +419,7 @@ export function useOrchestrator() {
 
     if (jobId) {
       try {
-        const url = toAbsoluteUrl('/api/orchestrator/cancel');
+        const url = toAbsoluteUrl(ORCHESTRATOR_CANCEL_URL);
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -446,7 +442,7 @@ export function useOrchestrator() {
     isComplete,
     reportUrl,
     jobId,
-    parsedRows,         // optional preview data from scan-pdf
+    parsedRows, // optional preview data from scan-pdf
     startFromPdf,
     startFromStored,
     cancel,

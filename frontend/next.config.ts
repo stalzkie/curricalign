@@ -3,21 +3,21 @@ const nextConfig = {
   reactStrictMode: true,
 
   async rewrites() {
-    const API_BASE =
-      process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
-
     return [
+      // Dashboard API endpoints
       {
         source: "/api/dashboard/:path*",
-        destination: `${API_BASE}/api/dashboard/:path*`,
+        destination: "http://127.0.0.1:8000/api/dashboard/:path*",
       },
+      // Pipeline API endpoints
       {
         source: "/api/pipeline/:path*",
-        destination: `${API_BASE}/api/pipeline/:path*`,
+        destination: "http://127.0.0.1:8000/api/pipeline/:path*",
       },
+      // Orchestrator API endpoints
       {
         source: "/api/orchestrator/:path*",
-        destination: `${API_BASE}/api/orchestrator/:path*`,
+        destination: "http://127.0.0.1:8000/api/orchestrator/:path*",
       },
     ];
   },

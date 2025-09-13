@@ -92,22 +92,26 @@ app = FastAPI(
 # -------------------------------------------------------------------
 # CORS
 # -------------------------------------------------------------------
-# Allow local dev by default; merge in FRONTEND_ORIGIN if provided.
-default_origins = {
-    "http://localhost",
+from fastapi.middleware.cors import CORSMiddleware
+
+allowed_origins = {
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost",
 }
 extra_origin = os.getenv("FRONTEND_ORIGIN", "").strip()
 if extra_origin:
-    default_origins.add(extra_origin)
+    allowed_origins.add(extra_origin)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=list(default_origins),
+    allow_origins=list(allowed_origins),              # explicit origins
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",  # safety net
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],  # allows multipart/form-data for file uploads
+    allow_methods=["*"],      # includes OPTIONS
+    allow_headers=["*"],      # allow Content-Type, etc.
+    expose_headers=["*"],
+    max_age=86400,            # cache preflight
 )
 
 # -------------------------------------------------------------------

@@ -356,7 +356,7 @@ async def generate_and_store_pdf_report(
             logging.warning("Could not copy PDF to Downloads: %s", e)
 
         # Build a public URL (served by your static route)
-        base_url = os.getenv("PUBLIC_BASE_URL", "http://localhost:8000").rstrip("/")
+        base_url = os.getenv("PUBLIC_BASE_URL", "https://curricalign-production.up.railway.app/").rstrip("/")
         static_prefix = os.getenv("STATIC_URL_PREFIX", "/static").rstrip("/")
         filename = Path(pdf_path).name if pdf_path else None
         report_url = f"{base_url}{static_prefix}/reports/{filename}" if filename else None
