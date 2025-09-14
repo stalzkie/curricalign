@@ -1,7 +1,7 @@
 // constants.ts
 import type { ProcessStep } from './types';
 
-const DEFAULT_API_BASE = 'http://localhost:8000';
+const DEFAULT_API_BASE = 'https://curricalign-production.up.railway.app/';
 export const API_BASE =
   (process.env.NEXT_PUBLIC_API_BASE || DEFAULT_API_BASE).replace(/\/$/, '');
 
