@@ -12,25 +12,15 @@ model = genai.GenerativeModel("gemini-1.5-pro")
 
 # Helpers for skill normalization
 def normalize_skill(skill):
-    """
-    Normalize a skill string:
-    - Remove parentheses and extra info inside them
-    - Convert to lowercase
-    - Strip leading/trailing whitespace
-    """
     skill = re.sub(r"\s*\([^)]*\)", "", skill)
     return skill.lower().strip()
 
 
 def clean_skills(raw):
-    """
-    Safely parse Gemini output into a list of skills.
-    Uses ast.literal_eval to avoid code execution risks.
-    """
     import ast
     try:
         raw = raw.strip()
-        skills = ast.literal_eval(raw)  # Convert string -> Python list
+        skills = ast.literal_eval(raw)
         if not isinstance(skills, list):
             print("⚠️ Gemini output is not a list. Raw:\n", raw)
             return []
@@ -40,12 +30,9 @@ def clean_skills(raw):
         print("Raw output:\n", raw)
         return []
 
+
 # Core Gemini extraction functions
 def extract_skills_with_gemini(text):
-    """
-    Prompt Gemini with a course description and extract 5–10 technical skills.
-    Filters out soft skills, generic verbs, and ensures Python list output.
-    """
     prompt = f"""
 You are a curriculum analysis expert.
 
@@ -68,25 +55,14 @@ These should include:
 - Duplicate or redundant entries
 - Any commentary or markdown
 
----
-
-### Format:
-Output a single Python list using valid syntax.
-
-Example:
-['python', 'pandas', 'sql', 'data visualization', 'machine learning']
-['html', 'css', 'react', 'javascript', 'firebase']
-
+Output only a Python list.
 Course Description:
 {text.strip()}
 """
     try:
-        # Call Gemini
         response = model.generate_content(prompt)
         raw = response.text.strip()
         print(f"🧠 Gemini raw output:\n{raw}\n")
-
-        # Clean and validate skills
         skills = clean_skills(raw)
         if not skills:
             raise ValueError("Empty or invalid skill list")
@@ -97,16 +73,8 @@ Course Description:
 
 
 def retry_extract_skills(text):
-    """
-    Fallback extraction method if Gemini fails the first time.
-    Uses a simplified prompt to force a valid Python list.
-    """
     retry_prompt = f"""
 Extract 5–10 technical skills from this course. Return only a valid Python list.
-
-Example:
-['python', 'pandas', 'sql', 'data visualization', 'machine learning']
-['html', 'css', 'react', 'javascript', 'firebase']
 
 {text.strip()}
 """
@@ -119,53 +87,20 @@ Example:
         print(f"❌ Retry also failed: {e}")
         return []
 
-# Database fetch functions
-def fetch_subject_skills_from_db():
-    """
-    Fetch all stored course skills from Supabase (course_skills table).
-    Returns mapping: {course_code: skills_string}
-    """
-    response = supabase.table("course_skills").select("course_code", "course_skills").execute()
-    return {
-        row["course_code"]: row["course_skills"]
-        for row in (response.data or [])
-        if row.get("course_skills")
-    }
-
-
-def get_existing_course_skill_ids():
-    """
-    Fetch all course_ids that already exist in course_skills.
-    Returns a set of course_ids (as strings).
-    """
-    try:
-        res = supabase.table("course_skills").select("course_id").execute()
-        existing = set()
-        for row in (res.data or []):
-            cid = row.get("course_id")
-            if cid is not None:
-                existing.add(str(cid))
-        print(f"📚 Found {len(existing)} existing course_ids in course_skills.")
-        return existing
-    except Exception as e:
-        print(f"❌ Failed to fetch existing course_skills IDs: {e}")
-        return set()
-
 
 # Main extraction workflow
 def extract_subject_skills_from_supabase():
     """
-    - Fetch all courses from Supabase
-    - Skip courses already processed
-    - Extract skills with Gemini for new ones
-    - Insert results into course_skills
-    - Return mapping: {course_code: [skills]}
+    Sync `course_skills` with `courses`:
+    - Insert new courses not yet in course_skills
+    - Update courses if description changed
+    - Delete stale rows not tied to any course
     """
     print("📦 Fetching courses from Supabase...")
     try:
         courses = supabase.table("courses") \
             .select("course_id, course_code, course_title, course_description") \
-            .execute().data
+            .execute().data or []
     except Exception as e:
         print(f"❌ Failed to fetch courses: {e}")
         return {}
@@ -174,52 +109,63 @@ def extract_subject_skills_from_supabase():
         print("⚠️ No courses found in Supabase.")
         return {}
 
-    # Skip courses that already have skills extracted
-    existing_ids = get_existing_course_skill_ids()
-    pending_courses = [c for c in courses if str(c.get("course_id")) not in existing_ids]
+    # Fetch existing course_skills
+    existing = supabase.table("course_skills") \
+        .select("id, course_id, course_code, course_description") \
+        .execute().data or []
+    existing_map = {str(r["course_id"]): r for r in existing if r.get("course_id")}
 
-    print(
-        f"🧮 Courses total: {len(courses)} | "
-        f"To process (new only): {len(pending_courses)} | "
-        f"Skipped (already in course_skills): {len(courses) - len(pending_courses)}"
-    )
+    # Detect stale entries (course_skills with no corresponding course_id in courses)
+    current_ids = {str(c["course_id"]) for c in courses if c.get("course_id")}
+    stale = [r for r in existing if str(r.get("course_id")) not in current_ids]
+    for r in stale:
+        try:
+            supabase.table("course_skills").delete().eq("id", r["id"]).execute()
+            print(f"🗑️ Deleted stale course_skills row id={r['id']} (course_id={r.get('course_id')})")
+        except Exception as e:
+            print(f"❌ Failed to delete stale row id={r['id']}: {e}")
 
-    # Process each new course
-    for i, course in enumerate(pending_courses, start=1):
+    # Process insert/update
+    for i, course in enumerate(courses, start=1):
+        cid = str(course.get("course_id"))
         code = course.get("course_code")
         title = course.get("course_title")
-        description = course.get("course_description") or ""
-        course_id = course.get("course_id")
+        desc = course.get("course_description") or ""
 
-        print(f"🔍 [{i}/{len(pending_courses)}] Analyzing: {code} - {title}")
-        matched_skills = extract_skills_with_gemini(description)
+        existing_row = existing_map.get(cid)
+        needs_update = (
+            not existing_row or
+            (desc.strip() != (existing_row.get("course_description") or "").strip())
+        )
 
+        if not needs_update:
+            print(f"⏩ Skipping {code}, already up-to-date.")
+            continue
+
+        print(f"🔍 [{i}/{len(courses)}] Processing {code} - {title}")
+        matched_skills = extract_skills_with_gemini(desc)
         if not matched_skills:
             print("⚠️ No skills extracted.\n")
             continue
 
-        print(f"✅ Skills: {matched_skills}\n")
+        payload = {
+            "course_id": cid,
+            "course_code": code,
+            "course_title": title,
+            "course_description": desc,
+            "course_skills": ", ".join(sorted(set(matched_skills))),
+            "date_extracted_course": datetime.now(timezone.utc).isoformat()
+        }
 
-        # Insert into course_skills table
         try:
-            result = supabase.table("course_skills").insert({
-                "course_id": course_id,
-                "course_code": code,
-                "course_title": title,
-                "course_description": description,
-                "course_skills": ", ".join(sorted(set(matched_skills))),
-                "date_extracted_course": datetime.now(timezone.utc).isoformat()
-            }).execute()
-
-            if not result or not hasattr(result, "data") or result.data is None:
-                print(f"❌ Insert returned None for {code}")
+            if existing_row:
+                supabase.table("course_skills").update(payload).eq("id", existing_row["id"]).execute()
+                print(f"♻️ Updated course_skills for {code}")
             else:
-                print("📤 Inserted into course_skills.\n")
+                supabase.table("course_skills").insert(payload).execute()
+                print(f"📤 Inserted course_skills for {code}")
         except Exception as e:
-            print(f"❌ Supabase insert failed for {code}: {e}\n")
-
-    if not pending_courses:
-        print("👌 Nothing to do. All courses already have skills in course_skills.")
+            print(f"❌ Supabase upsert failed for {code}: {e}\n")
 
     # Final return: mapping for training
     try:
