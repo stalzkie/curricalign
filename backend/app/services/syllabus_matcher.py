@@ -111,7 +111,7 @@ def extract_subject_skills_from_supabase():
 
     # Fetch existing course_skills
     existing = supabase.table("course_skills") \
-        .select("id, course_id, course_code, course_description") \
+        .select("course_skill_id, course_id, course_code, course_description") \
         .execute().data or []
     existing_map = {str(r["course_id"]): r for r in existing if r.get("course_id")}
 
@@ -120,10 +120,10 @@ def extract_subject_skills_from_supabase():
     stale = [r for r in existing if str(r.get("course_id")) not in current_ids]
     for r in stale:
         try:
-            supabase.table("course_skills").delete().eq("id", r["id"]).execute()
-            print(f"🗑️ Deleted stale course_skills row id={r['id']} (course_id={r.get('course_id')})")
+            supabase.table("course_skills").delete().eq("course_skill_id", r["course_skill_id"]).execute()
+            print(f"🗑️ Deleted stale course_skills row id={r['course_skill_id']} (course_id={r.get('course_id')})")
         except Exception as e:
-            print(f"❌ Failed to delete stale row id={r['id']}: {e}")
+            print(f"❌ Failed to delete stale row id={r['course_skill_id']}: {e}")
 
     # Process insert/update
     for i, course in enumerate(courses, start=1):
@@ -159,7 +159,7 @@ def extract_subject_skills_from_supabase():
 
         try:
             if existing_row:
-                supabase.table("course_skills").update(payload).eq("id", existing_row["id"]).execute()
+                supabase.table("course_skills").update(payload).eq("course_skill_id", existing_row["course_skill_id"]).execute()
                 print(f"♻️ Updated course_skills for {code}")
             else:
                 supabase.table("course_skills").insert(payload).execute()
