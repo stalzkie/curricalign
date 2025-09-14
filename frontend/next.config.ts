@@ -25,4 +25,6 @@ const nextConfig: NextConfig = {
   },
 };
 
+console.log('Using API_BASE =', process.env.API_BASE ?? process.env.NEXT_PUBLIC_API_BASE);
+
 export default nextConfig;

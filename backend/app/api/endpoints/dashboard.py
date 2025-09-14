@@ -40,6 +40,26 @@ T = TypeVar("T")
 
 SKILL_GAP_TABLE = "skill_gap_counts"  # ← evaluator writes unmatched skills here
 
+# --------------------------- New caps & limits ---------------------------
+DEFAULT_LIST_LIMIT = 200         # default response size
+MAX_LIST_LIMIT = 2000            # hard ceiling for response size
+PAGINATION_HARD_CAP = 20000      # stop scanning after this many rows fetched
+
+# --------------------------- Tiny in-memory cache ---------------------------
+_CACHE: dict[str, tuple[float, Any]] = {}
+
+def _cache_get(key: str, ttl: float):
+    v = _CACHE.get(key)
+    if not v:
+        return None
+    ts, payload = v
+    if time.time() - ts > ttl:
+        _CACHE.pop(key, None)
+        return None
+    return payload
+
+def _cache_set(key: str, payload: Any):
+    _CACHE[key] = (time.time(), payload)
 
 # --------------------------- Helpers ---------------------------
 
@@ -58,7 +78,7 @@ def _retry_supabase_sync(call: Callable[[], T], attempts: int = 3, base_delay: f
             return call()
         except Exception as e:
             transient = (
-                (httpx is not None and isinstance(e, (httpx.ReadError, httpx.RemoteProtocolError)))
+                (httpx is not None and isinstance(e, (getattr(httpx, "ReadError", Exception), getattr(httpx, "RemoteProtocolError", Exception))))
                 or isinstance(e, RemoteProtocolError)
                 or "StreamClosedError" in repr(e)
                 or "Server disconnected" in repr(e)
@@ -76,9 +96,17 @@ def _retry_supabase_sync(call: Callable[[], T], attempts: int = 3, base_delay: f
     raise last_exc
 
 
-def _fetch_all_rows(sb, table: str, columns: str, chunk: int = 1000, order_col: str | None = None) -> List[Dict[str, Any]]:
+def _fetch_all_rows(
+    sb,
+    table: str,
+    columns: str,
+    chunk: int = 1000,
+    order_col: str | None = None,
+    hard_cap: int | None = PAGINATION_HARD_CAP,
+) -> List[Dict[str, Any]]:
     """
     Paginate with optional stable ORDER BY to avoid dup/miss rows across pages.
+    Obeys a hard cap to prevent runaway scans under heavy datasets.
     """
     out: List[Dict[str, Any]] = []
     start = 0
@@ -94,6 +122,8 @@ def _fetch_all_rows(sb, table: str, columns: str, chunk: int = 1000, order_col: 
         if len(rows) < chunk:
             break
         start += chunk
+        if hard_cap and len(out) >= hard_cap:
+            break
     return out
 
 
@@ -294,11 +324,17 @@ def _build_normalized_set(rows: List[Dict[str, Any]], field: str) -> set[str]:
 def _is_fuzzy_member(term: str, population: set[str], threshold: int = 88) -> bool:
     """
     Returns True if term fuzzily matches any member of population with ratio >= threshold.
-    Uses RapidFuzz if available; otherwise degrades to exact-match check.
+    Fast-fail exact match; then prefilter candidates by first letter and length band.
     """
     if not term or not population:
         return False
-    for p in population:
+    if term in population:
+        return True
+    t0 = term[0]
+    L = len(term)
+    # quick prefilter to cut comparisons drastically
+    candidates = [p for p in population if p and p[0] == t0 and abs(len(p) - L) <= 3]
+    for p in candidates:
         if _fuzzy_ratio(term, p) >= threshold:
             return True
     return False
@@ -338,8 +374,16 @@ def _get_matched_course_skills(sb) -> set[str]:
 
 # --------------------------- Endpoints ---------------------------
 
+@router.get("/healthz")
+def healthz():
+    return {"ok": True}
+
+
 @router.get("/skills")
-def get_in_demand_skills(request: Request):
+def get_in_demand_skills(
+    request: Request,
+    limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
+):
     """
     Return in-demand skills with normalization + fuzzy dedupe.
     IMPORTANT: paginates through ALL job_skills rows (no 1k cap) in stable order by job_skill_id.
@@ -348,7 +392,13 @@ def get_in_demand_skills(request: Request):
     sb = _get_sb(request)
     try:
         # stable ordered pagination by job_skill_id to ensure no dup/miss across pages
-        data = _fetch_all_rows(sb, "job_skills", "job_skill_id, job_skills", chunk=1000, order_col="job_skill_id")
+        data = _fetch_all_rows(
+            sb,
+            "job_skills",
+            "job_skill_id, job_skills",
+            chunk=1000,
+            order_col="job_skill_id",
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching skills: {str(e)}")
 
@@ -365,15 +415,22 @@ def get_in_demand_skills(request: Request):
     cleaned = _dedupe_frequency(folded, threshold=85)
 
     sorted_skills = sorted(cleaned.items(), key=lambda x: x[1], reverse=True)
-    return [{"name": name, "demand": demand} for name, demand in sorted_skills]
+    return [{"name": name, "demand": demand} for name, demand in sorted_skills[:limit]]
 
 
 @router.get("/top-courses")
-def get_top_courses(request: Request):
+def get_top_courses(
+    request: Request,
+    limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
+):
     sb = _get_sb(request)
     try:
         records = _fetch_all_rows(
-            sb, "course_alignment_scores_clean", "course_title, course_code, score, calculated_at", chunk=1000, order_col=None
+            sb,
+            "course_alignment_scores_clean",
+            "course_title, course_code, score, calculated_at",
+            chunk=1000,
+            order_col=None,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching top courses: {str(e)}")
@@ -387,6 +444,8 @@ def get_top_courses(request: Request):
     else:
         recent_records = [r for r in records if r.get("calculated_at") == latest_batch]
 
+    recent_records = recent_records[:limit]
+
     return [
         {
             "courseName": r.get("course_title") or "Unknown Course",
@@ -398,18 +457,28 @@ def get_top_courses(request: Request):
 
 
 @router.get("/jobs")
-def get_trending_jobs(request: Request):
+def get_trending_jobs(
+    request: Request,
+    limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
+):
     sb = _get_sb(request)
     try:
-        records = _fetch_all_rows(sb, "trending_jobs", "title, trending_score", chunk=1000, order_col=None)
+        records = _fetch_all_rows(
+            sb,
+            "trending_jobs",
+            "title, trending_score",
+            chunk=1000,
+            order_col=None,
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching trending jobs: {str(e)}")
 
-    return [
-        {"title": r.get("title", ""), "demand": r.get("trending_score", 0)}
+    out = [
+        {"title": r.get("title", ""), "demand": int(r.get("trending_score", 0) or 0)}
         for r in records
         if (r.get("title") or "").strip()
     ]
+    return out[:limit]
 
 
 @router.get("/missing-skills")
@@ -418,6 +487,7 @@ def get_missing_skills(
     min: int = Query(default=None, ge=1, description="Minimum count threshold (defaults to ~1% of job rows, min 5)"),
     latest_only: bool = Query(default=True, description="If true, use evaluator's latest batch only"),
     fuzzy_threshold: int = Query(default=88, ge=0, le=100, description="Fuzzy ratio threshold for variant exclusion"),
+    limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
 ):
     """
     Prefer evaluator output (skill_gap_counts), fallback to deterministic API-side calc.
@@ -429,7 +499,13 @@ def get_missing_skills(
 
     # ---- 1) Threshold (use ordered pagination on job_skills by job_skill_id)
     try:
-        job_rows_for_threshold = _fetch_all_rows(sb, "job_skills", "job_skill_id", chunk=1000, order_col="job_skill_id")
+        job_rows_for_threshold = _fetch_all_rows(
+            sb,
+            "job_skills",
+            "job_skill_id",
+            chunk=1000,
+            order_col="job_skill_id",
+        )
         total_job_rows = len(job_rows_for_threshold)
     except Exception:
         total_job_rows = 1
@@ -476,6 +552,13 @@ def get_missing_skills(
         resp = None
         logging.warning(f"[dashboard] reading {SKILL_GAP_TABLE} failed, will fallback: {e!r}")
 
+    # ---- Short cache for this endpoint (include inputs in key)
+    ck = f"missing:v2:min={threshold}:latest={latest_only}:fth={fuzzy_threshold}"
+    cached = _cache_get(ck, ttl=90)
+    if cached is not None and resp is None:
+        # Use cached fallback only when preferred path failed to fetch fresh resp
+        return cached[:limit]
+
     if resp and resp.data:
         # Filter out skills that appear among matched skills (exact or fuzzy variants)
         out = []
@@ -491,13 +574,28 @@ def get_missing_skills(
             # exclude if present exactly or fuzzily among matched skills
             if (norm in matched_set) or _is_fuzzy_member(norm, matched_set, threshold=fuzzy_threshold):
                 continue
-            out.append({"skill": norm, "count": int(r.get("count", 0))})
+            out.append({"skill": norm, "count": int(r.get("count", 0) or 0)})
+
+        out = out[:limit]
+        _cache_set(ck, out)
         return out
 
     # ---- 4) Fallback: deterministic API-side calculation (normalize → alias-fold)
     try:
-        job_rows = _fetch_all_rows(sb, "job_skills", "job_skill_id, job_skills", chunk=1000, order_col="job_skill_id")
-        course_rows = _fetch_all_rows(sb, "course_skills", "course_skills", chunk=1000, order_col=None)
+        job_rows = _fetch_all_rows(
+            sb,
+            "job_skills",
+            "job_skill_id, job_skills",
+            chunk=1000,
+            order_col="job_skill_id",
+        )
+        course_rows = _fetch_all_rows(
+            sb,
+            "course_skills",
+            "course_skills",
+            chunk=1000,
+            order_col=None,
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching skills for fallback: {str(e)}")
 
@@ -519,21 +617,30 @@ def get_missing_skills(
         # Exclude if covered exactly or fuzzily by course/matched skills
         if (skill in course_set) or _is_fuzzy_member(skill, course_set, threshold=fuzzy_threshold):
             continue
-        missing.append({"skill": skill, "count": count})
+        missing.append({"skill": skill, "count": int(count)})
 
     missing.sort(key=lambda x: x["count"], reverse=True)
+    missing = missing[:limit]
+    _cache_set(ck, missing)
     return missing
 
 
 @router.get("/warnings")
-def get_low_scoring_courses(request: Request):
+def get_low_scoring_courses(
+    request: Request,
+    limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
+):
     """
     Keep behavior from your new code (latest batch), BUT restore the score <= 50 filter.
     """
     sb = _get_sb(request)
     try:
         records = _fetch_all_rows(
-            sb, "course_alignment_scores_clean", "course_title, course_code, score, calculated_at", chunk=1000, order_col=None
+            sb,
+            "course_alignment_scores_clean",
+            "course_title, course_code, score, calculated_at",
+            chunk=1000,
+            order_col=None,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching warnings: {str(e)}")
@@ -550,6 +657,8 @@ def get_low_scoring_courses(request: Request):
     # RESTORE the low-score filter and sort ascending by score
     low = [r for r in recent if (r.get("score") is not None and r.get("score") <= 50)]
     low.sort(key=lambda r: r.get("score", 999999))
+
+    low = low[:limit]
 
     return [
         {
@@ -587,6 +696,12 @@ def _count_exact(sb, table: str, id_candidates: list[str] | None = None) -> int:
 
 @router.get("/kpi")
 def get_kpi_data(request: Request):
+    # short cache to collapse dashboard spikes
+    ck = "kpi:v1"
+    cached = _cache_get(ck, ttl=60)
+    if cached is not None:
+        return cached
+
     sb = _get_sb(request)
 
     # ----- totals (robust, with fallback table for jobs) -----
@@ -651,23 +766,34 @@ def get_kpi_data(request: Request):
     except Exception:
         pass
 
-    return {
+    result = {
         "averageAlignmentScore": avg_score,
         "totalSubjectsAnalyzed": subjects_total,
         "totalJobPostsAnalyzed": jobs_total,
         "skillsExtracted": skills_extracted,
     }
+    _cache_set(ck, result)
+    return result
 
 
 @router.get("/raw-skills-count")
-def get_raw_skills(request: Request):
+def get_raw_skills(
+    request: Request,
+    limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
+):
     """
     Returns a raw, non-normalized count of skills directly from job_skills, over ALL rows.
     Example: [{"name": "Python", "count": 233}, {"name": "JavaScript", "count": 150}]
     """
     sb = _get_sb(request)
     try:
-        data = _fetch_all_rows(sb, "job_skills", "job_skill_id, job_skills", chunk=1000, order_col="job_skill_id")
+        data = _fetch_all_rows(
+            sb,
+            "job_skills",
+            "job_skill_id, job_skills",
+            chunk=1000,
+            order_col="job_skill_id",
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching raw skills: {str(e)}")
 
@@ -677,4 +803,4 @@ def get_raw_skills(request: Request):
             raw_freq[skill] = raw_freq.get(skill, 0) + 1
 
     sorted_skills = sorted(raw_freq.items(), key=lambda x: x[1], reverse=True)
-    return [{"name": name, "count": count} for name, count in sorted_skills]
+    return [{"name": name, "count": int(count)} for name, count in sorted_skills[:limit]]
