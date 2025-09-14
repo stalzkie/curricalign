@@ -9,7 +9,7 @@ import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional, Literal
-
+from enum import Enum
 from fastapi import APIRouter, BackgroundTasks, Request, HTTPException, Path, Body, Query
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel, Field
@@ -206,7 +206,7 @@ class CancelResponse(BaseModel):
     jobId: str
 
 class StatusResponse(BaseModel):
-    steps: Dict[str, Literal["pending", "in_progress", "completed", "error"]] | None = None
+    steps: Dict[str, Literal["pending","in_progress","started","completed","error","cancelled"]] | None = None
     reportUrl: Optional[str] = None
 
 # Example SSE event (for docs)
