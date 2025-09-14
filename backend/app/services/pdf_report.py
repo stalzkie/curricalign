@@ -23,8 +23,18 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-REPORT_OUTPUT_DIR = Path(__file__).resolve().parents[1] / "static" / "reports"
+# Resolve the static/reports directory *absolutely* so prod == local.
+# This matches what main.py mounts at /static.
+# Path(__file__) -> .../backend/app/services/pdf_report.py
+# parents[1]      -> .../backend/app
+DEFAULT_REPORT_DIR = (Path(__file__).resolve().parents[1] / "static" / "reports").resolve()
+
+# Allow an env override just in case (keeps behavior predictable in Railway),
+# but default to the known-good static/reports path.
+REPORT_OUTPUT_DIR = Path(os.getenv("REPORTS_DIR", str(DEFAULT_REPORT_DIR))).resolve()
 REPORT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+print(f"[pdf_report] REPORT_OUTPUT_DIR={REPORT_OUTPUT_DIR}")
 
 # ----------------------------------------------------------------------
 # AI SUMMARY GENERATION
@@ -156,14 +166,33 @@ def _default_filename() -> str:
     ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     return f"syllabus_job_alignment-{ts}.pdf"
 
+def _sanitize_filename(name: str) -> str:
+    # Keep it simple: alnum, dash, underscore, dot
+    safe = "".join(ch for ch in name if ch.isalnum() or ch in ("-", "_", "."))
+    return safe or _default_filename()
+
 def generate_pdf_report(report_data: List[Dict[str, Any]], filename: Optional[str] = None) -> str:
+    """
+    Render the PDF to the static/reports directory and return the ABSOLUTE path.
+    Raises a clear error if the file isn't created or is empty.
+    """
     if not report_data:
         raise ValueError("No rows to render in PDF.")
 
     if not filename:
         filename = _default_filename()
+    filename = _sanitize_filename(filename)
 
+    # Absolute, inside the mounted static directory
     save_path = (REPORT_OUTPUT_DIR / filename).resolve()
+
+    print(f"[pdf_report] Preparing to write PDF:")
+    print(f"  - rows: {len(report_data)}")
+    print(f"  - output dir exists: {REPORT_OUTPUT_DIR.exists()}")
+    print(f"  - save_path: {save_path}")
+
+    # Ensure the directory still exists at runtime (just in case)
+    save_path.parent.mkdir(parents=True, exist_ok=True)
 
     doc = SimpleDocTemplate(
         str(save_path),
@@ -229,8 +258,17 @@ def generate_pdf_report(report_data: List[Dict[str, Any]], filename: Optional[st
     story.append(Paragraph(f"Date Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", footer_style))
     story.append(Paragraph("<b>Note on the formula:</b> <i>score = int(avg_similarity * coverage * 100)</i>", footer_style))
 
+    # Build the PDF
     doc.build(story)
-    print(f"✅ Final PDF report saved to: {save_path}")
+
+    # Verify output exists and has content
+    exists = save_path.exists()
+    size = save_path.stat().st_size if exists else 0
+    print(f"✅ Final PDF report saved to: {save_path} (exists={exists}, size={size})")
+
+    if not exists or size <= 0:
+        raise RuntimeError(f"PDF not found or empty at {save_path}")
+
     return str(save_path)
 
 # ----------------------------------------------------------------------

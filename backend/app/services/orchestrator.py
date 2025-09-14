@@ -325,23 +325,39 @@ async def generate_and_store_pdf_report(
         # ---- Normalize input to a list of rows (no double-validation) ----
         if isinstance(report_data, dict) and "rows" in report_data:
             rows: List[Dict[str, Any]] = report_data["rows"]  # already validated by caller
-            logging.debug("Received validated dict with %d rows for PDF.", len(rows))
+            logging.info("PDF input type: dict; rows=%d", len(rows))
         elif isinstance(report_data, list):
             rows = report_data  # assume caller passed rows directly
-            logging.debug("Received list with %d rows for PDF.", len(rows))
+            logging.info("PDF input type: list; rows=%d", len(rows))
         else:
             logging.warning(
                 "No in-memory report data; fetching latest cleaned results for PDF."
             )
             rows = await asyncio.to_thread(fetch_clean_report_data)  # already-clean table
+            logging.info("PDF input type: fetched; rows=%d", len(rows))
 
         if not rows:
             raise RuntimeError("No report data available to generate PDF.")
 
-        # Render PDF from rows
+        logging.info("PDF rows to render: %d", len(rows))
+
+        # Render PDF from rows (returns ABSOLUTE path; pdf_report now verifies existence/size)
         pdf_path = await asyncio.to_thread(generate_pdf_report, rows)
         logging.info("PDF report generated at: %s", pdf_path)
         await _yield_now()
+
+        # Extra safety: verify again here (defensive check)
+        try:
+            p = Path(pdf_path) if pdf_path else None
+            exists = p.exists() if p else False
+            size = p.stat().st_size if exists else 0
+            logging.info("PDF path check: exists=%s size=%s", exists, size)
+            if not exists or size <= 0:
+                raise RuntimeError(f"PDF not found or empty at {pdf_path}")
+        except Exception as ve:
+            # Surface a clear error so SSE shows a useful message
+            logging.exception("PDF verification failed: %s", ve)
+            raise
 
         # Copy to Downloads for convenience (best-effort)
         try:
@@ -356,10 +372,11 @@ async def generate_and_store_pdf_report(
             logging.warning("Could not copy PDF to Downloads: %s", e)
 
         # Build a public URL (served by your static route)
-        base_url = os.getenv("PUBLIC_BASE_URL", "https://curricalign-production.up.railway.app/").rstrip("/")
+        base_url = os.getenv("PUBLIC_BASE_URL", "https://curricalign-production.up.railway.app").rstrip("/")
         static_prefix = os.getenv("STATIC_URL_PREFIX", "/static").rstrip("/")
         filename = Path(pdf_path).name if pdf_path else None
         report_url = f"{base_url}{static_prefix}/reports/{filename}" if filename else None
+        logging.info("Public report URL: %s", report_url)
 
         return {"path": pdf_path, "url": report_url}
 

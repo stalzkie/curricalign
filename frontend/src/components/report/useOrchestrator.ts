@@ -111,7 +111,7 @@ export function useOrchestrator() {
       if (!reportUrl || downloadStartedRef.current) return;
       downloadStartedRef.current = true;
       try {
-        const reachable = await waitUntilReachable(reportUrl, 14, 500);
+        const reachable = await waitUntilReachable(reportUrl, 30, 500);
         if (!reachable) throw new Error('Report URL is not reachable yet');
         const suggested = `alignment_report_${jobId ?? Date.now()}.pdf`;
         await downloadUrlAsFile(reportUrl, suggested);

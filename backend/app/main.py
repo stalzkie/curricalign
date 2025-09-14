@@ -4,16 +4,18 @@ import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 import logging
+from typing import List
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 
 from supabase import create_client, Client
 
 # Routers
 from .api.endpoints import dashboard, pipeline, orchestrator, report_files, version
-from .api.endpoints import scan_pdf as scan_pdf_endpoint  # <-- NEW
+from .api.endpoints import scan_pdf as scan_pdf_endpoint  # <-- PDF scan/upload
 
 # -------------------------------------------------------------------
 # Environment / logging
@@ -24,7 +26,6 @@ logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
     format="%(asctime)s %(levelname)s [main] %(message)s",
 )
-
 
 def _get_service_key() -> tuple[str, str]:
     """
@@ -92,20 +93,23 @@ app = FastAPI(
 # -------------------------------------------------------------------
 # CORS
 # -------------------------------------------------------------------
-from fastapi.middleware.cors import CORSMiddleware
-
-allowed_origins = {
+# You can pass one or multiple frontend origins via FRONTEND_ORIGIN
+# e.g. FRONTEND_ORIGIN="http://localhost:3000,https://your-frontend.vercel.app"
+raw_frontends = os.getenv("FRONTEND_ORIGIN", "").strip()
+allowed_origins: List[str] = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost",
-}
-extra_origin = os.getenv("FRONTEND_ORIGIN", "").strip()
-if extra_origin:
-    allowed_origins.add(extra_origin)
+]
+if raw_frontends:
+    for origin in raw_frontends.split(","):
+        origin = origin.strip()
+        if origin:
+            allowed_origins.append(origin)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=list(allowed_origins),              # explicit origins
+    allow_origins=allowed_origins,                         # explicit origins
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",  # safety net
     allow_credentials=True,
     allow_methods=["*"],      # includes OPTIONS
@@ -117,13 +121,37 @@ app.add_middleware(
 # -------------------------------------------------------------------
 # Static files (PDF reports, etc.)
 # -------------------------------------------------------------------
-APP_DIR = Path(__file__).resolve().parent               # apps/backend/app
-STATIC_DIR = (APP_DIR / "static").resolve()             # apps/backend/app/static
-REPORTS_DIR = (STATIC_DIR / "reports").resolve()        # apps/backend/app/static/reports
-REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+# IMPORTANT:
+# main.py lives at: apps/backend/main.py
+# Your static dir is under: apps/backend/app/static
+# So APP_DIR must be apps/backend/app (NOT apps/backend)
+ROOT_DIR = Path(__file__).resolve().parent            # apps/backend
+APP_DIR = (ROOT_DIR / "app").resolve()                # apps/backend/app
+STATIC_DIR = (APP_DIR / "static").resolve()           # apps/backend/app/static
+REPORTS_DIR = (STATIC_DIR / "reports").resolve()      # apps/backend/app/static/reports
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
+# Expose to other modules via app.state (optional, handy for debugging)
+app.state.APP_DIR = APP_DIR
+app.state.STATIC_DIR = STATIC_DIR
+app.state.REPORTS_DIR = REPORTS_DIR
+
+# Log computed paths so Railway logs show the truth
+logging.info("[paths] ROOT_DIR=%s", ROOT_DIR)
+logging.info("[paths] APP_DIR=%s", APP_DIR)
+logging.info("[paths] STATIC_DIR=%s", STATIC_DIR)
+logging.info("[paths] REPORTS_DIR=%s", REPORTS_DIR)
+
+# Mount static serving at /static
+# Starlette's StaticFiles supports GET and HEAD.
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+# Public URL pieces used by services/orchestrator when building the report URL
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://curricalign-production.up.railway.app").rstrip("/")
+STATIC_URL_PREFIX = os.getenv("STATIC_URL_PREFIX", "/static").rstrip("/")
+logging.info("[public] PUBLIC_BASE_URL=%s", PUBLIC_BASE_URL)
+logging.info("[public] STATIC_URL_PREFIX=%s", STATIC_URL_PREFIX)
 
 # -------------------------------------------------------------------
 # Health + Root
@@ -151,11 +179,33 @@ def read_root():
     return {"message": "Welcome to the CurricAlign API"}
 
 # -------------------------------------------------------------------
+# Debug (helps confirm PDFs are where we expect in Railway)
+# -------------------------------------------------------------------
+@app.get("/api/debug/info")
+def debug_info():
+    return {
+        "public_base_url": PUBLIC_BASE_URL,
+        "static_url_prefix": STATIC_URL_PREFIX,
+        "root_dir": str(ROOT_DIR),
+        "app_dir": str(APP_DIR),
+        "static_dir": str(STATIC_DIR),
+        "reports_dir": str(REPORTS_DIR),
+    }
+
+@app.get("/api/debug/reports")
+def list_reports():
+    try:
+        files = sorted([p.name for p in REPORTS_DIR.glob("*.pdf")])
+        return {"count": len(files), "files": files}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+# -------------------------------------------------------------------
 # Routers
 # -------------------------------------------------------------------
-app.include_router(dashboard.router,    prefix="/api/dashboard", tags=["Dashboard"])
-app.include_router(version.router,      prefix="/api/dashboard", tags=["Dashboard-Version"])
-app.include_router(pipeline.router,     prefix="/api/pipeline",  tags=["Pipeline"])
-app.include_router(orchestrator.router, prefix="/api",           tags=["Orchestrator"])
-app.include_router(report_files.router, prefix="/api",           tags=["Reports"])
-app.include_router(scan_pdf_endpoint.router, prefix="/api",      tags=["Scan PDF"])  # <-- NEW
+app.include_router(dashboard.router,          prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(version.router,            prefix="/api/dashboard", tags=["Dashboard-Version"])
+app.include_router(pipeline.router,           prefix="/api/pipeline",  tags=["Pipeline"])
+app.include_router(orchestrator.router,       prefix="/api",           tags=["Orchestrator"])
+app.include_router(report_files.router,       prefix="/api",           tags=["Reports"])
+app.include_router(scan_pdf_endpoint.router,  prefix="/api",           tags=["Scan PDF"])
