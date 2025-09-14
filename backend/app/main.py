@@ -69,7 +69,7 @@ async def lifespan(app: FastAPI):
     try:
         resp = (
             sb.from_("course_alignment_scores_clean")
-            .select("id", count="exact")
+            .select("course_alignment_scores_clean_id", count="exact")  # ✅ fixed column name
             .range(0, 0)
             .execute()
         )
