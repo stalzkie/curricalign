@@ -69,6 +69,9 @@ _SYSTEM = (
     "Return ONLY valid JSON with the schema: "
     "{ \"rows\": [ {\"course_code\": str, \"course_title\": str, \"course_description\": str}, ... ] }"
     "You can find the information under the header: MAJOR COURSE DESCRIPTIONS"
+    "Scan through the PDF three times before finalizing the stored output."
+    "Make sure there are no duplicates by checking existing course codes and double checking if there are differences in capitalization or spacing. For example, if you see both 'CS101' and 'CS 101', only keep one of them."
+    "Also check for title duplications in terms of capitalization and spacing. For example, if you see both 'Introduction to Programming' and 'introduction to programming' and 'INTRODUCTION TO PROGRAMMING', only keep one of them."
 )
 
 _USER_TEMPLATE = """Extract all courses from the following curriculum text.
