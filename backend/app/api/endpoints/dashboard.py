@@ -217,7 +217,7 @@ def _normalize_skill(raw: str) -> str:
     s = _PUNCT_RE.sub(" ", s)
     s = _WS_RE.sub(" ", s).strip()
     # light plural normalization (avoid over-aggressive trimming)
-    if len(s) > 6 and s.endswith("s"):
+    if len(s) > 8 and s.endswith("s"):
         s = s[:-1]
     return s
 
