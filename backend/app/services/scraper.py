@@ -37,7 +37,7 @@ def load_cs_terms_from_supabase():
         print(f"❌ Failed to fetch CS terms from Supabase: {e}")
         return set()
 
-def scrape_jobs_from_google_jobs(location: str = "Philippines", top_n_keywords: int = 20, jobs_per_query: int = 10):
+def scrape_jobs_from_google_jobs(location: str = "Philippines", top_n_keywords: int = 10, jobs_per_query: int = 5):
     """
     Main function:
     - gets top keywords (e.g., from Google Trends)
@@ -73,7 +73,7 @@ def scrape_jobs_from_google_jobs(location: str = "Philippines", top_n_keywords: 
         collected = []        # jobs we found for this keyword
         seen_job_ids = set()  # to avoid duplicates across variations
         variation_attempts = 0
-        max_attempts = 12     # don't loop forever
+        max_attempts = 10     # don't loop forever
 
         # keep trying different variations until we get enough jobs or hit the cap
         while len(collected) < jobs_per_query and variation_attempts < max_attempts:
