@@ -15,7 +15,7 @@ export default function CompletionCard({
         <div className="flex justify-center gap-4">
           <button
             onClick={() => reportUrl && window.open(reportUrl, '_blank')}
-            className="btn_background_purple text-white px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all"
+            className="btn_background_purple text-white px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-102 transition-all"
           >
             Download PDF Report
           </button>

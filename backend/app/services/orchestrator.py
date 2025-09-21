@@ -37,6 +37,9 @@ from .trending_jobs import compute_trending_jobs
 # Final checking (kept available for callers that need it)
 from .final_checking import run_final_checks
 
+# NEW: storage upload helper (Supabase Storage, signed/public URL)
+from .storage_utils import upload_pdf_to_supabase_storage
+
 
 def _env_flag(name: str, default: bool) -> bool:
     raw = os.getenv(name)
@@ -49,8 +52,8 @@ async def _yield_now():
     await asyncio.sleep(0)
 
 
-def _chunks(iterable: Iterable[Any], size: int) -> Iterable[list[Any]]:
-    batch: list[Any] = []
+def _chunks(iterable: Iterable[Any], size: int) -> Iterable[List[Any]]:
+    batch: List[Any] = []
     for item in iterable:
         batch.append(item)
         if len(batch) >= size:
@@ -299,7 +302,7 @@ async def validate_after_evaluation(
 
 
 # ----------------------------------------------------------------------
-# PDF Generation
+# PDF Generation (uploads to Supabase Storage; falls back to static URL)
 # ----------------------------------------------------------------------
 async def generate_and_store_pdf_report(
     gen_pdf: bool,
@@ -311,6 +314,8 @@ async def generate_and_store_pdf_report(
       - a dict with {"rows": [...]} that has already been validated, or
       - a plain list[dict] of rows ready for PDF, or
       - None, in which case it will load the latest cleaned rows from the DB.
+    After rendering, it **uploads** the PDF to Supabase Storage and returns a durable URL
+    (signed by default). If the upload fails, it falls back to the static URL path.
     """
     logging.debug("Entering generate_and_store_pdf_report function.")
     if not gen_pdf:
@@ -341,7 +346,7 @@ async def generate_and_store_pdf_report(
 
         logging.info("PDF rows to render: %d", len(rows))
 
-        # Render PDF from rows (returns ABSOLUTE path; pdf_report now verifies existence/size)
+        # Render PDF from rows (returns ABSOLUTE path; pdf_report verifies existence/size)
         pdf_path = await asyncio.to_thread(generate_pdf_report, rows)
         logging.info("PDF report generated at: %s", pdf_path)
         await _yield_now()
@@ -355,11 +360,10 @@ async def generate_and_store_pdf_report(
             if not exists or size <= 0:
                 raise RuntimeError(f"PDF not found or empty at {pdf_path}")
         except Exception as ve:
-            # Surface a clear error so SSE shows a useful message
             logging.exception("PDF verification failed: %s", ve)
             raise
 
-        # Copy to Downloads for convenience (best-effort)
+        # Optional convenience copy to local Downloads (best-effort)
         try:
             downloads_dir = Path.home() / "Downloads"
             downloads_dir.mkdir(exist_ok=True)
@@ -371,12 +375,31 @@ async def generate_and_store_pdf_report(
         except Exception as e:
             logging.warning("Could not copy PDF to Downloads: %s", e)
 
-        # Build a public URL (served by your static route)
-        base_url = os.getenv("PUBLIC_BASE_URL", "https://curricalign-production.up.railway.app").rstrip("/")
-        static_prefix = os.getenv("STATIC_URL_PREFIX", "/static").rstrip("/")
-        filename = Path(pdf_path).name if pdf_path else None
-        report_url = f"{base_url}{static_prefix}/reports/{filename}" if filename else None
-        logging.info("Public report URL: %s", report_url)
+        # ---------------- NEW: Upload to Supabase Storage ----------------
+        report_url: Optional[str] = None
+        try:
+            # Prefer private bucket + signed URL
+            report_url = await asyncio.to_thread(
+                upload_pdf_to_supabase_storage,
+                pdf_path,          # local absolute path
+                False,             # make_public=False (use signed URL)
+                # signed_seconds=3600,  # uncomment to override default expiry (e.g., 1 hour)
+            )
+            logging.info("☁️ Uploaded PDF to Supabase Storage: %s", report_url)
+        except Exception as e:
+            logging.error("❌ Failed to upload PDF to Supabase Storage: %s", e)
+            # --------- Fallback: local static URL (if you still serve /static) ----------
+            try:
+                base_url = os.getenv("PUBLIC_BASE_URL", "https://curricalign-production.up.railway.app").rstrip("/")
+                static_prefix = os.getenv("STATIC_URL_PREFIX", "/static").rstrip("/")
+                filename = Path(pdf_path).name if pdf_path else None
+                fallback_url = f"{base_url}{static_prefix}/reports/{filename}" if filename else None
+                logging.info("Using fallback static URL: %s", fallback_url)
+                report_url = fallback_url
+            except Exception as fe:
+                logging.error("Failed building fallback static URL: %s", fe)
+                report_url = None
+        # ----------------------------------------------------------------
 
         return {"path": pdf_path, "url": report_url}
 
