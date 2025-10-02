@@ -393,9 +393,8 @@ def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
             rows = []
 
     inserted = upsert_courses(rows) if rows else []
-    return:
-        {
-            "inserted": inserted,
-            "parsed_rows": [r.model_dump() for r in rows],
-            "raw_text_len": len(text),
-        }
+    return {
+        "inserted": inserted,
+        "parsed_rows": [r.model_dump() for r in rows],
+        "raw_text_len": len(text),
+    }
