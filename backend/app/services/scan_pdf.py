@@ -309,21 +309,34 @@ def llm_parse_courses(pdf_text: str) -> List[CourseRow]:
             return coarse
         raise
 
-    # Normalize to ScanResult -> rows[List[CourseRow]]
-    try:
-        parsed = ScanResult(
-            rows=[CourseRow(**row) for row in raw.get("rows", [])],
-            raw_text_len=len(pdf_text),
-        )
-    except (ValidationError, AttributeError, TypeError) as ve:
-        # If the model returned a bare list
-        if isinstance(raw, list):
-            parsed = ScanResult(rows=[CourseRow(**x) for x in raw], raw_text_len=len(pdf_text))
-        else:
-            snippet = (json.dumps(raw) if not isinstance(raw, str) else raw)[:400]
-            raise RuntimeError(f"LLM JSON shape invalid: {ve}; got: {snippet}") from ve
+    cleaned_rows = []
+    for row in raw.get("rows", []):
+        # Normalize and auto-repair empty values
+        code = (row.get("course_code") or "").strip()
+        title = (row.get("course_title") or "").strip()
+        desc = (row.get("course_description") or "").strip()
 
+        if not code:
+            code = "UNKNOWN_CODE"
+        if not title:
+            title = "Untitled Course"
+        if not desc:
+            desc = "No description provided."
+
+        try:
+            cleaned_rows.append(
+                CourseRow(
+                    course_code=code,
+                    course_title=title,
+                    course_description=desc,
+                )
+            )
+        except Exception as ve:
+            logger.warning("Skipping invalid row after normalization: %s", ve)
+
+    parsed = ScanResult(rows=cleaned_rows, raw_text_len=len(pdf_text))
     return parsed.rows
+
 
 
 # ---------- Supabase upsert ----------
