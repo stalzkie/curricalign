@@ -8,7 +8,7 @@ import uuid
 import asyncio
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional, Literal
+from typing import Any, Dict, Optional, Literal, List  # <-- added List
 from enum import Enum
 from fastapi import APIRouter, BackgroundTasks, Request, HTTPException, Path, Body, Query
 from fastapi.responses import StreamingResponse, JSONResponse
@@ -79,6 +79,21 @@ async def _background_job(job_id: str, payload: Dict[str, Any]) -> None:
     )
 
     try:
+        # STEP 0: (NEW) Ingest Courses from PDF if requested
+        if source == "pdf":
+            if job_id in cancelled_jobs:
+                _emit(job_id, "ingest_courses_from_pdf", "cancelled")
+                return
+            _emit(job_id, "ingest_courses_from_pdf", "started")
+            await _yield_now()
+            try:
+                # Accept list of paths/globs from payload; default empty list
+                pdf_paths: List[str] = payload.get("pdfPaths") or []
+                await pipeline_service.ingest_courses_from_pdf_paths(pdf_paths)
+            finally:
+                _emit(job_id, "ingest_courses_from_pdf", "completed")
+                await _yield_now()
+
         # STEP 1: SCRAPE
         if job_id in cancelled_jobs:
             _emit(job_id, "scrape_jobs_from_google_jobs", "cancelled")
@@ -193,6 +208,12 @@ class StartPipelinePayload(BaseModel):
     extractEnabled: bool = Field(True, description="Enable skills extraction stages")
     retrainModels: bool = Field(False, description="Retrain ML models during the run")
     generatePdf: bool = Field(True, description="Generate final PDF report")
+    # NEW: pass curriculum PDF paths/globs when source == 'pdf'
+    pdfPaths: Optional[List[str]] = Field(
+        None,
+        description="List of PDF paths or globs to ingest when source='pdf' (e.g., ['data/*.pdf'])",
+        examples=[["data/Computer-Science-*.pdf"]]
+    )
 
 class StartResponse(BaseModel):
     status: Literal["started"]
@@ -252,6 +273,7 @@ async def start_pipeline(
                 "summary": "Start with PDF source",
                 "value": {
                     "source": "pdf",
+                    "pdfPaths": ["data/Computer-Science-Analytics-Intelligence (1).pdf"],
                     "scrapeEnabled": True,
                     "extractEnabled": True,
                     "retrainModels": False,

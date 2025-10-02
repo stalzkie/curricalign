@@ -4,9 +4,10 @@ from __future__ import annotations
 import os
 import time
 import logging
-from typing import Any, Dict, Optional, Iterable, List
+from typing import Any, Dict, Optional, Iterable, List, Union
 from pathlib import Path
 import asyncio
+import glob
 
 from dotenv import load_dotenv
 
@@ -39,6 +40,9 @@ from .final_checking import run_final_checks
 
 # NEW: storage upload helper (Supabase Storage, signed/public URL)
 from .storage_utils import upload_pdf_to_supabase_storage
+
+# NEW: curriculum PDF → COURSES upsert (major-only parser)
+from .scan_pdf import scan_pdf_and_store
 
 
 def _env_flag(name: str, default: bool) -> bool:
@@ -156,6 +160,118 @@ async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
             results["timing_sec"],
         )
     return results
+
+
+# ----------------------------------------------------------------------
+# NEW: Curriculum PDF → COURSES upsert (uses MAJOR COURSE DESCRIPTION(S) only)
+# ----------------------------------------------------------------------
+async def ingest_courses_from_pdf(pdf: Union[str, Path, bytes]) -> Dict[str, Any]:
+    """
+    Parse a single curriculum PDF and upsert courses (STRICTLY the
+    'MAJOR COURSE DESCRIPTION(S)' section), then return a summary.
+
+    Args:
+      pdf: path-like or raw bytes
+
+    Returns: {
+      "inserted_count": int,
+      "parsed_count": int,
+      "raw_text_len": int,
+      "inserted": [...],
+      "parsed_rows": [...]
+    }
+    """
+    logging.debug("Entering ingest_courses_from_pdf.")
+    t0 = time.perf_counter()
+
+    try:
+        # Load bytes
+        if isinstance(pdf, (str, Path)):
+            pdf_path = Path(pdf)
+            if not pdf_path.exists():
+                raise FileNotFoundError(f"PDF not found: {pdf_path}")
+            logging.info("📚 Parsing curriculum PDF: %s", pdf_path)
+            file_bytes = pdf_path.read_bytes()
+        elif isinstance(pdf, (bytes, bytearray)):
+            logging.info("📚 Parsing curriculum PDF from memory bytes.")
+            file_bytes = bytes(pdf)
+        else:
+            raise TypeError("pdf must be a path-like or bytes")
+
+        # Parse + upsert (major-only) off the event loop
+        result = await asyncio.to_thread(scan_pdf_and_store, file_bytes)
+
+        inserted = result.get("inserted", []) or []
+        parsed_rows = result.get("parsed_rows", []) or []
+        summary = {
+            "inserted_count": len(inserted),
+            "parsed_count": len(parsed_rows),
+            "raw_text_len": int(result.get("raw_text_len", 0)),
+            "inserted": inserted,
+            "parsed_rows": parsed_rows,
+        }
+
+        logging.info(
+            "✅ Curriculum ingest complete. parsed=%d inserted=%d raw_text_len=%d",
+            summary["parsed_count"], summary["inserted_count"], summary["raw_text_len"]
+        )
+        return summary
+
+    except Exception as e:
+        msg = f"Curriculum ingest failed: {e}"
+        logging.exception(msg)
+        raise
+    finally:
+        elapsed = round(time.perf_counter() - t0, 3)
+        logging.info("Curriculum ingest timing: %s sec", elapsed)
+
+
+async def ingest_courses_from_pdf_paths(paths: List[str]) -> Dict[str, Any]:
+    """
+    Convenience wrapper to ingest multiple PDFs and aggregate results.
+    Accepts globs as well (e.g., ['data/*.pdf', 'more/file.pdf'])
+    """
+    logging.debug("Entering ingest_courses_from_pdf_paths.")
+    t0 = time.perf_counter()
+
+    try:
+        # Expand globs
+        expanded: List[Path] = []
+        for p in paths:
+            matches = [Path(m) for m in glob.glob(p)]
+            if not matches and Path(p).exists():
+                matches = [Path(p)]
+            expanded.extend(matches)
+
+        if not expanded:
+            logging.warning("No PDFs matched: %s", paths)
+
+        agg = {
+            "files": [str(p) for p in expanded],
+            "total_parsed": 0,
+            "total_inserted": 0,
+            "details": [],
+        }
+
+        for pdf_path in expanded:
+            try:
+                res = await ingest_courses_from_pdf(pdf_path)
+                agg["details"].append({"file": str(pdf_path), **res})
+                agg["total_parsed"] += res.get("parsed_count", 0)
+                agg["total_inserted"] += res.get("inserted_count", 0)
+            except Exception as e:
+                logging.exception("Failed ingest for %s: %s", pdf_path, e)
+            await _yield_now()
+
+        logging.info(
+            "📚 Batch curriculum ingest complete. files=%d parsed=%d inserted=%d",
+            len(expanded), agg["total_parsed"], agg["total_inserted"]
+        )
+        return agg
+
+    finally:
+        elapsed = round(time.perf_counter() - t0, 3)
+        logging.info("Batch curriculum ingest timing: %s sec", elapsed)
 
 
 # ----------------------------------------------------------------------
