@@ -293,7 +293,7 @@ def heuristic_blocks(major_text: str) -> List[CourseRow]:
     return rows
 
 # ---------- Deterministic (supplement) ----------
-# Keep a relaxed variant of your earlier deterministic parser
+# Relaxed variant that matches: CODE <units> units, next line: TITLE, then description until next header
 _RELAXED_HEAD = re.compile(
     r"^\s*(?P<code>[A-Za-z][A-Za-z0-9/._\- ]{1,20})\s+(?P<units>\d+(?:\.\d+)?)\s*unit(?:s)?\b.*$",
     re.I,
