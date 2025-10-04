@@ -63,9 +63,6 @@ def _norm_space(s: str) -> str:
     return re.sub(r"\s+", " ", (s or "").strip())
 
 def _slice_major_only(text: str) -> str:
-    """
-    Return ONLY the text under 'MAJOR COURSE DESCRIPTION(S)' up to the next ALL-CAPS header or EOF.
-    """
     m = HEADER_MAJOR.search(text)
     if not m:
         return ""
@@ -77,10 +74,6 @@ def _slice_major_only(text: str) -> str:
 
 # ---------- PDF -> Text ----------
 def extract_text_from_pdf(file_bytes: bytes) -> str:
-    """
-    Prefer pdfminer.six for higher-fidelity text extraction.
-    Fallback to PyPDF2 when pdfminer isn't available.
-    """
     text = ""
     if _PDFMINER_AVAILABLE:
         try:
@@ -103,22 +96,8 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
     return text.strip()
 
 
-# ---------- Deterministic parser for MAJOR COURSE DESCRIPTION(S) ----------
+# ---------- Deterministic parser ----------
 def parse_major_course_descriptions(text: str) -> List[CourseRow]:
-    """
-    Parse 'MAJOR COURSE DESCRIPTION(S)' blocks ONLY.
-
-    Expected pattern per course:
-      Line A: <CODE> <units> units [optional details]
-              e.g., "CompF 3 units" / "Prog1 4 units (LEC 2, LAB 2)" / "PATHFit 1 2 units"
-      Line B: <TITLE> (often uppercase)
-      Line C+: description (until blank line or next course header)
-
-    We:
-      - keep the original course_code as-is,
-      - uppercase course_title to normalize,
-      - merge multi-line descriptions until the next header.
-    """
     section = _slice_major_only(text)
     if not section:
         return []
@@ -126,9 +105,6 @@ def parse_major_course_descriptions(text: str) -> List[CourseRow]:
     lines = [ln.rstrip() for ln in section.splitlines()]
     rows: List[CourseRow] = []
 
-    # Header line matcher:
-    #   - code: letters/digits with optional space+digit suffix (e.g., PATHFit 1)
-    #   - units: a number before the word 'units'
     head_re = re.compile(
         r"^\s*(?P<code>[A-Za-z][A-Za-z0-9]*(?:\s?\d{1,2})?)\s+(?P<units>\d+)\s+units\b.*$",
         re.I,
@@ -148,16 +124,18 @@ def parse_major_course_descriptions(text: str) -> List[CourseRow]:
         while j < L and not lines[j].strip():
             j += 1
         title = lines[j].strip() if j < L else ""
-        title = title.upper()  # normalize to uppercase as requested
+
+        # Fallback if missing or malformed
+        if not title or head_re.match(title) or ALLCAPS_HEADER.match("\n" + title + "\n"):
+            title = "UNTITLED COURSE"
+
+        title = title.upper()
 
         # Accumulate description until next header or end
         desc_lines: List[str] = []
         k = j + 1
         while k < L:
-            if head_re.match(lines[k]):  # next course header found
-                break
-            # Paranoia stop if a big ALLCAPS header leaks into the slice
-            if ALLCAPS_HEADER.match("\n" + lines[k] + "\n"):
+            if head_re.match(lines[k]) or ALLCAPS_HEADER.match("\n" + lines[k] + "\n"):
                 break
             if lines[k].strip():
                 desc_lines.append(lines[k].strip())
@@ -165,16 +143,20 @@ def parse_major_course_descriptions(text: str) -> List[CourseRow]:
 
         desc = _norm_space(" ".join(desc_lines)) or "No description provided."
 
-        rows.append(
-            CourseRow(
-                course_code=code,
-                course_title=title,
-                course_description=desc,
+        try:
+            rows.append(
+                CourseRow(
+                    course_code=code,
+                    course_title=title,
+                    course_description=desc,
+                )
             )
-        )
+        except ValidationError as e:
+            logger.warning("Skipping invalid course block (code=%r): %s", code, e)
 
         i = k  # jump to next block
 
+    logger.info("Parsed %d major courses. Sample: %s", len(rows), rows[:2])
     return rows
 
 
@@ -200,7 +182,6 @@ Text:
 
 def _strip_code_fences(s: str) -> str:
     s = s.strip()
-    # Remove ```json ... ``` or ``` ... ```
     if s.startswith("```"):
         s = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", s)
         s = re.sub(r"\s*```$", "", s)
@@ -212,7 +193,7 @@ def call_gemini(text: str) -> Dict[str, Any]:
         raise RuntimeError("GEMINI_API_KEY not set")
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
-    prompt = _USER_TEMPLATE.format(payload=text[:20000])  # keep request bounded
+    prompt = _USER_TEMPLATE.format(payload=text[:20000])
     body = {
         "contents": [
             {"role": "user", "parts": [{"text": _SYSTEM}]},
@@ -230,14 +211,11 @@ def call_gemini(text: str) -> Dict[str, Any]:
         raise RuntimeError(f"Gemini unexpected response: {json.dumps(data)[:400]}")
 
     cleaned = _strip_code_fences(cand)
-    # Try JSON object first
     try:
         return json.loads(cleaned)
     except json.JSONDecodeError:
-        # If model returned a bare array, wrap it
         if cleaned.startswith("[") and cleaned.endswith("]"):
             return {"rows": json.loads(cleaned)}
-        # Last resort: capture the first {...} block
         m = re.search(r"\{.*\}", cleaned, flags=re.S)
         if m:
             return json.loads(m.group(0))
@@ -271,12 +249,6 @@ def call_openai(text: str) -> Dict[str, Any]:
 
 
 def _regex_fallback(text: str) -> List[CourseRow]:
-    """
-    Very naive backup for patterns like:
-      'CS101 – Introduction to Programming'
-    Description = subsequent non-empty lines until blank.
-    Not specific to MAJOR section; only used if everything else fails.
-    """
     rows: List[CourseRow] = []
     header_re = re.compile(r"(?P<code>[A-Z]{2,}\s*\d{1,})\s*[–-]\s*(?P<title>[^\n]+)")
     lines = text.splitlines()
@@ -292,7 +264,10 @@ def _regex_fallback(text: str) -> List[CourseRow]:
                 desc_lines.append(lines[j].strip())
                 j += 1
             desc = " ".join(desc_lines) or "No description provided."
-            rows.append(CourseRow(course_code=code, course_title=title, course_description=_norm_space(desc)))
+            try:
+                rows.append(CourseRow(course_code=code, course_title=title, course_description=_norm_space(desc)))
+            except ValidationError as e:
+                logger.warning("Skipping invalid regex row: %s", e)
             i = j
         else:
             i += 1
@@ -311,26 +286,12 @@ def llm_parse_courses(pdf_text: str) -> List[CourseRow]:
 
     cleaned_rows = []
     for row in raw.get("rows", []):
-        # Normalize and auto-repair empty values
-        code = (row.get("course_code") or "").strip()
-        title = (row.get("course_title") or "").strip()
-        desc = (row.get("course_description") or "").strip()
-
-        if not code:
-            code = "UNKNOWN_CODE"
-        if not title:
-            title = "Untitled Course"
-        if not desc:
-            desc = "No description provided."
+        code = (row.get("course_code") or "").strip() or "UNKNOWN_CODE"
+        title = (row.get("course_title") or "").strip() or "UNTITLED COURSE"
+        desc = (row.get("course_description") or "").strip() or "No description provided."
 
         try:
-            cleaned_rows.append(
-                CourseRow(
-                    course_code=code,
-                    course_title=title,
-                    course_description=desc,
-                )
-            )
+            cleaned_rows.append(CourseRow(course_code=code, course_title=title, course_description=desc))
         except Exception as ve:
             logger.warning("Skipping invalid row after normalization: %s", ve)
 
@@ -338,29 +299,19 @@ def llm_parse_courses(pdf_text: str) -> List[CourseRow]:
     return parsed.rows
 
 
-
 # ---------- Supabase upsert ----------
 def upsert_courses(rows: List[CourseRow]) -> List[Dict[str, Any]]:
-    """
-    Only writes 'course_code', 'course_title', 'course_description'.
-    Does NOT send 'course_id' (int8 identity), and we don't assume 'updated_at'.
-    NOTE: supabase-py v2 doesn't support chaining .select() after .upsert().
-    """
     if not rows:
         return []
 
     payload = [r.model_dump() for r in rows]
 
-    # 1) Upsert
     up = SB.table(COURSES_TABLE).upsert(payload, on_conflict=UPSERT_ON).execute()
     data = up.data or []
 
-    # 2) If your PostgREST settings return the row representation, 'data' already
-    #    contains the inserted/updated rows. If not, fetch them explicitly:
     if data and all("course_id" in d for d in data):
         return data
 
-    # Fallback explicit fetch for a clean response shape
     try:
         codes = [r.course_code for r in rows]
         fetched = (
@@ -377,23 +328,10 @@ def upsert_courses(rows: List[CourseRow]) -> List[Dict[str, Any]]:
 
 # ---------- Orchestrator entry ----------
 def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
-    """
-    STRICT: PDF bytes -> text -> parse ONLY MAJOR COURSE DESCRIPTION(S) -> upsert.
-    If deterministic parsing yields nothing (unexpected layout), LLM fallback is applied
-    on the MAJOR-only slice, not the entire document.
-    Returns:
-      {
-        "inserted": [...rows],
-        "parsed_rows": [ {course_code,title,description} ... ],
-        "raw_text_len": int
-      }
-    """
     text = extract_text_from_pdf(file_bytes)
 
-    # 1) Deterministic parse for the MAJOR COURSE DESCRIPTION(S) section
     rows = parse_major_course_descriptions(text)
 
-    # 2) Optional fallback: try LLM on the major-only slice (strict scope)
     if not rows:
         major_only = _slice_major_only(text)
         if major_only:
