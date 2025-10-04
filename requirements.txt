@@ -65,6 +65,7 @@ pycparser==2.23
 pydantic==2.11.7
 pydantic_core==2.33.2
 PyJWT==2.10.1
+PyMuPDF==1.26.4
 pyparsing==3.2.3
 PyPDF2==3.0.1
 python-dateutil==2.9.0.post0

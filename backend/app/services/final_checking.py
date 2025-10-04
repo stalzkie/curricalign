@@ -5,6 +5,7 @@ import os
 import re
 import logging
 import asyncio
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Iterable, Set
 
 from rapidfuzz.fuzz import token_set_ratio as rf_token_set_ratio
@@ -183,7 +184,6 @@ def _dedupe_skill_phrases(items: List[str], threshold: float = FUZZY_DEDUPE_THRE
             survivors.append(s)
             survivors_norm.append(norm)
 
-    # Optional: log how many we collapsed
     collapsed = len(items) - len(survivors)
     if collapsed > 0:
         logging.info("[final_checking] Fuzzy de-duped %d skill phrase(s) (threshold=%.2f)", collapsed, threshold)
@@ -193,17 +193,52 @@ def _dedupe_skill_phrases(items: List[str], threshold: float = FUZZY_DEDUPE_THRE
 # ----------------------------------------------------------------------
 # Core Cleaning
 # ----------------------------------------------------------------------
+def _parse_iso(dt: Any) -> Optional[datetime]:
+    """Parse common ISO8601 strings (including ...Z) to datetime, else None."""
+    if not isinstance(dt, str):
+        return None
+    s = dt.strip()
+    # Normalize trailing Z to +00:00 for fromisoformat
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(s)
+    except Exception:
+        return None
+
 def _select_latest_batch(rows: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Optional[str], int]:
+    """
+    Choose the newest batch by the maximum `calculated_at` timestamp among rows in each batch.
+    Fallback to lexicographic batch_id if timestamps are missing.
+    Returns: (rows_for_latest_batch, latest_batch_id, total_distinct_batches)
+    """
+    if not rows:
+        return rows, None, 0
+
     by_batch: Dict[Optional[str], List[Dict[str, Any]]] = {}
     for r in rows:
         by_batch.setdefault(r.get("batch_id"), []).append(r)
 
-    non_null = [b for b in by_batch.keys() if b]
-    if not non_null:
-        return rows, None, len(by_batch)
+    total_batches = len(by_batch)
 
-    latest = sorted(non_null)[-1]
-    return by_batch[latest], latest, len(by_batch)
+    # Build candidates with (batch_id, rows, max_calculated_at)
+    candidates: List[Tuple[Optional[str], List[Dict[str, Any]], Optional[datetime]]] = []
+    for bid, items in by_batch.items():
+        dts = [_parse_iso(r.get("calculated_at")) for r in items if r.get("calculated_at")]
+        max_dt = max((d for d in dts if d is not None), default=None)
+        candidates.append((bid, items, max_dt))
+
+    def _key(entry: Tuple[Optional[str], List[Dict[str, Any]], Optional[datetime]]):
+        bid, _, max_dt = entry
+        # Prefer batches that have a timestamp; then by timestamp; tie-break lexicographically by batch_id
+        return (max_dt is not None, max_dt or datetime.min, str(bid))
+
+    # Prefer non-null batch_ids; if all null, just return all rows (legacy)
+    non_null = [c for c in candidates if c[0]]
+    chosen = max(non_null or candidates, key=_key)
+    latest_bid, latest_rows, _ = chosen
+
+    return latest_rows, latest_bid, total_batches
 
 def _dedupe_courses(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     best: Dict[Tuple[Any, Any], Dict[str, Any]] = {}
@@ -318,7 +353,7 @@ async def run_final_checks(
             raise ValueError(msg)
         return {"rows": []}
 
-    # 2) Select latest batch
+    # 2) Select latest batch (date-aware)
     original_count = len(rows)
     rows, latest_batch, total_batches = _select_latest_batch(rows)
 
