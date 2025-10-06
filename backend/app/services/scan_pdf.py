@@ -44,11 +44,43 @@ for bad_var in [
     if bad_var in os.environ:
         os.environ.pop(bad_var)
 
-genai.configure(api_key=GEMINI_API_KEY)
+# 🔧 Configure with explicit transport options to force v1 API
+genai.configure(
+    api_key=GEMINI_API_KEY,
+    transport="rest",  # Force REST transport (uses v1 by default)
+)
 
-# Using same model as skill_extractor
+# 🔧 Use the correct model name for v1 API
+# Common v1 model names: "gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+
+# 🔧 Verify the model exists before creating it
+try:
+    available_models = [m.name for m in genai.list_models()]
+    logger.info("Available Gemini models: %s", available_models)
+    
+    # The model name from list_models includes "models/" prefix
+    full_model_name = f"models/{GEMINI_MODEL}"
+    if full_model_name not in available_models:
+        # Try without version suffix if the main model exists
+        fallback_models = [
+            "models/gemini-1.5-pro-latest",
+            "models/gemini-1.5-pro-001",
+            "models/gemini-pro",
+        ]
+        for fallback in fallback_models:
+            if fallback in available_models:
+                GEMINI_MODEL = fallback.replace("models/", "")
+                logger.warning("Model not found, using fallback: %s", GEMINI_MODEL)
+                break
+        else:
+            logger.error("Specified model %s not available. Available models: %s", 
+                        GEMINI_MODEL, available_models)
+except Exception as e:
+    logger.warning("Could not verify model availability: %s", e)
+
 MODEL = genai.GenerativeModel(GEMINI_MODEL)
+logger.info("Initialized Gemini model: %s", GEMINI_MODEL)
 
 # ---------- Tunables ----------
 COURSES_TABLE = os.getenv("COURSES_TABLE", "courses")
