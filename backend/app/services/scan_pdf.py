@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field, ValidationError
 import fitz  # PyMuPDF
 from dotenv import load_dotenv
 
-# --- Gemini SDK (same style as skill_extractor) ---
+# --- Gemini SDK (force public v1 API surface) ---
 import google.generativeai as genai
 
 # ---------- Logging ----------
@@ -28,19 +28,31 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 SB: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Gemini
+# ---------- Gemini API (force correct endpoint) ----------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY must be set for Gemini parsing")
 
-# Mirror the working service exactly
+# 🚨 Force it to use the PUBLIC google.generativeai endpoint (v1), not v1beta or Vertex
+# Some environments override this via env vars, so we clear possible offenders.
+for bad_var in [
+    "GOOGLE_API_BASE_URL",
+    "GEMINI_API_BASE_URL",
+    "GEMINI_ENDPOINT",
+    "GEMINI_VERSION",
+]:
+    if bad_var in os.environ:
+        os.environ.pop(bad_var)
+
 genai.configure(api_key=GEMINI_API_KEY)
+
+# Using same model as skill_extractor
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
 MODEL = genai.GenerativeModel(GEMINI_MODEL)
 
-# Tunables
+# ---------- Tunables ----------
 COURSES_TABLE = os.getenv("COURSES_TABLE", "courses")
-UPSERT_ON = os.getenv("COURSES_UPSERT_COLUMN", "course_code")  # unique key
+UPSERT_ON = os.getenv("COURSES_UPSERT_COLUMN", "course_code")
 MIN_REASONABLE_ROWS = int(os.getenv("SCAN_MIN_ROWS", "6"))
 CHUNK_SIZE = int(os.getenv("SCAN_CHUNK_SIZE", "4500"))
 CHUNK_OVERLAP = int(os.getenv("SCAN_CHUNK_OVERLAP", "600"))
@@ -67,7 +79,6 @@ def _merge_dedupe(primary: List[CourseRow], secondary: List[CourseRow]) -> List[
             by_code[key] = r
         else:
             a = by_code[key]
-            # prefer the row with the longer description (more info)
             if len(r.course_description or "") > len(a.course_description or ""):
                 by_code[key] = r
     return list(by_code.values())
@@ -85,14 +96,9 @@ def _sliding_windows(txt: str, size: int, overlap: int) -> Iterable[str]:
 def extract_full_text_pymupdf(file_bytes: bytes) -> str:
     try:
         doc = fitz.open(stream=file_bytes, filetype="pdf")
-        parts: List[str] = []
-        for page in doc:
-            text = page.get_text("text") or ""
-            if text:
-                parts.append(text)
+        parts: List[str] = [page.get_text("text") or "" for page in doc]
         doc.close()
         joined = "\n".join(parts)
-        # de-hyphenate line-break hyphenation and normalize spacing
         joined = re.sub(r"(\w+)-\n(\w+)", r"\1\2", joined)
         joined = re.sub(r"[ \t]+\n", "\n", joined)
         joined = re.sub(r"\n{2,}", "\n\n", joined)
@@ -101,14 +107,14 @@ def extract_full_text_pymupdf(file_bytes: bytes) -> str:
         logger.error("❌ PyMuPDF extraction failed: %s", e)
         return ""
 
-# ---------- 2️⃣ Gemini Parsing (SDK) ----------
+# ---------- 2️⃣ Gemini Parsing ----------
 _SYSTEM = (
     "You are a precise curriculum parser. Extract ONLY the courses under the "
     "'Major Courses' or 'Major Course Description' section. Ignore General Education, "
     "Minor, and Electives. Return valid JSON with this exact schema:\n"
     "{ \"rows\": [ { \"course_code\": str, \"course_title\": str, \"course_description\": str } ] }\n"
     "Rules:\n"
-    "- Keep the exact course_code as written in the PDF (e.g., 'CompF', 'Prog1').\n"
+    "- Keep the exact course_code as written in the PDF.\n"
     "- Uppercase the course_title.\n"
     "- Merge multiline descriptions into one paragraph.\n"
     "- Do not invent items. If no major courses are present, return {\"rows\": []}."
@@ -129,30 +135,23 @@ def _strip_code_fences(s: str) -> str:
     return s.strip()
 
 def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
-    """
-    Use the official Gemini SDK (same pattern as skill_extractor).
-    Keep the call identical in spirit to your working service.
-    """
     prompt = _USER_TEMPLATE.format(payload=prompt_text[:20000])
     try:
-        resp = MODEL.generate_content(
+        response = MODEL.generate_content(
             [{"text": _SYSTEM + "\n\n" + prompt}],
             generation_config={
                 "temperature": 0.2,
                 "max_output_tokens": 4096,
-                # No response_mime_type here to mirror the other service closely
             },
         )
-        raw = (resp.text or "").strip()
+        raw = (response.text or "").strip()
     except Exception as e:
         raise RuntimeError(f"Gemini call failed: {e}")
 
     if not raw:
         raise RuntimeError("Gemini returned empty response.")
-
     raw = _strip_code_fences(raw)
 
-    # Expect a JSON object; try parse directly
     try:
         obj = json.loads(raw)
         if isinstance(obj, dict):
@@ -160,17 +159,16 @@ def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
     except Exception:
         pass
 
-    # salvage the first {...} if model adds extra prose
-    m = re.search(r"\{[\s\S]*\}", raw)
-    if m:
+    match = re.search(r"\{[\s\S]*\}", raw)
+    if match:
         try:
-            obj = json.loads(m.group(0))
+            obj = json.loads(match.group(0))
             if isinstance(obj, dict):
                 return obj
         except Exception:
             pass
 
-    raise RuntimeError(f"Gemini returned non-JSON or malformed JSON: {raw[:400]}")
+    raise RuntimeError(f"Gemini returned malformed JSON: {raw[:400]}")
 
 def _parse_gemini_rows(raw_obj: Dict[str, Any]) -> List[CourseRow]:
     cleaned: List[CourseRow] = []
@@ -198,20 +196,14 @@ def upsert_courses(rows: List[CourseRow]) -> List[Dict[str, Any]]:
 
 # ---------- 4️⃣ Main Pipeline ----------
 def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
-    """
-    Step 1: Extract all visible text with PyMuPDF.
-    Step 2: Use Gemini (SDK) to locate 'Major Courses' and format structured JSON.
-    Step 3: If recall is low, run chunked passes and merge.
-    Step 4: Upsert into Supabase.
-    """
-    logger.info("🚀 Starting hybrid scan pipeline (PyMuPDF + Gemini SDK)… [model=%s]", GEMINI_MODEL)
+    logger.info("🚀 Starting hybrid scan pipeline (PyMuPDF + Gemini v1 SDK)… [model=%s]", GEMINI_MODEL)
 
     # Step 1 — Extract text
     full_text = extract_full_text_pymupdf(file_bytes)
     if not full_text:
         raise RuntimeError("No text extracted from PDF.")
 
-    # Step 2 — Ask Gemini to parse structured JSON
+    # Step 2 — Parse with Gemini
     rows: List[CourseRow] = []
     last_err: Optional[str] = None
     try:
@@ -221,7 +213,7 @@ def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
         last_err = str(e)
         logger.warning("Gemini main parse failed: %s", last_err)
 
-    # Step 3 — If too few rows, chunk + merge
+    # Step 3 — Retry with chunks if recall is low
     if len(rows) < MIN_REASONABLE_ROWS:
         logger.info("Low recall (%d); retrying with chunked text", len(rows))
         chunk_rows: List[CourseRow] = []
@@ -231,21 +223,20 @@ def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
                 chunk_rows = _merge_dedupe(chunk_rows, _parse_gemini_rows(r))
             except Exception as ce:
                 last_err = str(ce)
-                # If the error is a model availability issue, abort immediately (retries won't help)
-                if "not available" in last_err or "not found" in last_err or "404" in last_err:
+                if "not found" in last_err or "404" in last_err:
                     logger.warning("Chunk parse aborted due to model error: %s", last_err)
                     break
                 logger.warning("Chunk parse failed: %s", last_err)
         rows = _merge_dedupe(rows, chunk_rows)
 
-    # Optional: fail hard if nothing parsed (lets the API return 502)
+    # Step 4 — Optional fail if still empty
     if FAIL_ON_EMPTY and len(rows) == 0:
         raise RuntimeError(
             f"Gemini parse produced 0 rows. "
             f"{'Last error: ' + last_err if last_err else 'No additional error details.'}"
         )
 
-    # Step 4 — Save results
+    # Step 5 — Save to Supabase
     inserted = upsert_courses(rows) if rows else []
     logger.info("✅ Parsed %d rows and inserted %d", len(rows), len(inserted))
 
