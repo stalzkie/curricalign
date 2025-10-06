@@ -4,8 +4,9 @@ from __future__ import annotations
 import os
 import re
 import json
+import base64
 import logging
-from typing import List, Dict, Any, Iterable
+from typing import List, Dict, Any, Iterable, Optional
 
 from supabase import create_client, Client
 from pydantic import BaseModel, Field, ValidationError
@@ -33,17 +34,17 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY must be set for Gemini parsing")
 
+# Use a CURRENT, supported model id by default
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro-002")
 genai.configure(api_key=GEMINI_API_KEY)
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
-MODEL = genai.GenerativeModel(GEMINI_MODEL)
-
-COURSES_TABLE = os.getenv("COURSES_TABLE", "courses")
-UPSERT_ON = os.getenv("COURSES_UPSERT_COLUMN", "course_code")  # unique key
 
 # Tunables
+COURSES_TABLE = os.getenv("COURSES_TABLE", "courses")
+UPSERT_ON = os.getenv("COURSES_UPSERT_COLUMN", "course_code")  # unique key
 MIN_REASONABLE_ROWS = int(os.getenv("SCAN_MIN_ROWS", "6"))
 CHUNK_SIZE = int(os.getenv("SCAN_CHUNK_SIZE", "4500"))
 CHUNK_OVERLAP = int(os.getenv("SCAN_CHUNK_OVERLAP", "600"))
+FAIL_ON_EMPTY = os.getenv("SCAN_FAIL_ON_EMPTY", "1") not in ("0", "false", "False", "")
 
 # ---------- Models ----------
 class CourseRow(BaseModel):
@@ -80,6 +81,27 @@ def _sliding_windows(txt: str, size: int, overlap: int) -> Iterable[str]:
             break
         i = max(i + size - overlap, i + 1)
 
+# ---------- 0️⃣ Gemini model init / sanity ----------
+def _new_model(model_id: Optional[str] = None):
+    mid = model_id or GEMINI_MODEL
+    try:
+        m = genai.GenerativeModel(mid)
+        # quick ping to fail fast on 404/permission
+        _ = m.generate_content("ping", generation_config={"max_output_tokens": 8})
+        return m
+    except Exception as e:
+        msg = str(e)
+        # Fast fail with a clear message if model is invalid for this API surface
+        if "404" in msg or "not found" in msg:
+            raise RuntimeError(
+                f"GEMINI_MODEL '{mid}' is not available on this API surface. "
+                "Set GEMINI_MODEL to 'gemini-1.5-pro-002' or 'gemini-1.5-pro-latest'. "
+                f"Original error: {msg}"
+            )
+        raise
+
+MODEL = _new_model(GEMINI_MODEL)
+
 # ---------- 1️⃣ PyMuPDF Extraction ----------
 def extract_full_text_pymupdf(file_bytes: bytes) -> str:
     try:
@@ -93,6 +115,7 @@ def extract_full_text_pymupdf(file_bytes: bytes) -> str:
         joined = "\n".join(parts)
         # de-hyphenate line-break hyphenation and normalize spacing
         joined = re.sub(r"(\w+)-\n(\w+)", r"\1\2", joined)
+        joined = re.sub(r"[ \t]+\n", "\n", joined)
         joined = re.sub(r"\n{2,}", "\n\n", joined)
         return joined.strip()
     except Exception as e:
@@ -129,16 +152,25 @@ def _strip_code_fences(s: str) -> str:
 def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
     """
     Use the official Gemini SDK (same pattern as skill_extractor).
-    Enforce JSON object; salvage the first {...} block if needed.
+    Enforce JSON output via response_mime_type; salvage first {...} if needed.
     """
     prompt = _USER_TEMPLATE.format(payload=prompt_text[:20000])
-    resp = MODEL.generate_content(
-        [
-            {"role": "user", "parts": [{"text": _SYSTEM}]},
-            {"role": "user", "parts": [{"text": prompt}]},
-        ]
-    )
-    raw = (resp.text or "").strip()
+    try:
+        resp = MODEL.generate_content(
+            [{"text": _SYSTEM + "\n\n" + prompt}],
+            generation_config={
+                "temperature": 0.2,
+                "max_output_tokens": 4096,
+                "response_mime_type": "application/json",
+            },
+        )
+        raw = (resp.text or "").strip()
+    except Exception as e:
+        raise RuntimeError(f"Gemini call failed: {e}")
+
+    if not raw:
+        raise RuntimeError("Gemini returned empty response.")
+
     raw = _strip_code_fences(raw)
 
     # Expect a JSON object; try parse directly
@@ -178,8 +210,12 @@ def upsert_courses(rows: List[CourseRow]) -> List[Dict[str, Any]]:
     if not rows:
         return []
     payload = [r.model_dump() for r in rows]
-    up = SB.table(COURSES_TABLE).upsert(payload, on_conflict=UPSERT_ON).execute()
-    return up.data or []
+    try:
+        up = SB.table(COURSES_TABLE).upsert(payload, on_conflict=UPSERT_ON).execute()
+        return up.data or []
+    except Exception as e:
+        logger.error("❌ Supabase upsert failed: %s", e)
+        return []
 
 # ---------- 4️⃣ Main Pipeline ----------
 def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
@@ -189,7 +225,7 @@ def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
     Step 3: If recall is low, run chunked passes and merge.
     Step 4: Upsert into Supabase.
     """
-    logger.info("🚀 Starting hybrid scan pipeline (PyMuPDF + Gemini SDK)…")
+    logger.info("🚀 Starting hybrid scan pipeline (PyMuPDF + Gemini SDK)… [model=%s]", GEMINI_MODEL)
 
     # Step 1 — Extract text
     full_text = extract_full_text_pymupdf(file_bytes)
@@ -198,11 +234,13 @@ def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
 
     # Step 2 — Ask Gemini to parse structured JSON
     rows: List[CourseRow] = []
+    last_err: Optional[str] = None
     try:
         raw_obj = _call_gemini_json(full_text)
         rows = _parse_gemini_rows(raw_obj)
     except Exception as e:
-        logger.warning("Gemini main parse failed: %s", e)
+        last_err = str(e)
+        logger.warning("Gemini main parse failed: %s", last_err)
 
     # Step 3 — If too few rows, chunk + merge
     if len(rows) < MIN_REASONABLE_ROWS:
@@ -213,8 +251,20 @@ def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
                 r = _call_gemini_json(chunk)
                 chunk_rows = _merge_dedupe(chunk_rows, _parse_gemini_rows(r))
             except Exception as ce:
-                logger.warning("Chunk parse failed: %s", ce)
+                last_err = str(ce)
+                # If the error is a model availability issue, abort immediately (retries won't help)
+                if "not available" in last_err or "not found" in last_err or "404" in last_err:
+                    logger.warning("Chunk parse aborted due to model error: %s", last_err)
+                    break
+                logger.warning("Chunk parse failed: %s", last_err)
         rows = _merge_dedupe(rows, chunk_rows)
+
+    # Optional: fail hard if nothing parsed (lets the API return 502)
+    if FAIL_ON_EMPTY and len(rows) == 0:
+        raise RuntimeError(
+            f"Gemini parse produced 0 rows. "
+            f"{'Last error: ' + last_err if last_err else 'No additional error details.'}"
+        )
 
     # Step 4 — Save results
     inserted = upsert_courses(rows) if rows else []
