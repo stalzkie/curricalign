@@ -4,7 +4,6 @@ from __future__ import annotations
 import os
 import re
 import json
-import base64
 import logging
 from typing import List, Dict, Any, Iterable, Optional
 
@@ -34,9 +33,10 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY must be set for Gemini parsing")
 
-# Use a CURRENT, supported model id by default
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro-002")
+# Mirror the working service exactly
 genai.configure(api_key=GEMINI_API_KEY)
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+MODEL = genai.GenerativeModel(GEMINI_MODEL)
 
 # Tunables
 COURSES_TABLE = os.getenv("COURSES_TABLE", "courses")
@@ -80,27 +80,6 @@ def _sliding_windows(txt: str, size: int, overlap: int) -> Iterable[str]:
         if i + size >= n:
             break
         i = max(i + size - overlap, i + 1)
-
-# ---------- 0️⃣ Gemini model init / sanity ----------
-def _new_model(model_id: Optional[str] = None):
-    mid = model_id or GEMINI_MODEL
-    try:
-        m = genai.GenerativeModel(mid)
-        # quick ping to fail fast on 404/permission
-        _ = m.generate_content("ping", generation_config={"max_output_tokens": 8})
-        return m
-    except Exception as e:
-        msg = str(e)
-        # Fast fail with a clear message if model is invalid for this API surface
-        if "404" in msg or "not found" in msg:
-            raise RuntimeError(
-                f"GEMINI_MODEL '{mid}' is not available on this API surface. "
-                "Set GEMINI_MODEL to 'gemini-1.5-pro-002' or 'gemini-1.5-pro-latest'. "
-                f"Original error: {msg}"
-            )
-        raise
-
-MODEL = _new_model(GEMINI_MODEL)
 
 # ---------- 1️⃣ PyMuPDF Extraction ----------
 def extract_full_text_pymupdf(file_bytes: bytes) -> str:
@@ -152,7 +131,7 @@ def _strip_code_fences(s: str) -> str:
 def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
     """
     Use the official Gemini SDK (same pattern as skill_extractor).
-    Enforce JSON output via response_mime_type; salvage first {...} if needed.
+    Keep the call identical in spirit to your working service.
     """
     prompt = _USER_TEMPLATE.format(payload=prompt_text[:20000])
     try:
@@ -161,7 +140,7 @@ def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
             generation_config={
                 "temperature": 0.2,
                 "max_output_tokens": 4096,
-                "response_mime_type": "application/json",
+                # No response_mime_type here to mirror the other service closely
             },
         )
         raw = (resp.text or "").strip()
