@@ -77,6 +77,32 @@ async function downloadUrlAsFile(url: string, filename: string) {
   URL.revokeObjectURL(objectUrl);
 }
 
+/* ---------- Typed status helpers ---------- */
+
+const STATUS_MAP = {
+  started: 'in-progress',
+  completed: 'completed',
+  error: 'error',
+} as const;
+
+type IncomingStatus = keyof typeof STATUS_MAP;
+
+/** Normalize backend step status → UI StepStatus (typed). */
+function mapStatus(st?: string): StepStatus {
+  if (!st) return 'pending';
+
+  // server sometimes uses "in_progress"
+  if (st === 'in_progress') return 'in-progress';
+  if (st === 'pending') return 'pending';
+
+  if ((Object.keys(STATUS_MAP) as IncomingStatus[]).includes(st as IncomingStatus)) {
+    return STATUS_MAP[st as IncomingStatus];
+  }
+
+  // default fallback
+  return 'pending';
+}
+
 export function useOrchestrator() {
   const [steps, setSteps] = useState<ProcessStep[]>(INITIAL_STEPS);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -154,12 +180,7 @@ export function useOrchestrator() {
       throw new Error(`scan-pdf error: ${explain}`);
     }
 
-    let data: any = {};
-    try {
-      data = JSON.parse(text || '{}');
-    } catch {
-      throw new Error('scan-pdf returned non-JSON response');
-    }
+    const data = JSON.parse(text || '{}');
     const rows = Array.isArray(data?.parsed_rows) ? data.parsed_rows : [];
     setParsedRows(rows);
     return data;
@@ -167,7 +188,6 @@ export function useOrchestrator() {
 
   async function initOrchestratorJob() {
     const url = toAbsoluteUrl(ORCHESTRATOR_INIT_URL);
-    console.log('FRONTEND: Requesting new jobId from backend...', url);
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -180,7 +200,6 @@ export function useOrchestrator() {
     const data = (txt ? JSON.parse(txt) : {}) as any;
     if (data?.jobId) {
       setJobId(String(data.jobId));
-      console.log('FRONTEND: Received jobId:', data.jobId);
       return String(data.jobId);
     }
     throw new Error('No jobId received from init endpoint');
@@ -192,7 +211,6 @@ export function useOrchestrator() {
     flags: RunFlags = {}
   ) {
     const url = toAbsoluteUrl(`${ORCHESTRATOR_START_PIPELINE_URL}/${encodeURIComponent(id)}`);
-    console.log('FRONTEND: START pipeline', { id, url });
     const payload = {
       source,
       scrapeEnabled: flags.scrapeEnabled ?? true,
@@ -209,14 +227,12 @@ export function useOrchestrator() {
     });
     const txt = await res.text().catch(() => '');
     if (!res.ok) throw new Error(txt || `Failed to start pipeline for jobId ${id}`);
-    console.log('FRONTEND: Backend acknowledged pipeline start for jobId:', id);
   }
 
   /** Opens SSE. Resolves once opened OR after a short grace period so we can fallback to polling. */
   function openEventStream(id?: string | null, graceMs = 1200): Promise<void> {
     return new Promise((resolve) => {
       if (!id) {
-        console.error('FRONTEND: Cannot open EventSource, jobId is null.');
         resolve(); // let polling handle it
         return;
       }
@@ -224,20 +240,15 @@ export function useOrchestrator() {
       closeStream();
 
       const url = `${toAbsoluteUrl(ORCHESTRATOR_EVENTS_URL)}?jobId=${encodeURIComponent(id)}`;
-      console.log('FRONTEND: Attempting to open EventSource to:', url);
       const es = new EventSource(url);
       esRef.current = es;
 
       const graceTimer = setTimeout(() => {
-        if (!openedRef.current) {
-          console.warn('FRONTEND: SSE did not open within grace period; continuing with polling fallback.');
-          resolve();
-        }
+        if (!openedRef.current) resolve();
       }, graceMs);
 
       es.onopen = () => {
         openedRef.current = true;
-        console.log('FRONTEND: SSE connection opened successfully for jobId:', id);
         clearTimeout(graceTimer);
         resolve();
       };
@@ -247,13 +258,11 @@ export function useOrchestrator() {
         try {
           const payload = JSON.parse(evt.data);
 
-          // --- Handle explicit pipeline error events ---
           if (payload?.type === 'error') {
-            console.error('PIPELINE ERROR:', payload.failed_at || payload.function, payload.error);
             const failedFn: string | undefined = payload.failed_at || payload.function;
             if (failedFn) {
               setSteps((prev) =>
-                prev.map((s) => (s.fn === failedFn ? { ...s, status: 'error' } : s))
+                prev.map((s) => (s.fn === failedFn ? { ...s, status: 'error' as StepStatus } : s))
               );
             }
             setIsProcessing(false);
@@ -262,49 +271,31 @@ export function useOrchestrator() {
             return;
           }
 
-          if (payload.reportUrl) {
-            setReportUrl(String(payload.reportUrl));
-            console.log('FRONTEND: Report URL set:', payload.reportUrl);
-          }
+          if (payload.reportUrl) setReportUrl(String(payload.reportUrl));
 
           const fn: string | undefined = payload.function;
           const st: string | undefined = payload.status;
 
           if (fn && st) {
             setSteps((prev) =>
-              prev.map((s) => {
-                if (s.fn !== fn) return s;
-                const map: Record<string, StepStatus> = {
-                  started: 'in-progress',
-                  completed: 'completed',
-                  error: 'error',
-                };
-                return { ...s, status: map[st] ?? s.status };
-              })
+              prev.map((s) => (s.fn === fn ? { ...s, status: mapStatus(st) } : s))
             );
-
-            if (fn === 'final_checking' && st === 'completed') {
-              console.log('FRONTEND: Final Validation step completed.');
-            }
           }
 
           if (fn === 'generate_pdf_report' && st === 'completed') {
             setIsComplete(true);
             setIsProcessing(false);
-            console.log('FRONTEND: Process complete, closing SSE.');
             closeStream();
           }
           if (st === 'error') {
             setIsProcessing(false);
-            console.log('FRONTEND: Process error detected.');
           }
         } catch {
           // keep-alives or non-JSON; ignore
         }
       };
 
-      es.onerror = (error) => {
-        console.error('FRONTEND: SSE Error occurred:', error);
+      es.onerror = () => {
         if (!cancelledRef.current && id) {
           pollStatus(id);
         }
@@ -328,14 +319,8 @@ export function useOrchestrator() {
         if (data.steps) {
           setSteps((prev) =>
             prev.map((s) => {
-              const st = data.steps![s.fn];
-              const map: Record<string, StepStatus> = {
-                pending: 'pending',
-                in_progress: 'in-progress',
-                completed: 'completed',
-                error: 'error',
-              };
-              return st ? { ...s, status: map[st] ?? s.status } : s;
+              const raw = data.steps![s.fn];
+              return raw ? { ...s, status: mapStatus(raw) } : s;
             })
           );
 
@@ -343,12 +328,7 @@ export function useOrchestrator() {
           if (done) {
             setIsComplete(true);
             setIsProcessing(false);
-            console.log('FRONTEND: Polling detected process complete.');
             return;
-          }
-
-          if (data.steps['final_checking'] === 'completed') {
-            console.log('FRONTEND: Final Validation step completed (via polling).');
           }
         }
       }
@@ -358,28 +338,21 @@ export function useOrchestrator() {
     setTimeout(() => pollStatus(id), 1000);
   }
 
+  /** Fixed: upload PDF first, then run pipeline with source='stored' */
   async function startFromPdf(file: File) {
     resetUI();
     try {
-      // 1) Upload & parse PDF first so courses are in DB before pipeline begins
-      console.log('FRONTEND: Starting PDF upload to scan endpoint...');
       await uploadPdf(file);
-      console.log('FRONTEND: PDF upload complete.');
-
-      // 2) Init job and open stream
       const currentJobId = await initOrchestratorJob();
-      console.log('FRONTEND: Opening SSE (with polling fallback)...');
       await openEventStream(currentJobId);
 
-      // 3) Start the pipeline
-      await startOrchestratorPipeline(currentJobId, 'pdf', {
+      await startOrchestratorPipeline(currentJobId, 'stored', {
         scrapeEnabled: true,
         extractEnabled: true,
         generatePdf: true,
         retrainModels: false,
       });
 
-      // 4) Poll status as a fallback alongside SSE
       pollStatus(currentJobId);
     } catch (error) {
       console.error('FRONTEND: Error in startFromPdf workflow:', error);
@@ -392,7 +365,6 @@ export function useOrchestrator() {
     resetUI();
     try {
       const currentJobId = await initOrchestratorJob();
-      console.log('FRONTEND: Opening SSE (with polling fallback)...');
       await openEventStream(currentJobId);
 
       await startOrchestratorPipeline(currentJobId, 'stored', {
@@ -411,7 +383,6 @@ export function useOrchestrator() {
   }
 
   async function cancel() {
-    console.log('FRONTEND: Cancel requested for jobId:', jobId);
     cancelledRef.current = true;
     closeStream();
     setIsProcessing(false);
@@ -429,7 +400,6 @@ export function useOrchestrator() {
           const txt = await res.text().catch(() => '');
           throw new Error(txt || 'Cancel request failed');
         }
-        console.log('FRONTEND: Cancel request sent to backend.');
       } catch (cancelError) {
         console.error('FRONTEND: Error sending cancel request:', cancelError);
       }
