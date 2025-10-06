@@ -28,13 +28,12 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 SB: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ---------- Gemini API (force correct endpoint) ----------
+# ---------- Gemini API (FORCE v1 endpoint) ----------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY must be set for Gemini parsing")
 
-# 🚨 Force it to use the PUBLIC google.generativeai endpoint (v1), not v1beta or Vertex
-# Some environments override this via env vars, so we clear possible offenders.
+# 🚨 Clear any environment variables that might override the endpoint
 for bad_var in [
     "GOOGLE_API_BASE_URL",
     "GEMINI_API_BASE_URL",
@@ -44,14 +43,16 @@ for bad_var in [
     if bad_var in os.environ:
         os.environ.pop(bad_var)
 
-# 🔧 Configure with explicit transport options to force v1 API
-genai.configure(
-    api_key=GEMINI_API_KEY,
-    transport="rest",  # Force REST transport (uses v1 by default)
-)
+# 🔧 Set the base URL to force v1 API before configuring
+# This is the simplest way to override the default v1beta endpoint
+os.environ["GOOGLE_API_BASE"] = "https://generativelanguage.googleapis.com/v1"
+
+logger.info("🔧 Forcing Gemini SDK to use v1 API endpoint")
+
+# Configure the SDK
+genai.configure(api_key=GEMINI_API_KEY)
 
 # 🔧 Use the correct model name for v1 API
-# Common v1 model names: "gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
 
 # 🔧 Verify the model exists before creating it
@@ -67,6 +68,7 @@ try:
             "models/gemini-1.5-pro-latest",
             "models/gemini-1.5-pro-001",
             "models/gemini-pro",
+            "models/gemini-1.5-flash",
         ]
         for fallback in fallback_models:
             if fallback in available_models:
@@ -80,7 +82,7 @@ except Exception as e:
     logger.warning("Could not verify model availability: %s", e)
 
 MODEL = genai.GenerativeModel(GEMINI_MODEL)
-logger.info("Initialized Gemini model: %s", GEMINI_MODEL)
+logger.info("✅ Initialized Gemini model: %s", GEMINI_MODEL)
 
 # ---------- Tunables ----------
 COURSES_TABLE = os.getenv("COURSES_TABLE", "courses")
