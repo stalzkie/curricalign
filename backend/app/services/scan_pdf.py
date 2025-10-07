@@ -83,13 +83,11 @@ def extract_full_text_pymupdf(file_bytes: bytes) -> str:
         doc = fitz.open(stream=file_bytes, filetype="pdf")
         parts: List[str] = []
         
-        # Focus on pages 11+ where major course descriptions are
+        # Extract ALL pages from page 11 onwards (where course descriptions start)
         for page_num in range(len(doc)):
-            page = doc[page_num]
-            text = page.get_text("text") or ""
-            
-            # Only include pages that have course description content
             if page_num >= 10:  # Page 11 is index 10
+                page = doc[page_num]
+                text = page.get_text("text") or ""
                 parts.append(text)
         
         doc.close()
@@ -99,49 +97,36 @@ def extract_full_text_pymupdf(file_bytes: bytes) -> str:
         joined = re.sub(r"(\w+)-\n(\w+)", r"\1\2", joined)
         joined = re.sub(r"[ \t]+\n", "\n", joined)
         joined = re.sub(r"\n{2,}", "\n\n", joined)
-        return joined.strip()
+        
+        result = joined.strip()
+        logger.info("📄 Extracted %d characters from pages 11+", len(result))
+        logger.info("📄 First 300 chars of extracted text:\n%s\n", result[:300])
+        
+        return result
     except Exception as e:
         logger.error("❌ PyMuPDF extraction failed: %s", e)
         return ""
 
 # ---------- 2️⃣ Gemini Parsing (using SDK) ----------
-_SYSTEM_PROMPT = """You are a precise curriculum parser extracting course information from the "MAJOR COURSE DESCRIPTION" section of a Computer Science curriculum document.
+_SYSTEM_PROMPT = """Extract all computer science courses from this curriculum text.
 
-CRITICAL INSTRUCTIONS:
-1. Extract ONLY courses from the "MAJOR COURSE DESCRIPTION" section
-2. Each course entry follows this format:
-   - Course code (e.g., "CompF", "Prog1", "DatSci") - appears on the left with unit count
-   - Course title in UPPERCASE (e.g., "COMPUTING FUNDAMENTALS (LECTURE)")
-   - Course description - the paragraph explaining what the course covers
+For each course, find:
+- Course code (like "CompF", "Prog1", "DatSci")  
+- Course title (like "COMPUTING FUNDAMENTALS")
+- Course description (the full paragraph explaining the course)
 
-3. DO NOT extract from:
-   - Course curriculum tables
-   - Summary tables
-   - General Education courses
-   - Professional Electives (unless specifically labeled "Professional Electives: Analytics Intelligence Specialization")
+ONLY extract courses that have ALL THREE: code, title, AND a description paragraph.
 
-4. Return ONLY valid JSON with this exact schema:
-{
-  "rows": [
-    {
-      "course_code": "CompF",
-      "course_title": "COMPUTING FUNDAMENTALS",
-      "course_description": "Full description here..."
-    }
-  ]
-}
+Return a valid JSON array like this:
+[
+  {{"course_code": "CompF", "course_title": "COMPUTING FUNDAMENTALS", "course_description": "This course provides..."}},
+  {{"course_code": "Prog1", "course_title": "PROGRAMMING ESSENTIALS", "course_description": "This course emphasizes..."}}
+]
 
-5. Rules:
-   - Keep course_code exactly as written (e.g., "CompF", "Prog2", "DatSci")
-   - Keep course_title in UPPERCASE, remove anything in parentheses like "(LECTURE)" or "(LABORATORY)"
-   - Merge multiline descriptions into one complete paragraph
-   - Only extract courses with full descriptions (at least 50 words)
-   - If no valid major course descriptions found, return {"rows": []}
-
-Extract all major course descriptions from this text and return ONLY the JSON object (no markdown, no backticks, no commentary):
-
+Curriculum text:
 {text}
-"""
+
+Return ONLY the JSON array, no other text."""
 
 def _strip_code_fences(s: str) -> str:
     s = s.strip()
@@ -159,7 +144,7 @@ def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
         response = model.generate_content(prompt)
         raw = response.text.strip()
         
-        logger.debug("Gemini raw response (first 500 chars): %s", raw[:500])
+        logger.info("📥 Gemini response (first 500 chars):\n%s\n", raw[:500])
         
     except Exception as e:
         raise RuntimeError(f"Gemini call failed: {e}")
@@ -167,30 +152,47 @@ def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
     # Strip markdown code fences if present
     raw = _strip_code_fences(raw)
     
-    # Try direct JSON parse first
+    # Try direct JSON parse first (as array or object)
     try:
-        obj = json.loads(raw)
-        if isinstance(obj, dict):
-            logger.debug("✅ Successfully parsed JSON directly")
-            return obj
+        parsed = json.loads(raw)
+        
+        # Handle both array and object responses
+        if isinstance(parsed, list):
+            logger.info("✅ Parsed as JSON array with %d items", len(parsed))
+            return {"rows": parsed}
+        elif isinstance(parsed, dict):
+            logger.info("✅ Parsed as JSON object")
+            return parsed
+            
     except json.JSONDecodeError as e:
-        logger.debug("⚠️ Direct JSON parse failed: %s", e)
+        logger.warning("⚠️ Direct JSON parse failed: %s", e)
 
-    # Try to find JSON object in the response using greedy matching
-    # Match from first { to last }
-    json_match = re.search(r'\{.*\}', raw, re.DOTALL)
-    if json_match:
+    # Try to find JSON in the response (array or object)
+    # Look for arrays first
+    array_match = re.search(r'\[.*\]', raw, re.DOTALL)
+    if array_match:
         try:
-            obj = json.loads(json_match.group(0))
-            if isinstance(obj, dict):
-                logger.debug("✅ Successfully extracted and parsed JSON from text")
-                return obj
+            parsed = json.loads(array_match.group(0))
+            if isinstance(parsed, list):
+                logger.info("✅ Extracted and parsed JSON array with %d items", len(parsed))
+                return {"rows": parsed}
         except json.JSONDecodeError as e:
-            logger.debug("⚠️ Extracted JSON parse failed: %s", e)
+            logger.warning("⚠️ Array extraction failed: %s", e)
+    
+    # Look for objects
+    obj_match = re.search(r'\{.*\}', raw, re.DOTALL)
+    if obj_match:
+        try:
+            parsed = json.loads(obj_match.group(0))
+            if isinstance(parsed, dict):
+                logger.info("✅ Extracted and parsed JSON object")
+                return parsed
+        except json.JSONDecodeError as e:
+            logger.warning("⚠️ Object extraction failed: %s", e)
 
     # If all else fails, log the full response for debugging
-    logger.error("❌ Could not parse JSON. Full response:\n%s", raw)
-    raise RuntimeError(f"Gemini returned malformed JSON. First 400 chars: {raw[:400]}")
+    logger.error("❌ Could not parse JSON. Full response:\n%s\n", raw)
+    raise RuntimeError(f"Gemini returned unparseable response. First 400 chars: {raw[:400]}")
 
 def _parse_gemini_rows(raw_obj: Dict[str, Any]) -> List[CourseRow]:
     cleaned: List[CourseRow] = []
