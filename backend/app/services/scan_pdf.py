@@ -30,7 +30,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY must be set for Gemini parsing")
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro-latest")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
 GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
 logger.info("✅ Using Gemini API directly with model: %s", GEMINI_MODEL)
