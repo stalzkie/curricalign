@@ -30,10 +30,10 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY must be set for Gemini parsing")
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
-GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1"
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro-latest")
+GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
-logger.info("✅ Using Gemini v1 REST API directly with model: %s", GEMINI_MODEL)
+logger.info("✅ Using Gemini API directly with model: %s", GEMINI_MODEL)
 
 # ---------- Tunables ----------
 COURSES_TABLE = os.getenv("COURSES_TABLE", "courses")
@@ -154,7 +154,7 @@ def _strip_code_fences(s: str) -> str:
     return s.strip()
 
 def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
-    """Call Gemini API directly via REST (v1) to avoid SDK's v1beta hardcoding"""
+    """Call Gemini API directly via REST (v1beta)"""
     prompt = _USER_TEMPLATE.format(payload=prompt_text[:30000])  # Increased limit
     
     url = f"{GEMINI_API_BASE}/models/{GEMINI_MODEL}:generateContent"
@@ -259,7 +259,7 @@ def upsert_courses(rows: List[CourseRow]) -> List[Dict[str, Any]]:
 
 # ---------- 4️⃣ Main Pipeline ----------
 def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
-    logger.info("🚀 Starting hybrid scan pipeline (PyMuPDF + Gemini v1 REST API)… [model=%s]", GEMINI_MODEL)
+    logger.info("🚀 Starting hybrid scan pipeline (PyMuPDF + Gemini API)… [model=%s]", GEMINI_MODEL)
 
     # Step 1 — Extract text from major course description pages
     full_text = extract_full_text_pymupdf(file_bytes)
