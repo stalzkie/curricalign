@@ -4,13 +4,13 @@ import os
 import re
 import json
 import logging
-import requests
 from typing import List, Dict, Any, Iterable, Optional
 
 from supabase import create_client, Client
 from pydantic import BaseModel, Field, ValidationError
 import fitz  # PyMuPDF
 from dotenv import load_dotenv
+import google.generativeai as genai  # ← Using SDK like skill_extractor!
 
 # ---------- Logging ----------
 logger = logging.getLogger(__name__)
@@ -25,21 +25,21 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 SB: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ---------- Gemini API (using REST directly to force v1) ----------
+# ---------- Gemini API (using SDK like skill_extractor) ----------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY must be set for Gemini parsing")
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
-GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta"
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-1.5-pro")  # ← Simple like skill_extractor!
 
-logger.info("✅ Using Gemini API directly with model: %s", GEMINI_MODEL)
+logger.info("✅ Using Gemini SDK with model: gemini-1.5-pro")
 
 # ---------- Tunables ----------
 COURSES_TABLE = os.getenv("COURSES_TABLE", "courses")
 UPSERT_ON = os.getenv("COURSES_UPSERT_COLUMN", "course_code")
-MIN_REASONABLE_ROWS = int(os.getenv("SCAN_MIN_ROWS", "15"))  # Increased threshold
-CHUNK_SIZE = int(os.getenv("SCAN_CHUNK_SIZE", "6000"))  # Larger chunks
+MIN_REASONABLE_ROWS = int(os.getenv("SCAN_MIN_ROWS", "15"))
+CHUNK_SIZE = int(os.getenv("SCAN_CHUNK_SIZE", "6000"))
 CHUNK_OVERLAP = int(os.getenv("SCAN_CHUNK_OVERLAP", "800"))
 FAIL_ON_EMPTY = os.getenv("SCAN_FAIL_ON_EMPTY", "1") not in ("0", "false", "False", "")
 
@@ -104,21 +104,21 @@ def extract_full_text_pymupdf(file_bytes: bytes) -> str:
         logger.error("❌ PyMuPDF extraction failed: %s", e)
         return ""
 
-# ---------- 2️⃣ Gemini Parsing (using REST API directly) ----------
-_SYSTEM = """You are a precise curriculum parser extracting course information from the "MAJOR COURSE DESCRIPTION" section of a Computer Science curriculum document.
+# ---------- 2️⃣ Gemini Parsing (using SDK) ----------
+_SYSTEM_PROMPT = """You are a precise curriculum parser extracting course information from the "MAJOR COURSE DESCRIPTION" section of a Computer Science curriculum document.
 
 CRITICAL INSTRUCTIONS:
-1. Extract ONLY courses from the "MAJOR COURSE DESCRIPTION" section (pages 11-16 in the document)
+1. Extract ONLY courses from the "MAJOR COURSE DESCRIPTION" section
 2. Each course entry follows this format:
    - Course code (e.g., "CompF", "Prog1", "DatSci") - appears on the left with unit count
    - Course title in UPPERCASE (e.g., "COMPUTING FUNDAMENTALS (LECTURE)")
    - Course description - the paragraph explaining what the course covers
 
 3. DO NOT extract from:
-   - Course curriculum tables (pages 3-10)
+   - Course curriculum tables
    - Summary tables
    - General Education courses
-   - Professional Electives (unless specifically under "Professional Electives: Analytics Intelligence Specialization" section on page 7)
+   - Professional Electives (unless specifically labeled "Professional Electives: Analytics Intelligence Specialization")
 
 4. Return ONLY valid JSON with this exact schema:
 {
@@ -137,13 +137,10 @@ CRITICAL INSTRUCTIONS:
    - Merge multiline descriptions into one complete paragraph
    - Only extract courses with full descriptions (at least 50 words)
    - If no valid major course descriptions found, return {"rows": []}
-"""
 
-_USER_TEMPLATE = """Extract all major course descriptions from this text:
+Extract all major course descriptions from this text and return ONLY the JSON object (no markdown, no backticks, no commentary):
 
-{payload}
-
-Return ONLY the JSON object (no markdown, no backticks, no commentary).
+{text}
 """
 
 def _strip_code_fences(s: str) -> str:
@@ -154,57 +151,22 @@ def _strip_code_fences(s: str) -> str:
     return s.strip()
 
 def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
-    """Call Gemini API directly via REST (v1beta)"""
-    prompt = _USER_TEMPLATE.format(payload=prompt_text[:30000])  # Increased limit
-    
-    url = f"{GEMINI_API_BASE}/models/{GEMINI_MODEL}:generateContent"
-    
-    headers = {
-        "Content-Type": "application/json",
-    }
-    
-    payload = {
-        "contents": [{
-            "parts": [{
-                "text": _SYSTEM + "\n\n" + prompt
-            }]
-        }],
-        "generationConfig": {
-            "temperature": 0.1,  # Lower temperature for more consistent extraction
-            "maxOutputTokens": 8192,  # Increased for more courses
-        }
-    }
-    
-    params = {
-        "key": GEMINI_API_KEY
-    }
+    """Call Gemini using SDK (like skill_extractor)"""
+    prompt = _SYSTEM_PROMPT.format(text=prompt_text[:30000])
     
     try:
-        response = requests.post(url, json=payload, headers=headers, params=params, timeout=60)
-        response.raise_for_status()
-        result = response.json()
+        # Simple SDK call like skill_extractor
+        response = model.generate_content(prompt)
+        raw = response.text.strip()
         
-        # Extract text from response
-        candidates = result.get("candidates", [])
-        if not candidates:
-            raise RuntimeError("Gemini returned no candidates")
+        logger.debug("Gemini raw response: %s", raw[:200])
         
-        content = candidates[0].get("content", {})
-        parts = content.get("parts", [])
-        if not parts:
-            raise RuntimeError("Gemini returned empty parts")
-            
-        raw = parts[0].get("text", "")
-        if not raw:
-            raise RuntimeError("Gemini returned empty response.")
-            
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         raise RuntimeError(f"Gemini call failed: {e}")
-    except (KeyError, IndexError) as e:
-        raise RuntimeError(f"Gemini response parsing failed: {e}")
     
-    raw = _strip_code_fences(raw.strip())
+    raw = _strip_code_fences(raw)
 
+    # Try to parse JSON
     try:
         obj = json.loads(raw)
         if isinstance(obj, dict):
@@ -212,6 +174,7 @@ def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
     except Exception:
         pass
 
+    # Try to extract JSON from text
     match = re.search(r"\{[\s\S]*\}", raw)
     if match:
         try:
@@ -259,7 +222,7 @@ def upsert_courses(rows: List[CourseRow]) -> List[Dict[str, Any]]:
 
 # ---------- 4️⃣ Main Pipeline ----------
 def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
-    logger.info("🚀 Starting hybrid scan pipeline (PyMuPDF + Gemini API)… [model=%s]", GEMINI_MODEL)
+    logger.info("🚀 Starting hybrid scan pipeline (PyMuPDF + Gemini SDK)...")
 
     # Step 1 — Extract text from major course description pages
     full_text = extract_full_text_pymupdf(file_bytes)
@@ -299,9 +262,6 @@ def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
                           len(new_courses), chunk_count, len(chunk_rows))
             except Exception as ce:
                 last_err = str(ce)
-                if "not found" in last_err or "404" in last_err:
-                    logger.warning("⚠️ Chunk parse aborted due to model error: %s", last_err)
-                    break
                 logger.warning("⚠️ Chunk %d parse failed: %s", chunk_count, last_err)
                 
         rows = _merge_dedupe(rows, chunk_rows)
