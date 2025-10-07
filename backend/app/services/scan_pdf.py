@@ -159,32 +159,38 @@ def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
         response = model.generate_content(prompt)
         raw = response.text.strip()
         
-        logger.debug("Gemini raw response: %s", raw[:200])
+        logger.debug("Gemini raw response (first 500 chars): %s", raw[:500])
         
     except Exception as e:
         raise RuntimeError(f"Gemini call failed: {e}")
     
+    # Strip markdown code fences if present
     raw = _strip_code_fences(raw)
-
-    # Try to parse JSON
+    
+    # Try direct JSON parse first
     try:
         obj = json.loads(raw)
         if isinstance(obj, dict):
+            logger.debug("✅ Successfully parsed JSON directly")
             return obj
-    except Exception:
-        pass
+    except json.JSONDecodeError as e:
+        logger.debug("⚠️ Direct JSON parse failed: %s", e)
 
-    # Try to extract JSON from text
-    match = re.search(r"\{[\s\S]*\}", raw)
-    if match:
+    # Try to find JSON object in the response using greedy matching
+    # Match from first { to last }
+    json_match = re.search(r'\{.*\}', raw, re.DOTALL)
+    if json_match:
         try:
-            obj = json.loads(match.group(0))
+            obj = json.loads(json_match.group(0))
             if isinstance(obj, dict):
+                logger.debug("✅ Successfully extracted and parsed JSON from text")
                 return obj
-        except Exception:
-            pass
+        except json.JSONDecodeError as e:
+            logger.debug("⚠️ Extracted JSON parse failed: %s", e)
 
-    raise RuntimeError(f"Gemini returned malformed JSON: {raw[:400]}")
+    # If all else fails, log the full response for debugging
+    logger.error("❌ Could not parse JSON. Full response:\n%s", raw)
+    raise RuntimeError(f"Gemini returned malformed JSON. First 400 chars: {raw[:400]}")
 
 def _parse_gemini_rows(raw_obj: Dict[str, Any]) -> List[CourseRow]:
     cleaned: List[CourseRow] = []
