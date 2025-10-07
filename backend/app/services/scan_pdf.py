@@ -10,7 +10,7 @@ from supabase import create_client, Client
 from pydantic import BaseModel, Field, ValidationError
 import fitz  # PyMuPDF
 from dotenv import load_dotenv
-import google.generativeai as genai  # ← Using SDK like skill_extractor!
+import google.generativeai as genai
 
 # ---------- Logging ----------
 logger = logging.getLogger(__name__)
@@ -25,15 +25,45 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 SB: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ---------- Gemini API (using SDK like skill_extractor) ----------
+# ---------- Gemini API (robust setup) ----------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY must be set for Gemini parsing")
 
+# Do not force custom base/version; let SDK choose correct endpoint
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-pro")  # ← Simple like skill_extractor!
 
-logger.info("✅ Using Gemini SDK with model: gemini-1.5-pro")
+_PREFERRED_MODELS = [
+    "gemini-1.5-pro-002",
+    "gemini-1.5-pro-latest",
+    "gemini-1.5-pro",
+]
+
+def _pick_gemini_model() -> str:
+    try:
+        models = list(genai.list_models())
+        indexed = {m.name.split("/")[-1]: m for m in models}
+        # Prefer specific stable aliases first
+        for cand in _PREFERRED_MODELS:
+            m = indexed.get(cand)
+            if m and "generateContent" in ((getattr(m, "supported_generation_methods", []) or [])):
+                logger.info("✅ Using Gemini model: %s", cand)
+                return cand
+        # Fallback to any model that supports generateContent
+        for m in models:
+            if "generateContent" in ((getattr(m, "supported_generation_methods", []) or [])):
+                chosen = m.name.split("/")[-1]
+                logger.info("⚠️ Preferred models missing; falling back to: %s", chosen)
+                return chosen
+        raise RuntimeError("No Gemini model found that supports generateContent.")
+    except Exception as e:
+        raise RuntimeError(f"Failed to list/pick models: {e}")
+
+_MODEL_NAME = _pick_gemini_model()
+_model = genai.GenerativeModel(_MODEL_NAME)
+_JSON_CFG = {"response_mime_type": "application/json"}
+
+logger.info("✅ Gemini SDK configured. Model selected: %s", _MODEL_NAME)
 
 # ---------- Tunables ----------
 COURSES_TABLE = os.getenv("COURSES_TABLE", "courses")
@@ -82,117 +112,72 @@ def extract_full_text_pymupdf(file_bytes: bytes) -> str:
     try:
         doc = fitz.open(stream=file_bytes, filetype="pdf")
         parts: List[str] = []
-        
         # Extract ALL pages from page 11 onwards (where course descriptions start)
         for page_num in range(len(doc)):
             if page_num >= 10:  # Page 11 is index 10
                 page = doc[page_num]
                 text = page.get_text("text") or ""
                 parts.append(text)
-        
         doc.close()
         joined = "\n".join(parts)
-        
         # Clean up hyphenation and extra whitespace
         joined = re.sub(r"(\w+)-\n(\w+)", r"\1\2", joined)
         joined = re.sub(r"[ \t]+\n", "\n", joined)
         joined = re.sub(r"\n{2,}", "\n\n", joined)
-        
         result = joined.strip()
         logger.info("📄 Extracted %d characters from pages 11+", len(result))
         logger.info("📄 First 300 chars of extracted text:\n%s\n", result[:300])
-        
         return result
     except Exception as e:
         logger.error("❌ PyMuPDF extraction failed: %s", e)
         return ""
 
-# ---------- 2️⃣ Gemini Parsing (using SDK) ----------
+# ---------- 2️⃣ Gemini Parsing (JSON native) ----------
 _SYSTEM_PROMPT = """Extract all computer science courses from this curriculum text.
 
 For each course, find:
-- Course code (like "CompF", "Prog1", "DatSci")  
+- Course code (like "CompF", "Prog1", "DatSci")
 - Course title (like "COMPUTING FUNDAMENTALS")
 - Course description (the full paragraph explaining the course)
 
 ONLY extract courses that have ALL THREE: code, title, AND a description paragraph.
 
-Return a valid JSON array like this:
+Return ONLY a JSON array like this:
 [
-  {{"course_code": "CompF", "course_title": "COMPUTING FUNDAMENTALS", "course_description": "This course provides..."}},
-  {{"course_code": "Prog1", "course_title": "PROGRAMMING ESSENTIALS", "course_description": "This course emphasizes..."}}
+  {"course_code": "CompF", "course_title": "COMPUTING FUNDAMENTALS", "course_description": "This course provides..."},
+  {"course_code": "Prog1", "course_title": "PROGRAMMING ESSENTIALS", "course_description": "This course emphasizes..."}
 ]
 
 Curriculum text:
 {text}
-
-Return ONLY the JSON array, no other text."""
-
-def _strip_code_fences(s: str) -> str:
-    s = s.strip()
-    if s.startswith("```"):
-        s = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", s)
-        s = re.sub(r"\s*```$", "", s)
-    return s.strip()
+"""
 
 def _call_gemini_json(prompt_text: str) -> Dict[str, Any]:
-    """Call Gemini using SDK (like skill_extractor)"""
     prompt = _SYSTEM_PROMPT.format(text=prompt_text[:30000])
-    
     try:
-        # Simple SDK call like skill_extractor
-        response = model.generate_content(prompt)
-        raw = response.text.strip()
-        
-        logger.info("📥 Gemini response (first 500 chars):\n%s\n", raw[:500])
-        
-    except Exception as e:
-        raise RuntimeError(f"Gemini call failed: {e}")
-    
-    # Strip markdown code fences if present
-    raw = _strip_code_fences(raw)
-    
-    # Try direct JSON parse first (as array or object)
-    try:
+        # Ask the model to return pure JSON
+        resp = _model.generate_content([prompt], generation_config=_JSON_CFG)
+        raw = (resp.text or "").strip()
+        if not raw:
+            raise RuntimeError("Empty response from Gemini.")
         parsed = json.loads(raw)
-        
-        # Handle both array and object responses
+        # Normalize return type for downstream
         if isinstance(parsed, list):
-            logger.info("✅ Parsed as JSON array with %d items", len(parsed))
+            logger.info("✅ Parsed JSON array with %d items", len(parsed))
             return {"rows": parsed}
         elif isinstance(parsed, dict):
-            logger.info("✅ Parsed as JSON object")
+            logger.info("✅ Parsed JSON object")
             return parsed
-            
-    except json.JSONDecodeError as e:
-        logger.warning("⚠️ Direct JSON parse failed: %s", e)
-
-    # Try to find JSON in the response (array or object)
-    # Look for arrays first
-    array_match = re.search(r'\[.*\]', raw, re.DOTALL)
-    if array_match:
-        try:
-            parsed = json.loads(array_match.group(0))
-            if isinstance(parsed, list):
-                logger.info("✅ Extracted and parsed JSON array with %d items", len(parsed))
-                return {"rows": parsed}
-        except json.JSONDecodeError as e:
-            logger.warning("⚠️ Array extraction failed: %s", e)
-    
-    # Look for objects
-    obj_match = re.search(r'\{.*\}', raw, re.DOTALL)
-    if obj_match:
-        try:
-            parsed = json.loads(obj_match.group(0))
-            if isinstance(parsed, dict):
-                logger.info("✅ Extracted and parsed JSON object")
-                return parsed
-        except json.JSONDecodeError as e:
-            logger.warning("⚠️ Object extraction failed: %s", e)
-
-    # If all else fails, log the full response for debugging
-    logger.error("❌ Could not parse JSON. Full response:\n%s\n", raw)
-    raise RuntimeError(f"Gemini returned unparseable response. First 400 chars: {raw[:400]}")
+        else:
+            raise RuntimeError(f"Unexpected JSON type: {type(parsed)}")
+    except Exception as e:
+        msg = str(e)
+        if "404" in msg:
+            raise RuntimeError(
+                "Gemini 404: model not available for this endpoint/version. "
+                "Ensure google-generativeai is up-to-date and no v1beta env overrides are set."
+            )
+        raise RuntimeError(f"Gemini call failed: {e}")
 
 def _parse_gemini_rows(raw_obj: Dict[str, Any]) -> List[CourseRow]:
     cleaned: List[CourseRow] = []
@@ -200,16 +185,13 @@ def _parse_gemini_rows(raw_obj: Dict[str, Any]) -> List[CourseRow]:
         code = _norm_space(str(row.get("course_code", ""))) or "UNKNOWN_CODE"
         title = _norm_space(str(row.get("course_title", ""))) or "UNTITLED COURSE"
         desc = _norm_space(str(row.get("course_description", ""))) or "No description provided."
-        
         # Clean up title - remove (LECTURE), (LABORATORY), etc.
         title = re.sub(r"\s*\([^)]*\)\s*", " ", title).strip()
         title = title.upper()
-        
         # Skip if description is too short (likely not a real course description)
         if len(desc.split()) < 20:
             logger.warning("Skipping course with short description: %s", code)
             continue
-            
         try:
             cleaned.append(CourseRow(course_code=code, course_title=title, course_description=desc))
         except ValidationError as e:
@@ -242,7 +224,7 @@ def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
     # Step 2 — Parse with Gemini (try full text first)
     rows: List[CourseRow] = []
     last_err: Optional[str] = None
-    
+
     try:
         logger.info("🔍 Parsing full document with Gemini...")
         raw_obj = _call_gemini_json(full_text)
@@ -257,21 +239,22 @@ def scan_pdf_and_store(file_bytes: bytes) -> Dict[str, Any]:
         logger.info("🔄 Low recall (%d courses); retrying with chunked text", len(rows))
         chunk_rows: List[CourseRow] = []
         chunk_count = 0
-        
+
         for chunk in _sliding_windows(full_text, CHUNK_SIZE, CHUNK_OVERLAP):
             chunk_count += 1
             logger.info("📦 Processing chunk %d...", chunk_count)
-            
             try:
                 r = _call_gemini_json(chunk)
                 new_courses = _parse_gemini_rows(r)
                 chunk_rows = _merge_dedupe(chunk_rows, new_courses)
-                logger.info("   Found %d courses in chunk %d (total: %d unique)", 
-                          len(new_courses), chunk_count, len(chunk_rows))
+                logger.info(
+                    "   Found %d courses in chunk %d (total: %d unique)",
+                    len(new_courses), chunk_count, len(chunk_rows)
+                )
             except Exception as ce:
                 last_err = str(ce)
                 logger.warning("⚠️ Chunk %d parse failed: %s", chunk_count, last_err)
-                
+
         rows = _merge_dedupe(rows, chunk_rows)
         logger.info("✅ After chunked parsing: %d total courses", len(rows))
 
