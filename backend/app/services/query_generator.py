@@ -145,7 +145,7 @@ def _semantic_gate(query: str) -> Optional[bool]:
 # Gemini Cross‑Reference (only for borderline)
 
 genai.configure(api_key=GEMINI_API_KEY)
-_gemini = genai.GenerativeModel("gemini-1.5-pro")
+_gemini = genai.GenerativeModel("gemini-1.5-pro-latest")
 _GCACHE: Dict[str, Dict[str, Any]] = {}
 
 GEMINI_SYSTEM = """You are a classifier that decides if a query is about computer science / software / IT.

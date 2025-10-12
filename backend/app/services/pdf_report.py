@@ -68,7 +68,7 @@ Keep it under 200 words.
         return "AI summary unavailable (no API key configured)."
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-pro")
+        model = genai.GenerativeModel("gemini-1.5-pro-latest")
         response = model.generate_content(prompt)
         return (response.text or "").strip() or "Summary generation returned empty text."
     except Exception as e:

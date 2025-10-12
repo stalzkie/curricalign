@@ -13,7 +13,7 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # Initialize Gemini model (using latest 1.5 Pro)
-model = genai.GenerativeModel("gemini-1.5-pro")
+model = genai.GenerativeModel("gemini-1.5-pro-latest")
 
 
 # Skill Extraction Logic

@@ -7,7 +7,7 @@ from ..core.supabase_client import supabase
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-pro")
+model = genai.GenerativeModel("gemini-1.5-pro-latest")
 
 
 # Helpers for skill normalization
