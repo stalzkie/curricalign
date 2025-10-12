@@ -13,6 +13,9 @@ from fastapi.responses import JSONResponse
 
 from supabase import create_client, Client
 
+# ✅ Gemini (high-level SDK, v1)
+from google import generativeai as genai
+
 # Routers
 from .api.endpoints import dashboard, pipeline, orchestrator, report_files, version
 from .api.endpoints import scan_pdf as scan_pdf_endpoint  # <-- PDF scan/upload
@@ -26,6 +29,10 @@ logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
     format="%(asctime)s %(levelname)s [main] %(message)s",
 )
+
+# Central Gemini config
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro-latest").strip()
 
 def _get_service_key() -> tuple[str, str]:
     """
@@ -59,18 +66,18 @@ def _get_service_key() -> tuple[str, str]:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logging.info("Application startup…")
-    url, key = _get_service_key()
 
+    # --- Supabase client attach ---
+    url, key = _get_service_key()
     sb: Client = create_client(url, key)
     app.state.supabase = sb
     logging.info("Supabase service client attached to app.state.supabase")
 
     # Quick probe: tiny exact count to confirm RLS/keys are correct.
-    # We wrap in try/except so startup never crashes on a read error.
     try:
         resp = (
             sb.from_("course_alignment_scores_clean")
-            .select("course_alignment_score_clean_id", count="exact")  # ✅ fixed column name
+            .select("course_alignment_score_clean_id", count="exact")
             .range(0, 0)
             .execute()
         )
@@ -78,6 +85,22 @@ async def lifespan(app: FastAPI):
         logging.info("[probe] course_alignment_scores_clean count=%s", cnt)
     except Exception as e:
         logging.warning("[probe] count failed: %r", e)
+
+    # --- Gemini v1 tripwire (prints models if OK; logs error if misconfigured) ---
+    if not GEMINI_API_KEY:
+        logging.error("[Gemini] GEMINI_API_KEY is missing; Gemini features will fail.")
+    else:
+        try:
+            genai.configure(api_key=GEMINI_API_KEY)
+            # Listing models proves we are on v1 and the API key is valid
+            models = [m.name for m in genai.list_models()[:8]]
+            logging.info("[Gemini] OK. Model env=%s  sample=%s", GEMINI_MODEL, models)
+        except Exception as e:
+            logging.exception(
+                "[Gemini] FAILED to list models. "
+                "If you see 404 + v1beta in later logs, search your code for '/v1beta/' or "
+                "'from google.ai import generativelanguage'. Details: %r", e
+            )
 
     yield
     logging.info("Application shutdown.")
@@ -198,6 +221,27 @@ def list_reports():
         files = sorted([p.name for p in REPORTS_DIR.glob("*.pdf")])
         return {"count": len(files), "files": files}
     except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+# -------------------------------------------------------------------
+# Gemini runtime health (on-demand)
+# -------------------------------------------------------------------
+@app.get("/api/health/gemini")
+def gemini_health():
+    """
+    Lists a few models to confirm the API key + v1 endpoint are working.
+    If this fails in logs with references to 'v1beta', search the codebase for
+    '/v1beta/' URLs or 'from google.ai import generativelanguage' imports.
+    """
+    if not GEMINI_API_KEY:
+        return JSONResponse(status_code=500, content={"error": "GEMINI_API_KEY not set"})
+
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+        names = [m.name for m in genai.list_models()[:10]]
+        return {"ok": True, "model_env": GEMINI_MODEL, "sample_models": names}
+    except Exception as e:
+        logging.exception("[Gemini] health check failed")
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 # -------------------------------------------------------------------
