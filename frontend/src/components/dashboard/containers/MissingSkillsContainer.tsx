@@ -5,7 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import MissingSkillsList from '../MissingSkillsList';
 import { useVersionWatcher } from '@/lib/useVersionWatcher';
 
-type Fetcher = (signal?: AbortSignal) => Promise<string[]>;
+// Define a constant for the desired minimum threshold
+// Setting this to 5 forces the API to return any skill with a count >= 5, 
+// overriding the dynamic 1% threshold for large datasets.
+const FIXED_MIN_THRESHOLD = 5; 
+
+// Note: The Fetcher type must now include the optional minThreshold
+type Fetcher = (signal?: AbortSignal, minThreshold?: number) => Promise<string[]>;
 
 export default function MissingSkillsContainer({
   fetcher,
@@ -23,7 +29,7 @@ export default function MissingSkillsContainer({
   const versionIso = useVersionWatcher('missing-skills');
 
   // Lazy import to avoid hard crash if the function name changes during dev
-  const defaultFetcher: Fetcher = async (signal?: AbortSignal) => {
+  const defaultFetcher: Fetcher = async (signal?: AbortSignal, minThreshold?: number) => {
     const mod = await import('../../../lib/dataService');
     const fn =
       (mod as any).getMissingSkills ||
@@ -34,8 +40,8 @@ export default function MissingSkillsContainer({
         "No missing-skills fetcher found. Export getMissingSkills(): Promise<string[]> from lib/dataService."
       );
     }
-    // Forward AbortSignal to dataService fetcher (it accepts an optional signal)
-    return fn(signal);
+    // Pass both the signal AND the threshold to dataService
+    return fn(signal, minThreshold);
   };
 
   const {
@@ -46,9 +52,13 @@ export default function MissingSkillsContainer({
     error,
     refetch,
   } = useQuery<string[], Error>({
-    // include versionIso so any change to /version invalidates and refetches
-    queryKey: ['missing-skills', versionIso ?? 'init'],
-    queryFn: ({ signal }) => (fetcher ?? defaultFetcher)(signal),
+    // 1. INCLUDE the fixed threshold in the query key 
+    // This ensures React Query treats requests with different thresholds as distinct.
+    queryKey: ['missing-skills', versionIso ?? 'init', FIXED_MIN_THRESHOLD],
+    
+    // 2. PASS the fixed threshold to the fetcher function
+    queryFn: ({ signal }) => (fetcher ?? defaultFetcher)(signal, FIXED_MIN_THRESHOLD),
+    
     refetchInterval: refetchIntervalMs,
   });
 

@@ -156,13 +156,24 @@ export async function fetchInDemandJobs(
 
 // 4) Missing Skills (string[] for existing UI)
 export async function fetchMissingSkills(
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  minThreshold?: number 
 ): Promise<string[]> {
   try {
+    const minQuery = minThreshold ? `min=${minThreshold}` : '';
+    // --- START TEMPORARY CACHE BUSTER ---
+    // This is added to force a cache bypass if an external CDN/Proxy is intercepting the request.
+    const cacheBuster = `cb=${Date.now()}`;
+    const separator = minQuery ? '&' : '?';
+    
+    // Construct the URL with minThreshold and the cache buster
+    const url = `${BASE_URL}/missing-skills${separator}${minQuery}${minQuery ? '&' : ''}${cacheBuster}`; 
+    // --- END TEMPORARY CACHE BUSTER ---
+      
     // The API now returns [{ skill, count }, ...] from evaluator output.
     const { data } = await getWithVersionCache<any>(
       CK.missingSkills,
-      `${BASE_URL}/missing-skills`,
+      url, // <-- This unique URL will bypass the CDN cache
       VERSION_URL,
       signal
     );
@@ -218,12 +229,21 @@ export async function fetchMissingSkills(
 
 // Optional: Missing skills WITH counts (useful for richer UI)
 export async function fetchMissingSkillsWithCounts(
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  minThreshold?: number 
 ): Promise<MissingSkill[]> {
   try {
+    const minQuery = minThreshold ? `min=${minThreshold}` : '';
+    // --- START TEMPORARY CACHE BUSTER ---
+    const cacheBuster = `cb=${Date.now()}`;
+    const separator = minQuery ? '&' : '?';
+    
+    const url = `${BASE_URL}/missing-skills${separator}${minQuery}${minQuery ? '&' : ''}${cacheBuster}`; 
+    // --- END TEMPORARY CACHE BUSTER ---
+
     const { data } = await getWithVersionCache<any[]>(
       CK.missingSkills,
-      `${BASE_URL}/missing-skills`,
+      url, // <-- This unique URL will bypass the CDN cache
       VERSION_URL,
       signal
     );

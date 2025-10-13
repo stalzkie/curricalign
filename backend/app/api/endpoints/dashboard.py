@@ -486,7 +486,8 @@ def get_missing_skills(
     request: Request,
     min: int = Query(default=None, ge=1, description="Minimum count threshold (defaults to ~1% of job rows, min 5)"),
     latest_only: bool = Query(default=True, description="If true, use evaluator's latest batch only"),
-    fuzzy_threshold: int = Query(default=88, ge=0, le=100, description="Fuzzy ratio threshold for variant exclusion"),
+    # *** REVISED: Set the default fuzzy exclusion threshold higher (95) to allow more skills through ***
+    fuzzy_threshold: int = Query(default=95, ge=0, le=100, description="Fuzzy ratio threshold for variant exclusion"),
     limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
 ):
     """
@@ -593,6 +594,7 @@ def get_missing_skills(
             norm = ALIASES.get(norm, norm)
             
             # exclude if present exactly or fuzzily among matched skills
+            # NOTE: uses the passed/defaulted fuzzy_threshold value
             is_covered = (norm in matched_set) or _is_fuzzy_member(norm, matched_set, threshold=fuzzy_threshold)
             if is_covered:
                 # OPTIONAL TEMPORARY LOGGING: Uncomment this to see which skills are being filtered out by fuzzy exclusion.
