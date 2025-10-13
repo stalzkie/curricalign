@@ -6,7 +6,8 @@ from google.genai import types
 import ast
 from dotenv import load_dotenv
 from datetime import datetime, timezone
-from ..core.supabase_client import supabase
+# Assuming this path is correct for your project structure
+from ..core.supabase_client import supabase 
 
 
 load_dotenv()
@@ -33,19 +34,42 @@ def normalize_skill(skill):
 
 
 def clean_skills(raw):
-    """Safely parses the string output from Gemini into a cleaned list of skills."""
+    """
+    Safely parses the string output from Gemini into a cleaned list of skills.
+    
+    This function has been revised to strip markdown code fences which often cause 
+    SyntaxErrors with ast.literal_eval().
+    """
+    raw = raw.strip()
+    
+    # 🎯 FIX: Use regex to strip the markdown code fences (e.g., ```python\n...\n```)
+    # This non-greedy regex looks for three backticks, optional language tag, 
+    # and extracts the content in between.
+    match = re.search(r"```[a-zA-Z]*\n?([\s\S]*?)\n?```", raw)
+    
+    # If a markdown block is found, use the content inside it.
+    if match:
+        raw = match.group(1).strip()
+    
     try:
-        raw = raw.strip()
-        # Using ast.literal_eval() to safely parse the Python list string
-        skills = ast.literal_eval(raw)
-        if not isinstance(skills, list):
-            print("⚠️ Gemini output is not a list. Raw:\n", raw)
+        # Check if the stripped content looks like a list before attempting to parse
+        if raw.startswith("[") and raw.endswith("]"):
+            # Using ast.literal_eval() to safely parse the Python list string
+            skills = ast.literal_eval(raw)
+            
+            if not isinstance(skills, list):
+                print("⚠️ Gemini output is not a list after stripping. Raw:\n", raw)
+                return []
+            
+            # Normalize and filter out empty strings
+            return [normalize_skill(s) for s in skills if isinstance(s, str) and s.strip()]
+        else:
+            print("⚠️ Raw output does not look like a Python list (missing brackets). Raw:\n", raw)
             return []
-        # Normalize and filter out empty strings
-        return [normalize_skill(s) for s in skills if isinstance(s, str) and s.strip()]
+            
     except Exception as e:
         print(f"❌ Failed to parse Gemini output: {e}")
-        print("Raw output:\n", raw)
+        print("Raw output (after stripping):\n", raw)
         return []
 
 
@@ -92,7 +116,8 @@ Course Description:
         print(f"🧠 Gemini raw output:\n{raw}\n")
         skills = clean_skills(raw)
         if not skills:
-            raise ValueError("Empty or invalid skill list")
+            # Re-raise the ValueError using the specific failure type for logging clarity
+            raise ValueError(f"Empty or invalid skill list after parsing. Raw was: {raw}")
         return skills
     except Exception as e:
         print(f"⚠️ Primary extraction failed: {e}")

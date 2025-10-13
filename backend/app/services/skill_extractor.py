@@ -2,6 +2,9 @@ from collections import Counter
 import os
 import re
 from datetime import datetime, timezone
+import json # <-- NEW: Import the JSON library
+from pydantic import BaseModel, Field # <-- NEW: Import Pydantic for schema definition
+from ast import literal_eval # <-- NEW: Use safe literal_eval instead of eval
 
 # 🔑 MODERN SDK IMPORTS
 from google import genai 
@@ -14,17 +17,16 @@ from ..core.supabase_client import supabase  # Supabase wrapper for DB access
 load_dotenv()
 
 # --- 🚀 MODERN GEMINI CLIENT INITIALIZATION ---
-# 1. Initialize the client using the stable 'v1' API endpoint
-# This client automatically picks up the API key from GEMINI_API_KEY
 client = genai.Client(
-    # Explicitly sets the API version to 'v1' for production stability
     http_options=types.HttpOptions(api_version='v1')
 )
-
-# 2. Define the model ID
-# Note: With the new SDK, you call methods on client.models, not a separate model object.
 MODEL_ID = "gemini-2.5-pro"
 
+
+# 🎯 FIX 1: Define a Pydantic schema for structured output
+class SkillList(BaseModel):
+    """Schema to enforce the model returns a clean list of skills."""
+    skills: list[str] = Field(description="A concise list of 5-10 technical skills.")
 
 # Skill Extraction Logic
 # ---------------------
@@ -33,58 +35,56 @@ def extract_skills_with_gemini(text):
     """
     Primary function to extract technical skills from job descriptions using Gemini.
     - Sends a carefully crafted prompt to Gemini
-    - Ensures response is a Python list of skills
+    - **Uses JSON schema to force a clean, parsable list of skills**
     - Cleans and normalizes the skills before returning
     """
+    # NOTE: The prompt can be simplified since the schema enforces the format.
     prompt = f"""
-You're an AI assistant extracting technical skills from job postings.
+You are an AI assistant extracting technical skills from a job posting.
 
-Given the job description below, return a concise Python list of 5–10 technical skills the candidate should know. 
-Do NOT include soft skills or vague terms. Respond ONLY with the Python list.
+Given the job description below, return a concise list of 5–10 technical skills the candidate should know. 
+Do NOT include soft skills, vague terms, or any commentary. 
 
-These should include:
-- Programming languages (e.g., 'python', 'java')
-- Frameworks (e.g., 'react', 'spring boot')
-- Tools or software (e.g., 'git', 'tableau')
-- Concepts (e.g., 'object-oriented programming', 'data structures', 'agile development')
-- Platforms or environments (e.g., 'unity', 'aws')
-
-Do NOT include:
-- Soft skills (e.g., communication, teamwork)
-- Generic verbs (e.g., develop, build)
-- Duplicate or redundant entries
-- Any commentary or markdown
-
-NOTE: FOCUS ONLY ON TECHNICAL SKILLS.
-
----
-Example:
-['python', 'pandas', 'sql', 'data visualization', 'machine learning']
-['html', 'css', 'react', 'javascript', 'firebase']
+Focus on: Programming languages, Frameworks, Tools/software, Concepts, and Platforms/environments.
 
 Job Posting:
 {text.strip()}
 """
     try:
-        # 🎯 UPDATED: Use the client.models service to call generate_content
+        # 🎯 FIX 2: Use response_mime_type and response_schema for JSON output
+        config = types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=SkillList,
+        )
+
         response = client.models.generate_content(
             model=MODEL_ID, 
-            contents=prompt
+            contents=prompt,
+            config=config # <-- Pass the structured configuration
         )
         
-        raw = response.text.strip()
-        print(f"🧠 Gemini raw output:\n{raw}\n")
-
-        # Ensure response is a Python list
-        if raw.startswith("["):
-            # Using eval() is risky but standard for this pattern.
-            # Assuming the prompt enforces a valid, safe list structure.
-            skills = [s.lower().strip() for s in eval(raw) if isinstance(s, str)]
-            if skills:
-                return skills
-
+        # 🎯 FIX 3: Parse the response JSON and extract the list
+        try:
+            # The response.text will be a JSON string like '{"skills": ["python", "sql"]}'
+            # Safely load the JSON string.
+            json_data = json.loads(response.text.strip())
+            extracted_list = json_data.get("skills", [])
+            
+            raw_text_for_logging = response.text.strip()
+            print(f"🧠 Gemini raw output (JSON): {raw_text_for_logging}\n")
+            
+            if extracted_list and isinstance(extracted_list, list):
+                # Normalize and clean the skills
+                skills = [s.lower().strip() for s in extracted_list if isinstance(s, str) and s.strip()]
+                if skills:
+                    return skills
+                
+        except json.JSONDecodeError:
+            # If the model still returns messy markdown/code fences, the JSON load fails.
+            print(f"⚠️ JSON decoding failed. Raw output: {response.text.strip()[:100]}...")
+            
         # If invalid response, trigger fallback
-        raise ValueError("No valid skills extracted")
+        raise ValueError("No valid skills extracted from structured response.")
 
     except Exception as e:
         print(f"⚠️ Primary extraction failed: {e}")
@@ -95,15 +95,14 @@ Job Posting:
 def retry_extract_skills(text):
     """
     Fallback skill extraction if the first Gemini call fails.
-    Uses a simpler, more direct prompt.
+    Uses a simpler, more direct prompt, and implements safer parsing.
     """
     retry_prompt = f"""
-Extract 5–10 technical skills from this job. Return only a valid Python list.
+Extract 5–10 technical skills from this job. Return only a valid Python list like ['skill1', 'skill2'].
 
 {text.strip()}
 """
     try:
-        # 🎯 UPDATED: Use the client.models service for the retry call
         response = client.models.generate_content(
             model=MODEL_ID, 
             contents=retry_prompt
@@ -111,9 +110,21 @@ Extract 5–10 technical skills from this job. Return only a valid Python list.
         raw = response.text.strip()
         print(f"🔁 Gemini retry output:\n{raw}\n")
 
-        if raw.startswith("["):
-            # Using eval() is risky but standard for this pattern.
-            return [s.lower().strip() for s in eval(raw) if isinstance(s, str)]
+        # 🎯 FIX 4: Use literal_eval() for safer parsing after stripping markdown
+        
+        # 1. Strip markdown code fences if they exist
+        if raw.startswith("```"):
+            raw = re.sub(r'^\s*```[a-z]*\s*', '', raw, flags=re.MULTILINE)
+            raw = re.sub(r'```\s*$', '', raw, flags=re.MULTILINE)
+            raw = raw.strip()
+
+        # 2. Check if the result is a Python list string
+        if raw.startswith("[") and raw.endswith("]"):
+            # literal_eval is safer than eval for parsing list/dict literals
+            skills_list = literal_eval(raw)
+            if skills_list and isinstance(skills_list, list):
+                return [s.lower().strip() for s in skills_list if isinstance(s, str)]
+            
     except Exception as e:
         print(f"❌ Retry also failed: {e}")
 
@@ -121,14 +132,13 @@ Extract 5–10 technical skills from this job. Return only a valid Python list.
     return []
 
 
+# --- Remainder of the code (fetch_skills_from_supabase, get_existing_job_skill_ids, extract_skills_from_jobs, if __name__ == "__main__":) remains the same ---
+
 # Supabase Helpers
 # ----------------
 
 def fetch_skills_from_supabase():
-    """
-    Fetch all existing skills stored in job_skills table.
-    Returns a dictionary simulating frequency {skill: 1, ...}
-    """
+    # ... (code unchanged)
     response = supabase.table("job_skills").select("job_skills").execute()
     all_skills = []
     for row in response.data:
@@ -141,10 +151,7 @@ def fetch_skills_from_supabase():
 
 
 def get_existing_job_skill_ids():
-    """
-    Fetch job_ids that already have extracted skills in `job_skills`.
-    Prevents duplicate processing.
-    """
+    # ... (code unchanged)
     try:
         res = supabase.table("job_skills").select("job_id").execute()
         existing = set()
@@ -162,15 +169,7 @@ def get_existing_job_skill_ids():
 # Main Skill Extraction Flow
 # --------------------------
 def extract_skills_from_jobs(jobs=None):
-    """
-    Main pipeline for extracting skills from jobs.
-    - Fetch jobs from Supabase (if not provided)
-    - Skip jobs that already have extracted skills
-    - Extract skills using Gemini
-    - Insert extracted skills into Supabase
-    - Return frequency count of skills found
-    """
-    # Avoid re-processing jobs that already have skills
+    # ... (code unchanged)
     existing_ids = get_existing_job_skill_ids()
 
     if jobs is None:
