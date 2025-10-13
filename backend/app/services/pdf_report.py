@@ -76,6 +76,9 @@ Write an executive summary that:
 1. Highlights the strongest and weakest courses based on the 'score'.
 2. Identifies common skills missing from the curriculum (present in 'matched' but not 'taught').
 3. Recommends areas of improvement.
+4. The format should be 1 paragraph per point as stated above.
+5. Keep a clean and digestible format do not add indicators such as "**"
+6. Go directly to the point and don't add a title as there is already a title on the report.
 
 Keep it under 200 words.
 """

@@ -68,6 +68,7 @@ function parseDateFilter(inputRaw: string): DateFilter | null {
   }
 
   // Operators: >=, >, <=, <
+  // Simplified to only match YYYY-MM-DD to guide user input
   const op = input.match(/^(>=|>|<=|<)\s*(\d{4}-\d{2}-\d{2})$/);
   if (op) {
     const isoStart = `${op[2]}T00:00:00Z`;
@@ -80,9 +81,10 @@ function parseDateFilter(inputRaw: string): DateFilter | null {
     }
   }
 
-  // Single full date: YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
-    const start = `${input}T00:00:00Z`;
+  // Single full date: YYYY-MM-DD or YYYY/MM/DD
+  if (/^(\d{4}[-\/]\d{2}[-\/]\d{2})$/.test(input)) {
+    const standardInput = input.replace(/\//g, '-');
+    const start = `${standardInput}T00:00:00Z`;
     const next = addDaysISO(start, 1);
     return { gte: start, lt: next };
   }
@@ -200,11 +202,49 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
     []
   );
 
+  // 🎯 REVISED: Standardized display format YYYY/MM/DD, HH:MM:SS AM/PM
   const formatDate = (v: any) => {
     const d = new Date(v);
     if (isNaN(d.getTime())) return v;
-    return d.toLocaleString();
+    
+    // Get date parts (MM/DD/YYYY)
+    const parts = d.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).split('/');
+    
+    // Re-arrange to YYYY/MM/DD
+    const datePart = `${parts[2]}/${parts[0]}/${parts[1]}`;
+
+    // Standardized time part: HH:MM:SS AM/PM
+    const timePart = d.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+    
+    return `${datePart}, ${timePart}`;
   };
+
+  const formatDateOnly = (v: any) => {
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return v;
+    // Format to YYYY-MM-DD
+    return d.toISOString().split('T')[0];
+  };
+
+  // Define columns that should use the date-only format
+  const DATE_ONLY_COLUMNS = useMemo(
+    () => new Set<string>(['scraped_at']),
+    []
+  );
+
+  const ARRAY_COLUMNS = useMemo(
+    () => new Set<string>(['skills_taught', 'skills_in_market']),
+    []
+  );
 
   const MAX_CELL_CHARS = 30;
   const clip = (v: any, n = MAX_CELL_CHARS) => {
@@ -466,7 +506,7 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
                 {VISIBLE_COLUMNS.map((col) => (
                   <th key={col} className="px-2 py-2">
                     <input
-                      placeholder={col}
+                      placeholder={DATE_COLUMNS.has(col) ? 'YYYY-MM-DD, YYYY-MM, or YYYY' : col}
                       className="w-full rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs"
                       value={filters[col] ?? ''}
                       onChange={(e) =>
@@ -530,14 +570,32 @@ export default function CRUDTableViewer({ tableName, columns }: CRUDTableViewerP
                         );
                       }
 
-                      const raw = row[col];
-                      const display = DATE_COLUMNS.has(col) && raw
-                        ? clip(formatDate(raw))
-                        : clip(raw);
+                      let raw = row[col];
+                      let displayValue = raw;
 
+                      // 1. Handle Date Formatting
+                      if (DATE_COLUMNS.has(col) && raw) {
+                        const formatter = DATE_ONLY_COLUMNS.has(col) 
+                          ? formatDateOnly // YYYY-MM-DD for scraped_at
+                          : formatDate;   // YYYY/MM/DD, HH:MM:SS AM/PM for others
+                        displayValue = clip(formatter(raw));
+                      } 
+                      // 2. Handle Array Bracket Removal
+                      else if (ARRAY_COLUMNS.has(col) && typeof raw === 'string') {
+                        let s = raw.trim();
+                        if (s.startsWith('[') && s.endsWith(']')) {
+                          s = s.slice(1, -1);
+                        }
+                        displayValue = clip(s);
+                      }
+                      // 3. Handle standard text/other columns
+                      else {
+                        displayValue = clip(raw);
+                      }
+                      
                       return (
                         <td key={col} className="px-2 py-2 text_defaultColor" title={String(raw ?? '')}>
-                          <span className="block max-w-[32rem] truncate">{display ?? '—'}</span>
+                          <span className="block max-w-[32rem] truncate">{displayValue ?? '—'}</span>
                         </td>
                       );
                     })}
