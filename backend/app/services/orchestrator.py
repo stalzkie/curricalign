@@ -366,7 +366,7 @@ async def evaluate_and_save_scores() -> Optional[Dict[str, Any]]:
         try:
             resp = (
                 supabase.table("course_skills")
-                .select("course_skll_id", count="exact")
+                .select("course_skill_id", count="exact")
                 .range(0, 0)  # triggers count with minimal payload
                 .execute()
             )
