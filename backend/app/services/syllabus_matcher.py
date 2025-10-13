@@ -81,9 +81,9 @@ def extract_skills_with_gemini(text):
     Primary function to extract technical skills from a course description using Gemini.
     """
     prompt = f"""
-You are a curriculum analysis expert.
+ou are a curriculum analysis expert.
 
-Your task is to read a course description and extract a Python list of **5 to 10 specific technical skills** that a student is likely to learn from the course.
+Your task is to read a course description and extract a Python list of 10 specific technical skills that a student is likely to learn from the course.
 Do NOT include soft skills or vague terms. Respond ONLY with the Python list.
 
 NOTE: FOCUS ONLY ON TECHNICAL SKILLS.
@@ -94,6 +94,7 @@ These should include:
 - Tools or software (e.g., 'git', 'tableau')
 - Concepts (e.g., 'object-oriented programming', 'data structures', 'agile development')
 - Platforms or environments (e.g., 'unity', 'aws')
+- FOCUS ON SKILLS TO BE ACHIEVED BY STUDENTS IN THE SAID COURSE
 - THEY SHOULD BE IN VERB FORMAT AS MUCH AS POSSIBLE
 
 ⚠️ Do NOT include:
@@ -101,8 +102,9 @@ These should include:
 - Generic verbs (e.g., develop, build)
 - Duplicate or redundant entries
 - Any commentary or markdown
+- DO NOT BE VAGUE and use terms such as debugging mobile applications
 
-Output only a Python list.
+Output only a Python list. For example: ['python', 'sql', 'data visualization', 'machine learning'].
 Course Description:
 {text.strip()}
 """

@@ -40,12 +40,30 @@ def extract_skills_with_gemini(text):
     """
     # NOTE: The prompt can be simplified since the schema enforces the format.
     prompt = f"""
-You are an AI assistant extracting technical skills from a job posting.
+You're an AI assistant extracting technical skills from job postings.
 
-Given the job description below, return a concise list of 5–10 technical skills the candidate should know. 
-Do NOT include soft skills, vague terms, or any commentary. 
+Given the job description below, return a concise Python list of 5–10 technical skills the candidate should know. 
+Do NOT include soft skills or vague terms. Respond ONLY with the Python list.
 
-Focus on: Programming languages, Frameworks, Tools/software, Concepts, and Platforms/environments.
+These should include:
+- Programming languages (e.g., 'python', 'java')
+- Frameworks (e.g., 'react', 'spring boot')
+- Tools or software (e.g., 'git', 'tableau')
+- Concepts (e.g., 'object-oriented programming', 'data structures', 'agile development')
+- Platforms or environments (e.g., 'unity', 'aws')
+
+Do NOT include:
+- Soft skills (e.g., communication, teamwork)
+- Generic verbs (e.g., develop, build)
+- Duplicate or redundant entries
+- Any commentary or markdown
+
+NOTE: FOCUS ONLY ON TECHNICAL SKILLS.
+
+---
+Example:
+['python', 'pandas', 'sql', 'data visualization', 'machine learning']
+['html', 'css', 'react', 'javascript', 'firebase']
 
 Job Posting:
 {text.strip()}
