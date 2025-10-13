@@ -2,21 +2,32 @@ from collections import Counter
 import os
 import re
 from datetime import datetime, timezone
-import google.generativeai as genai
+
+# 🔑 MODERN SDK IMPORTS
+from google import genai 
+from google.genai import types 
+
 from dotenv import load_dotenv
 from ..core.supabase_client import supabase  # Supabase wrapper for DB access
 
 # Load .env variables (Gemini API key, Supabase credentials, etc.)
 load_dotenv()
 
-# Configure Gemini (Google Generative AI SDK)
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# --- 🚀 MODERN GEMINI CLIENT INITIALIZATION ---
+# 1. Initialize the client using the stable 'v1' API endpoint
+# This client automatically picks up the API key from GEMINI_API_KEY
+client = genai.Client(
+    # Explicitly sets the API version to 'v1' for production stability
+    http_options=types.HttpOptions(api_version='v1')
+)
 
-# Initialize Gemini model (using latest 1.5 Pro)
-model = genai.GenerativeModel("gemini-1.5-pro-latest")
+# 2. Define the model ID
+# Note: With the new SDK, you call methods on client.models, not a separate model object.
+MODEL_ID = "gemini-2.5-pro"
 
 
 # Skill Extraction Logic
+# ---------------------
 
 def extract_skills_with_gemini(text):
     """
@@ -55,13 +66,19 @@ Job Posting:
 {text.strip()}
 """
     try:
-        # Call Gemini with the extraction prompt
-        response = model.generate_content(prompt)
+        # 🎯 UPDATED: Use the client.models service to call generate_content
+        response = client.models.generate_content(
+            model=MODEL_ID, 
+            contents=prompt
+        )
+        
         raw = response.text.strip()
         print(f"🧠 Gemini raw output:\n{raw}\n")
 
         # Ensure response is a Python list
         if raw.startswith("["):
+            # Using eval() is risky but standard for this pattern.
+            # Assuming the prompt enforces a valid, safe list structure.
             skills = [s.lower().strip() for s in eval(raw) if isinstance(s, str)]
             if skills:
                 return skills
@@ -86,11 +103,16 @@ Extract 5–10 technical skills from this job. Return only a valid Python list.
 {text.strip()}
 """
     try:
-        response = model.generate_content(retry_prompt)
+        # 🎯 UPDATED: Use the client.models service for the retry call
+        response = client.models.generate_content(
+            model=MODEL_ID, 
+            contents=retry_prompt
+        )
         raw = response.text.strip()
         print(f"🔁 Gemini retry output:\n{raw}\n")
 
         if raw.startswith("["):
+            # Using eval() is risky but standard for this pattern.
             return [s.lower().strip() for s in eval(raw) if isinstance(s, str)]
     except Exception as e:
         print(f"❌ Retry also failed: {e}")
@@ -100,6 +122,7 @@ Extract 5–10 technical skills from this job. Return only a valid Python list.
 
 
 # Supabase Helpers
+# ----------------
 
 def fetch_skills_from_supabase():
     """
@@ -111,6 +134,7 @@ def fetch_skills_from_supabase():
     for row in response.data:
         raw = row.get("job_skills")
         if isinstance(raw, str):
+            # This logic assumes job_skills is a comma-separated string
             skills = [s.strip() for s in raw.split(",") if s.strip()]
             all_skills.extend(skills)
     return {skill: 1 for skill in all_skills}
@@ -134,7 +158,9 @@ def get_existing_job_skill_ids():
         print(f"❌ Failed to fetch existing job_skills IDs: {e}")
         return set()
 
+
 # Main Skill Extraction Flow
+# --------------------------
 def extract_skills_from_jobs(jobs=None):
     """
     Main pipeline for extracting skills from jobs.
@@ -196,6 +222,7 @@ def extract_skills_from_jobs(jobs=None):
                     "title": title,
                     "company": company,
                     "description": description,
+                    # Joins the list into a comma-space separated string for your DB schema
                     "job_skills": ", ".join(sorted(set(extracted_skills))),
                     "date_extracted_jobs": datetime.now(timezone.utc).isoformat()
                 }).execute()

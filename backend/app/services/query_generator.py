@@ -10,7 +10,11 @@ from typing import Set, Tuple, List, Dict, Any, Optional
 
 import torch
 from sentence_transformers import SentenceTransformer, util
-import google.generativeai as genai
+
+# 🔑 MODERN SDK IMPORTS
+from google import genai
+from google.genai import types 
+
 from serpapi import GoogleSearch
 from supabase import create_client, Client
 
@@ -22,7 +26,13 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Initialize Supabase Client
+try:
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+except Exception as e:
+    print(f"❌ Failed to initialize Supabase client: {e}")
+    # You might want to mock or fail hard here in a real application
 
 # Suppress sklearn warning
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -143,9 +153,12 @@ def _semantic_gate(query: str) -> Optional[bool]:
 
 
 # Gemini Cross‑Reference (only for borderline)
-
-genai.configure(api_key=GEMINI_API_KEY)
-_gemini = genai.GenerativeModel("gemini-1.5-pro-latest")
+# 🎯 REVISED: Initialize the modern client
+client = genai.Client(
+    api_key=GEMINI_API_KEY, 
+    http_options=types.HttpOptions(api_version='v1')
+) 
+_GEMINI_MODEL = "gemini-1.5-flash" # Use a fast, stable model for classification
 _GCACHE: Dict[str, Dict[str, Any]] = {}
 
 GEMINI_SYSTEM = """You are a classifier that decides if a query is about computer science / software / IT.
@@ -188,11 +201,17 @@ Classify this query now. Return ONLY JSON, no extra text.
 Query: {query}
 """
     try:
-        resp = _gemini.generate_content(
-            prompt,
-            generation_config={"temperature": 0.0, "max_output_tokens": 120}
+        # 🎯 UPDATED: Use client.models.generate_content()
+        resp = client.models.generate_content(
+            model=_GEMINI_MODEL,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.0, 
+                max_output_tokens=120,
+                response_mime_type="application/json"
+            )
         )
-        raw = (resp.text or "").strip().strip("`")
+        raw = (resp.text or "").strip().strip("`").lstrip("json").strip()
         data = json.loads(raw)
         out = {
             "is_cs": bool(data.get("is_cs", False)),
@@ -201,6 +220,7 @@ Query: {query}
             "tags": [t for t in data.get("tags", []) if isinstance(t, str)],
         }
     except Exception as e:
+        print(f"❌ Gemini call failed for '{query}': {e}")
         out = {"is_cs": False, "confidence": 0.0, "reason": f"parse_error: {e}", "tags": []}
 
     _GCACHE[k] = out
@@ -439,11 +459,14 @@ def audit_candidates(accepted_queries: List[str]):
                     candidates.add(t)
     if candidates:
         print("💡 Candidate CS terms to consider:", list(sorted(candidates))[:20])
-        supabase.table("cs_candidate_terms").insert([{"keyword": k} for k in candidates]).execute()
+        try:
+            supabase.table("cs_candidate_terms").insert([{"keyword": k} for k in candidates]).execute()
+        except Exception as e:
+            print(f"❌ Failed to insert candidate terms: {e}")
 
 # Entry point
 
 if __name__ == "__main__":
     kw = get_top_keywords()
     print(f"\n🎯 Final keywords returned: {kw}")
-    audit_candidates(kw) 
+    audit_candidates(kw)

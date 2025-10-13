@@ -1,29 +1,47 @@
 import os
 import re
-import google.generativeai as genai
+# 🔑 Import necessary components from the modern SDK structure
+from google import genai
+from google.genai import types 
+import ast
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 from ..core.supabase_client import supabase
 
+
 load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-pro-latest")
+
+# --- 🚀 MODERN GEMINI CLIENT INITIALIZATION ---
+# 1. Initialize the client using the stable 'v1' API endpoint.
+# The client automatically picks up the API key from the GEMINI_API_KEY environment variable.
+client = genai.Client(
+    # Explicitly sets the API version to 'v1' for production stability
+    http_options=types.HttpOptions(api_version='v1')
+)
+
+# 2. Define the model ID as a string
+MODEL_ID = "gemini-2.5-pro" # Using a current, stable model ID
 
 
 # Helpers for skill normalization
+# -----------------------------
+
 def normalize_skill(skill):
+    """Removes text in parentheses and normalizes case/whitespace."""
     skill = re.sub(r"\s*\([^)]*\)", "", skill)
     return skill.lower().strip()
 
 
 def clean_skills(raw):
-    import ast
+    """Safely parses the string output from Gemini into a cleaned list of skills."""
     try:
         raw = raw.strip()
+        # Using ast.literal_eval() to safely parse the Python list string
         skills = ast.literal_eval(raw)
         if not isinstance(skills, list):
             print("⚠️ Gemini output is not a list. Raw:\n", raw)
             return []
+        # Normalize and filter out empty strings
         return [normalize_skill(s) for s in skills if isinstance(s, str) and s.strip()]
     except Exception as e:
         print(f"❌ Failed to parse Gemini output: {e}")
@@ -32,7 +50,12 @@ def clean_skills(raw):
 
 
 # Core Gemini extraction functions
+# ------------------------------
+
 def extract_skills_with_gemini(text):
+    """
+    Primary function to extract technical skills from a course description using Gemini.
+    """
     prompt = f"""
 You are a curriculum analysis expert.
 
@@ -60,7 +83,11 @@ Course Description:
 {text.strip()}
 """
     try:
-        response = model.generate_content(prompt)
+        # 🎯 UPDATED: Use the client.models service to call generate_content
+        response = client.models.generate_content(
+            model=MODEL_ID, 
+            contents=prompt
+        )
         raw = response.text.strip()
         print(f"🧠 Gemini raw output:\n{raw}\n")
         skills = clean_skills(raw)
@@ -73,13 +100,20 @@ Course Description:
 
 
 def retry_extract_skills(text):
+    """
+    Fallback skill extraction if the first Gemini call fails.
+    """
     retry_prompt = f"""
 Extract 5–10 technical skills from this course. Return only a valid Python list.
 
 {text.strip()}
 """
     try:
-        response = model.generate_content(retry_prompt)
+        # 🎯 UPDATED: Use the client.models service for the retry call
+        response = client.models.generate_content(
+            model=MODEL_ID, 
+            contents=retry_prompt
+        )
         raw = response.text.strip()
         print(f"🔁 Gemini retry output:\n{raw}\n")
         return clean_skills(raw)
@@ -89,6 +123,8 @@ Extract 5–10 technical skills from this course. Return only a valid Python lis
 
 
 # Main extraction workflow
+# ------------------------
+
 def extract_subject_skills_from_supabase():
     """
     Sync `course_skills` with `courses`:
@@ -153,6 +189,7 @@ def extract_subject_skills_from_supabase():
             "course_code": code,
             "course_title": title,
             "course_description": desc,
+            # Joins the list into a comma-space separated string for your DB schema
             "course_skills": ", ".join(sorted(set(matched_skills))),
             "date_extracted_course": datetime.now(timezone.utc).isoformat()
         }

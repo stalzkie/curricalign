@@ -13,8 +13,9 @@ from fastapi.responses import JSONResponse
 
 from supabase import create_client, Client
 
-# ✅ Gemini (high-level SDK, v1)
-from google import generativeai as genai
+# 🔑 MODERN SDK IMPORTS
+from google import genai
+from google.genai import types 
 
 # Routers
 from .api.endpoints import dashboard, pipeline, orchestrator, report_files, version
@@ -86,20 +87,25 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logging.warning("[probe] count failed: %r", e)
 
-    # --- Gemini v1 tripwire (prints models if OK; logs error if misconfigured) ---
+    # --- Gemini v1 client initialization and probe ---
+    app.state.gemini_client = None
     if not GEMINI_API_KEY:
         logging.error("[Gemini] GEMINI_API_KEY is missing; Gemini features will fail.")
     else:
         try:
-            genai.configure(api_key=GEMINI_API_KEY)
-            # Listing models proves we are on v1 and the API key is valid
-            models = [m.name for m in genai.list_models()[:8]]
+            # 🎯 REVISED: Initialize the modern client and attach it to app.state
+            gemini_client = genai.Client(
+                api_key=GEMINI_API_KEY,
+                http_options=types.HttpOptions(api_version='v1')
+            )
+            app.state.gemini_client = gemini_client
+
+            # Listing models now uses the client object
+            models = [m.name for m in gemini_client.list_models()[:8]]
             logging.info("[Gemini] OK. Model env=%s  sample=%s", GEMINI_MODEL, models)
         except Exception as e:
             logging.exception(
-                "[Gemini] FAILED to list models. "
-                "If you see 404 + v1beta in later logs, search your code for '/v1beta/' or "
-                "'from google.ai import generativelanguage'. Details: %r", e
+                "[Gemini] FAILED to initialize or list models. Details: %r", e
             )
 
     yield
@@ -230,15 +236,15 @@ def list_reports():
 def gemini_health():
     """
     Lists a few models to confirm the API key + v1 endpoint are working.
-    If this fails in logs with references to 'v1beta', search the codebase for
-    '/v1beta/' URLs or 'from google.ai import generativelanguage' imports.
     """
-    if not GEMINI_API_KEY:
-        return JSONResponse(status_code=500, content={"error": "GEMINI_API_KEY not set"})
+    client: genai.Client | None = getattr(app.state, "gemini_client", None)
+    
+    if not client:
+        return JSONResponse(status_code=500, content={"error": "Gemini client not initialized. Check GEMINI_API_KEY."})
 
     try:
-        genai.configure(api_key=GEMINI_API_KEY)
-        names = [m.name for m in genai.list_models()[:10]]
+        # 🎯 REVISED: Use the client object attached to app.state
+        names = [m.name for m in client.list_models()[:10]]
         return {"ok": True, "model_env": GEMINI_MODEL, "sample_models": names}
     except Exception as e:
         logging.exception("[Gemini] health check failed")

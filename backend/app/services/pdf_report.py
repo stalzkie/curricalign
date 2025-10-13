@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 from dotenv import load_dotenv
-import google.generativeai as genai
+
+# 🔑 MODERN SDK IMPORTS
+from google import genai
+from google.genai import types 
 
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -20,8 +23,18 @@ from ..core.supabase_client import supabase
 # ----------------------------------------------------------------------
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# 🎯 REVISED: Initialize the modern client globally
+client: Optional[genai.Client] = None
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+    try:
+        client = genai.Client(
+            api_key=GEMINI_API_KEY,
+            http_options=types.HttpOptions(api_version='v1')
+        )
+    except Exception as e:
+        print(f"⚠️ Failed to initialize Gemini client: {e}")
+        client = None
 
 # Resolve the static/reports directory *absolutely* so prod == local.
 # This matches what main.py mounts at /static.
@@ -45,11 +58,13 @@ def generate_ai_summary(report_data: List[Dict[str, Any]]) -> str:
 
     course_summaries = []
     for item in report_data:
-        skills_taught_str = ", ".join(item.get("skills_taught", []))
-        skills_in_market_str = ", ".join(item.get("skills_in_market", []))
+        # Normalize skills for prompt readability
+        skills_taught_str = ", ".join(item.get("skills_taught", [])[:5])
+        skills_in_market_str = ", ".join(item.get("skills_in_market", [])[:5])
         course_summaries.append(
-            f"{item.get('course_title', 'N/A')}: score {item.get('score', 0)}%, "
-            f"taught {skills_taught_str}, matched {skills_in_market_str}"
+            f"{item.get('course_title', 'N/A')} ({item.get('course_code', 'N/A')}): "
+            f"score {item.get('score', 0)}%, "
+            f"taught {skills_taught_str or 'None'}, matched {skills_in_market_str or 'None'}"
         )
 
     prompt = f"""
@@ -58,18 +73,21 @@ You are an education and job market analyst. Given the following course alignmen
 {chr(10).join(course_summaries)}
 
 Write an executive summary that:
-1. Highlights the strongest and weakest courses.
-2. Identifies common skills missing from the curriculum.
+1. Highlights the strongest and weakest courses based on the 'score'.
+2. Identifies common skills missing from the curriculum (present in 'matched' but not 'taught').
 3. Recommends areas of improvement.
 
 Keep it under 200 words.
 """
-    if not GEMINI_API_KEY:
-        return "AI summary unavailable (no API key configured)."
+    if not client:
+        return "AI summary unavailable (Gemini client failed to initialize)."
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-pro-latest")
-        response = model.generate_content(prompt)
+        # 🎯 UPDATED: Use the client.models service to call generate_content
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", # Using a fast model for text summarization
+            contents=prompt
+        )
         return (response.text or "").strip() or "Summary generation returned empty text."
     except Exception as e:
         print(f"⚠️ Failed to generate AI summary: {e}")
@@ -228,8 +246,9 @@ def generate_pdf_report(report_data: List[Dict[str, Any]], filename: Optional[st
         row = [
             Paragraph(str(entry.get("course_code", "N/A")), styles["Normal"]),
             Paragraph(str(entry.get("course_title", "N/A")), styles["Normal"]),
-            Paragraph("<br/>".join(entry.get("skills_taught", [])) or "—", styles["Normal"]),
-            Paragraph("<br/>".join(entry.get("skills_in_market", [])) or "—", styles["Normal"]),
+            # Limiting the number of skills in the PDF for space
+            Paragraph("<br/>".join(entry.get("skills_taught", [])[:7]) or "—", styles["Normal"]),
+            Paragraph("<br/>".join(entry.get("skills_in_market", [])[:7]) or "—", styles["Normal"]),
             str(entry.get("score", 0)),
             f"{float(entry.get('coverage', 0.0)):.2f}",
             f"{float(entry.get('avg_similarity', 0.0)):.2f}",
