@@ -509,7 +509,16 @@ def get_missing_skills(
         total_job_rows = len(job_rows_for_threshold)
     except Exception:
         total_job_rows = 1
+        
+    # CALCULATE THRESHOLD: Sets minimum demand count for a skill to be considered a 'gap'.
     threshold = min if isinstance(min, int) else max(5, int(round((total_job_rows or 1) * 0.01)))
+    
+    # LOGGING ADDED FOR TROUBLESHOOTING THE THRESHOLD ISSUE
+    if min is None:
+        logging.info(
+            f"[missing-skills] Calculated dynamic threshold: {threshold} "
+            f"(based on {total_job_rows} job rows)"
+        )
 
     # ---- 2) Matched/covered market skills from course_alignment_scores_clean
     try:
@@ -518,8 +527,11 @@ def get_missing_skills(
         matched_set = set()
 
     # ---- 3) Evaluator output first (preferred)
+    filtered_by_threshold_count = 0
+    
     try:
         if latest_only:
+            # Query for latest batch ID
             latest = _retry_supabase_sync(
                 lambda: sb.from_(SKILL_GAP_TABLE)
                 .select("batch_id, calculated_at")
@@ -529,6 +541,7 @@ def get_missing_skills(
             )
             if latest.data:
                 latest_batch = latest.data[0]["batch_id"]
+                # Fetch data, applying the threshold directly in the DB query
                 resp = _retry_supabase_sync(
                     lambda: sb.from_(SKILL_GAP_TABLE)
                     .select("skill_norm, count")
@@ -540,6 +553,7 @@ def get_missing_skills(
             else:
                 resp = None
         else:
+            # Fetch data across all batches, applying the threshold directly in the DB query
             resp = _retry_supabase_sync(
                 lambda: sb.from_(SKILL_GAP_TABLE)
                 .select("skill_norm, count, calculated_at")
@@ -558,7 +572,13 @@ def get_missing_skills(
     if cached is not None and resp is None:
         # Use cached fallback only when preferred path failed to fetch fresh resp
         return cached[:limit]
-
+    
+    # LOGGING: Record how many rows were fetched from the evaluator's table
+    if resp and resp.data:
+        logging.info(
+            f"[missing-skills] Evaluator data fetched {len(resp.data)} skills (after DB threshold filter)"
+        )
+        
     if resp and resp.data:
         # Filter out skills that appear among matched skills (exact or fuzzy variants)
         out = []
@@ -571,9 +591,14 @@ def get_missing_skills(
                 continue
             # alias to canonical
             norm = ALIASES.get(norm, norm)
+            
             # exclude if present exactly or fuzzily among matched skills
-            if (norm in matched_set) or _is_fuzzy_member(norm, matched_set, threshold=fuzzy_threshold):
+            is_covered = (norm in matched_set) or _is_fuzzy_member(norm, matched_set, threshold=fuzzy_threshold)
+            if is_covered:
+                # OPTIONAL TEMPORARY LOGGING: Uncomment this to see which skills are being filtered out by fuzzy exclusion.
+                # logging.debug(f"[missing-skills] Excluded: {norm} (count={r.get('count', 0)}) due to fuzzy match in covered set.")
                 continue
+            
             out.append({"skill": norm, "count": int(r.get("count", 0) or 0)})
 
         out = out[:limit]
@@ -613,11 +638,18 @@ def get_missing_skills(
     missing = []
     for skill, count in job_freq.items():
         if count < threshold:
+            filtered_by_threshold_count += 1
             continue
         # Exclude if covered exactly or fuzzily by course/matched skills
         if (skill in course_set) or _is_fuzzy_member(skill, course_set, threshold=fuzzy_threshold):
             continue
         missing.append({"skill": skill, "count": int(count)})
+        
+    # LOGGING ADDED FOR TROUBLESHOOTING THE THRESHOLD ISSUE (FALLBACK)
+    logging.info(
+        f"[missing-skills] Fallback filtered {filtered_by_threshold_count} skills by threshold ({threshold}). "
+        f"Resulting missing skills: {len(missing)}"
+    )
 
     missing.sort(key=lambda x: x["count"], reverse=True)
     missing = missing[:limit]

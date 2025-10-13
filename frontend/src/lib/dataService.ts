@@ -160,7 +160,6 @@ export async function fetchMissingSkills(
 ): Promise<string[]> {
   try {
     // The API now returns [{ skill, count }, ...] from evaluator output.
-    // But we also support the legacy shapes just in case.
     const { data } = await getWithVersionCache<any>(
       CK.missingSkills,
       `${BASE_URL}/missing-skills`,
@@ -170,12 +169,13 @@ export async function fetchMissingSkills(
 
     if (!Array.isArray(data)) return [];
 
-    // New shape: objects with { skill, count }
-    if (data.length > 0 && typeof data[0] === "object" && "skill" in data[0]) {
+    // Filter to ensure we only proceed if we have the new, preferred object shape
+    if (data.length > 0 && typeof data[0] === "object" && "skill" in data[0] && "count" in data[0]) {
       const arr = (data as MissingSkill[])
         .filter((d) => d?.skill && typeof d.skill === "string")
         .sort((a, b) => Number(b?.count ?? 0) - Number(a?.count ?? 0))
         .map((d) => d.skill.toLowerCase().trim());
+      
       // de-dup while preserving order
       const seen = new Set<string>();
       const out: string[] = [];
@@ -188,7 +188,7 @@ export async function fetchMissingSkills(
       return out;
     }
 
-    // Legacy shapes: array of strings or arrays of strings/CSV
+    // Fallback/Legacy shapes: array of strings or arrays of strings/CSV (kept for robustness)
     const unique = new Set<string>();
     for (const entry of data) {
       if (Array.isArray(entry)) {
@@ -210,7 +210,8 @@ export async function fetchMissingSkills(
     return Array.from(unique).sort();
   } catch (error: any) {
     if (error?.name === "AbortError") return [];
-    console.error("❌ Failed to fetch missing skills:", error);
+    // ❌ Error logging retained for debugging
+    console.error("❌ Failed to fetch missing skills:", error); 
     return [];
   }
 }
@@ -229,7 +230,7 @@ export async function fetchMissingSkillsWithCounts(
 
     if (!Array.isArray(data)) return [];
 
-    if (data.length > 0 && typeof data[0] === "object" && "skill" in data[0]) {
+    if (data.length > 0 && typeof data[0] === "object" && "skill" in data[0] && "count" in data[0]) {
       // Preferred new shape
       return (data as MissingSkill[])
         .filter((d) => d?.skill)
