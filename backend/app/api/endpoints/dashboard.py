@@ -484,19 +484,29 @@ def get_trending_jobs(
 @router.get("/missing-skills")
 def get_missing_skills(
     request: Request,
-    min: int = Query(default=None, ge=1, description="Minimum count threshold (defaults to ~1% of job rows, min 5)"),
+    min: int = Query(default=None, ge=1, description="Minimum count threshold (defaults to ~1% of job rows, min 2)"),
     latest_only: bool = Query(default=True, description="If true, use evaluator's latest batch only"),
-    # *** REVISED: Set the default fuzzy exclusion threshold higher (95) to allow more skills through ***
+    # keep strict by default, but allow override
     fuzzy_threshold: int = Query(default=95, ge=0, le=100, description="Fuzzy ratio threshold for variant exclusion"),
     limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
+    mode: str = Query(default="normal", description="Use 'debug' to force lenient filters for validation"),
 ):
     """
     Prefer evaluator output (skill_gap_counts), fallback to deterministic API-side calc.
     Extra logic:
     - Reads skills_in_market from course_alignment_scores_clean.
     - Uses fuzzy matching to exclude variations present in the matched set.
+    - Response shape is unified with /skills: [{name, demand}]
     """
     sb = _get_sb(request)
+
+    # ---- DEBUG MODE OVERRIDES (fast validation in UI) ----
+    if mode.lower() == "debug":
+        latest_only = False
+        fuzzy_threshold = 100  # disable fuzzy exclusion
+        if min is None:
+            min = 1
+        logging.info("[missing-skills] DEBUG mode active → latest_only=False, fuzzy_threshold=100, min=1 (unless provided)")
 
     # ---- 1) Threshold (use ordered pagination on job_skills by job_skill_id)
     try:
@@ -511,15 +521,14 @@ def get_missing_skills(
     except Exception:
         total_job_rows = 1
         
-    # CALCULATE THRESHOLD: Sets minimum demand count for a skill to be considered a 'gap'.
-    threshold = min if isinstance(min, int) else max(5, int(round((total_job_rows or 1) * 0.01)))
+    # CALCULATE THRESHOLD: minimum demand count for a skill to be considered a 'gap'.
+    # Lower default floor from 5 → 2 to avoid empty results on small datasets.
+    threshold = min if isinstance(min, int) else max(2, int(round((total_job_rows or 1) * 0.01)))
     
-    # LOGGING ADDED FOR TROUBLESHOOTING THE THRESHOLD ISSUE
-    if min is None:
-        logging.info(
-            f"[missing-skills] Calculated dynamic threshold: {threshold} "
-            f"(based on {total_job_rows} job rows)"
-        )
+    # LOGGING: threshold calculation
+    logging.info(
+        f"[missing-skills] threshold={threshold} (jobs={total_job_rows}, latest_only={latest_only}, fuzzy={fuzzy_threshold})"
+    )
 
     # ---- 2) Matched/covered market skills from course_alignment_scores_clean
     try:
@@ -528,8 +537,6 @@ def get_missing_skills(
         matched_set = set()
 
     # ---- 3) Evaluator output first (preferred)
-    filtered_by_threshold_count = 0
-    
     try:
         if latest_only:
             # Query for latest batch ID
@@ -594,14 +601,12 @@ def get_missing_skills(
             norm = ALIASES.get(norm, norm)
             
             # exclude if present exactly or fuzzily among matched skills
-            # NOTE: uses the passed/defaulted fuzzy_threshold value
             is_covered = (norm in matched_set) or _is_fuzzy_member(norm, matched_set, threshold=fuzzy_threshold)
             if is_covered:
-                # OPTIONAL TEMPORARY LOGGING: Uncomment this to see which skills are being filtered out by fuzzy exclusion.
-                # logging.debug(f"[missing-skills] Excluded: {norm} (count={r.get('count', 0)}) due to fuzzy match in covered set.")
                 continue
             
-            out.append({"skill": norm, "count": int(r.get("count", 0) or 0)})
+            # UNIFIED SHAPE for frontend compatibility
+            out.append({"name": norm, "demand": int(r.get("count", 0) or 0)})
 
         out = out[:limit]
         _cache_set(ck, out)
@@ -638,6 +643,7 @@ def get_missing_skills(
         course_set |= matched_set
 
     missing = []
+    filtered_by_threshold_count = 0
     for skill, count in job_freq.items():
         if count < threshold:
             filtered_by_threshold_count += 1
@@ -645,15 +651,16 @@ def get_missing_skills(
         # Exclude if covered exactly or fuzzily by course/matched skills
         if (skill in course_set) or _is_fuzzy_member(skill, course_set, threshold=fuzzy_threshold):
             continue
-        missing.append({"skill": skill, "count": int(count)})
+        # UNIFIED SHAPE for frontend compatibility
+        missing.append({"name": skill, "demand": int(count)})
         
-    # LOGGING ADDED FOR TROUBLESHOOTING THE THRESHOLD ISSUE (FALLBACK)
+    # LOGGING (FALLBACK)
     logging.info(
         f"[missing-skills] Fallback filtered {filtered_by_threshold_count} skills by threshold ({threshold}). "
         f"Resulting missing skills: {len(missing)}"
     )
 
-    missing.sort(key=lambda x: x["count"], reverse=True)
+    missing.sort(key=lambda x: x["demand"], reverse=True)
     missing = missing[:limit]
     _cache_set(ck, missing)
     return missing
