@@ -484,31 +484,31 @@ def get_trending_jobs(
 @router.get("/missing-skills")
 def get_missing_skills(
     request: Request,
-    min: int = Query(default=None, ge=1, description="Minimum count threshold (defaults to ~1% of job rows, min 2)"),
-    latest_only: bool = Query(default=True, description="If true, use evaluator's latest batch only"),
-    # keep strict by default, but allow override
-    fuzzy_threshold: int = Query(default=95, ge=0, le=100, description="Fuzzy ratio threshold for variant exclusion"),
+    min: int = Query(default=None, ge=1, description="Minimum count threshold (defaults to ~1% of job rows, min 3)"),
+    latest_only: bool = Query(default=True, description="If true, only use latest evaluator batch"),
+    fuzzy_threshold: int = Query(default=90, ge=0, le=100, description="Fuzzy match exclusion ratio"),
     limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
-    mode: str = Query(default="normal", description="Use 'debug' to force lenient filters for validation"),
+    mode: str = Query(default="normal", description="Use 'debug' to disable threshold and fuzzy exclusion"),
 ):
     """
-    Prefer evaluator output (skill_gap_counts), fallback to deterministic API-side calc.
-    Extra logic:
-    - Reads skills_in_market from course_alignment_scores_clean.
-    - Uses fuzzy matching to exclude variations present in the matched set.
-    - Response shape is unified with /skills: [{name, demand}]
+    More accurate missing-skills endpoint:
+    1. Reads all job_skills and course_skills.
+    2. Normalizes both, folds aliases, and builds frequency counts.
+    3. Excludes skills present in course_skills (and evaluator's matched market skills).
+    4. Keeps only high-demand job skills (above threshold).
+    5. Returns unified shape: [{name, demand}]
     """
     sb = _get_sb(request)
 
-    # ---- DEBUG MODE OVERRIDES (fast validation in UI) ----
+    # ---------------- DEBUG MODE ----------------
     if mode.lower() == "debug":
         latest_only = False
-        fuzzy_threshold = 100  # disable fuzzy exclusion
+        fuzzy_threshold = 100
         if min is None:
             min = 1
-        logging.info("[missing-skills] DEBUG mode active → latest_only=False, fuzzy_threshold=100, min=1 (unless provided)")
+        logging.info("[missing-skills] DEBUG mode → fuzzy=off, min=1")
 
-    # ---- 1) Threshold (use ordered pagination on job_skills by job_skill_id)
+    # ---------------- THRESHOLD ----------------
     try:
         job_rows_for_threshold = _fetch_all_rows(
             sb,
@@ -520,151 +520,60 @@ def get_missing_skills(
         total_job_rows = len(job_rows_for_threshold)
     except Exception:
         total_job_rows = 1
-        
-    # CALCULATE THRESHOLD: minimum demand count for a skill to be considered a 'gap'.
-    # Lower default floor from 5 → 2 to avoid empty results on small datasets.
-    threshold = min if isinstance(min, int) else max(2, int(round((total_job_rows or 1) * 0.01)))
-    
-    # LOGGING: threshold calculation
-    logging.info(
-        f"[missing-skills] threshold={threshold} (jobs={total_job_rows}, latest_only={latest_only}, fuzzy={fuzzy_threshold})"
-    )
 
-    # ---- 2) Matched/covered market skills from course_alignment_scores_clean
+    threshold = min if isinstance(min, int) else max(3, int(round((total_job_rows or 1) * 0.01)))
+    logging.info(f"[missing-skills] Using threshold={threshold} from {total_job_rows} job rows")
+
+    # ---------------- COURSE COVERAGE ----------------
     try:
         matched_set = _get_matched_course_skills(sb)
     except Exception:
         matched_set = set()
 
-    # ---- 3) Evaluator output first (preferred)
     try:
-        if latest_only:
-            # Query for latest batch ID
-            latest = _retry_supabase_sync(
-                lambda: sb.from_(SKILL_GAP_TABLE)
-                .select("batch_id, calculated_at")
-                .order("calculated_at", desc=True)
-                .limit(1)
-                .execute()
-            )
-            if latest.data:
-                latest_batch = latest.data[0]["batch_id"]
-                # Fetch data, applying the threshold directly in the DB query
-                resp = _retry_supabase_sync(
-                    lambda: sb.from_(SKILL_GAP_TABLE)
-                    .select("skill_norm, count")
-                    .eq("batch_id", latest_batch)
-                    .gte("count", threshold)
-                    .order("count", desc=True)
-                    .execute()
-                )
-            else:
-                resp = None
-        else:
-            # Fetch data across all batches, applying the threshold directly in the DB query
-            resp = _retry_supabase_sync(
-                lambda: sb.from_(SKILL_GAP_TABLE)
-                .select("skill_norm, count, calculated_at")
-                .gte("count", threshold)
-                .order("calculated_at", desc=True)
-                .order("count", desc=True)
-                .execute()
-            )
-    except Exception as e:
-        resp = None
-        logging.warning(f"[dashboard] reading {SKILL_GAP_TABLE} failed, will fallback: {e!r}")
+        course_rows = _fetch_all_rows(sb, "course_skills", "course_skills", chunk=1000, order_col=None)
+    except Exception:
+        course_rows = []
 
-    # ---- Short cache for this endpoint (include inputs in key)
-    ck = f"missing:v2:min={threshold}:latest={latest_only}:fth={fuzzy_threshold}"
-    cached = _cache_get(ck, ttl=90)
-    if cached is not None and resp is None:
-        # Use cached fallback only when preferred path failed to fetch fresh resp
-        return cached[:limit]
-    
-    # LOGGING: Record how many rows were fetched from the evaluator's table
-    if resp and resp.data:
-        logging.info(
-            f"[missing-skills] Evaluator data fetched {len(resp.data)} skills (after DB threshold filter)"
-        )
-        
-    if resp and resp.data:
-        # Filter out skills that appear among matched skills (exact or fuzzy variants)
-        out = []
-        for r in resp.data:
-            raw_skill = r.get("skill_norm")
-            if not raw_skill:
-                continue
-            norm = _normalize_skill(raw_skill)
-            if not norm:
-                continue
-            # alias to canonical
-            norm = ALIASES.get(norm, norm)
-            
-            # exclude if present exactly or fuzzily among matched skills
-            is_covered = (norm in matched_set) or _is_fuzzy_member(norm, matched_set, threshold=fuzzy_threshold)
-            if is_covered:
-                continue
-            
-            # UNIFIED SHAPE for frontend compatibility
-            out.append({"name": norm, "demand": int(r.get("count", 0) or 0)})
+    course_set = _build_normalized_set(course_rows, "course_skills")
+    course_set = _fold_aliases_set(course_set, ALIASES)
+    if matched_set:
+        course_set |= matched_set  # merge evaluator coverage
 
-        out = out[:limit]
-        _cache_set(ck, out)
-        return out
-
-    # ---- 4) Fallback: deterministic API-side calculation (normalize → alias-fold)
+    # ---------------- JOB DEMAND ----------------
     try:
-        job_rows = _fetch_all_rows(
-            sb,
-            "job_skills",
-            "job_skill_id, job_skills",
-            chunk=1000,
-            order_col="job_skill_id",
-        )
-        course_rows = _fetch_all_rows(
-            sb,
-            "course_skills",
-            "course_skills",
-            chunk=1000,
-            order_col=None,
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching skills for fallback: {str(e)}")
+        job_rows = _fetch_all_rows(sb, "job_skills", "job_skills", chunk=1000, order_col="job_skill_id")
+    except Exception:
+        job_rows = []
 
     job_freq = _build_normalized_counts(job_rows, "job_skills")
-    course_set = _build_normalized_set(course_rows, "course_skills")
-
-    # Alias fold both sides
     job_freq = _fold_aliases_counts(job_freq, ALIASES)
-    course_set = _fold_aliases_set(course_set, ALIASES)
+    job_freq = _dedupe_frequency(job_freq, threshold=85)
 
-    # Merge course coverage with matched_set (market skills already covered by courses)
-    if matched_set:
-        course_set |= matched_set
-
-    missing = []
-    filtered_by_threshold_count = 0
-    for skill, count in job_freq.items():
+    # ---------------- GAP DETECTION ----------------
+    missing: list[dict[str, Any]] = []
+    excluded = 0
+    for skill, count in sorted(job_freq.items(), key=lambda x: x[1], reverse=True):
         if count < threshold:
-            filtered_by_threshold_count += 1
             continue
-        # Exclude if covered exactly or fuzzily by course/matched skills
+        if not skill:
+            continue
+        # Exclude if covered by course skills or evaluator-matched skills
         if (skill in course_set) or _is_fuzzy_member(skill, course_set, threshold=fuzzy_threshold):
+            excluded += 1
             continue
-        # UNIFIED SHAPE for frontend compatibility
         missing.append({"name": skill, "demand": int(count)})
-        
-    # LOGGING (FALLBACK)
-    logging.info(
-        f"[missing-skills] Fallback filtered {filtered_by_threshold_count} skills by threshold ({threshold}). "
-        f"Resulting missing skills: {len(missing)}"
-    )
 
+    # ---------------- SORTING & CACHE ----------------
     missing.sort(key=lambda x: x["demand"], reverse=True)
     missing = missing[:limit]
-    _cache_set(ck, missing)
-    return missing
+    _cache_set(f"missing:v3:min={threshold}", missing)
 
+    logging.info(
+        f"[missing-skills] Final gap list: {len(missing)} missing skills "
+        f"(excluded {excluded}, threshold={threshold})"
+    )
+    return missing
 
 @router.get("/warnings")
 def get_low_scoring_courses(

@@ -1,5 +1,8 @@
 // src/lib/dataService.ts
-// TYPES
+
+// ===============================
+// Types
+// ===============================
 export interface Skill {
   name: string;
   demand: number;
@@ -23,10 +26,15 @@ export interface KPIData {
   skillsExtracted: number;
 }
 
+// Canonical "with counts" type used by the UI (we normalize inbound shapes to this)
 export interface MissingSkill {
   skill: string;
   count: number;
 }
+
+// Possible inbound shapes from the API (we support both for backward-compat)
+type MissingSkillNameDemand = { name: string; demand?: number };
+type MissingSkillSkillCount = { skill: string; count?: number };
 
 const BASE_URL = "/api/dashboard";
 const VERSION_URL = "/api/dashboard/version";
@@ -41,7 +49,9 @@ import {
   setCache,
 } from "./dataCache";
 
+// ===============================
 // Cache keys per resource (localStorage)
+// ===============================
 const CK = {
   skills: "dash:skills",
   topCourses: "dash:top-courses",
@@ -51,7 +61,9 @@ const CK = {
   kpi: "dash:kpi",
 } as const;
 
-// Public helpers for the banner
+// ===============================
+// Public helpers (banner)
+// ===============================
 export function getLastChangedISOFromAnyCache(): string | null {
   return (
     getLastChangedFromCache(CK.kpi) ||
@@ -157,37 +169,33 @@ export async function fetchInDemandJobs(
 // 4) Missing Skills (string[] for existing UI)
 export async function fetchMissingSkills(
   signal?: AbortSignal,
-  minThreshold?: number 
+  minThreshold?: number
 ): Promise<string[]> {
   try {
-    const minQuery = minThreshold ? `min=${minThreshold}` : '';
-    // --- START TEMPORARY CACHE BUSTER ---
-    // This is added to force a cache bypass if an external CDN/Proxy is intercepting the request.
-    const cacheBuster = `cb=${Date.now()}`;
-    const separator = minQuery ? '&' : '?';
-    
-    // Construct the URL with minThreshold and the cache buster
-    const url = `${BASE_URL}/missing-skills${separator}${minQuery}${minQuery ? '&' : ''}${cacheBuster}`; 
-    // --- END TEMPORARY CACHE BUSTER ---
-      
-    // The API now returns [{ skill, count }, ...] from evaluator output.
-    const { data } = await getWithVersionCache<any>(
+    // Build query params robustly to avoid missing '?'
+    const params = new URLSearchParams();
+    if (typeof minThreshold === "number") params.set("min", String(minThreshold));
+    params.set("cb", String(Date.now())); // cache buster
+
+    const url = `${BASE_URL}/missing-skills?${params.toString()}`;
+
+    // API returns [{ name, demand }] (new) or [{ skill, count }] (legacy)
+    const { data } = await getWithVersionCache<any[]>(
       CK.missingSkills,
-      url, // <-- This unique URL will bypass the CDN cache
+      url,
       VERSION_URL,
       signal
     );
 
     if (!Array.isArray(data)) return [];
 
-    // Filter to ensure we only proceed if we have the new, preferred object shape
-    if (data.length > 0 && typeof data[0] === "object" && "skill" in data[0] && "count" in data[0]) {
-      const arr = (data as MissingSkill[])
-        .filter((d) => d?.skill && typeof d.skill === "string")
-        .sort((a, b) => Number(b?.count ?? 0) - Number(a?.count ?? 0))
-        .map((d) => d.skill.toLowerCase().trim());
-      
-      // de-dup while preserving order
+    // Prefer new backend shape
+    if (data.length > 0 && typeof data[0] === "object" && "name" in data[0]) {
+      const arr = (data as MissingSkillNameDemand[])
+        .map((d) => String(d.name || "").trim().toLowerCase())
+        .filter(Boolean);
+
+      // De-dup preserving order
       const seen = new Set<string>();
       const out: string[] = [];
       for (const s of arr) {
@@ -199,13 +207,28 @@ export async function fetchMissingSkills(
       return out;
     }
 
-    // Fallback/Legacy shapes: array of strings or arrays of strings/CSV (kept for robustness)
+    // Legacy shape
+    if (data.length > 0 && typeof data[0] === "object" && "skill" in data[0]) {
+      const arr = (data as MissingSkillSkillCount[])
+        .map((d) => String(d.skill || "").trim().toLowerCase())
+        .filter(Boolean);
+
+      const seen = new Set<string>();
+      const out: string[] = [];
+      for (const s of arr) {
+        if (!seen.has(s)) {
+          seen.add(s);
+          out.push(s);
+        }
+      }
+      return out;
+    }
+
+    // Fallbacks
     const unique = new Set<string>();
     for (const entry of data) {
       if (Array.isArray(entry)) {
-        entry
-          .map((s) => String(s))
-          .forEach((s) => unique.add(s.trim().toLowerCase()));
+        entry.forEach((s) => unique.add(String(s).trim().toLowerCase()));
       } else if (typeof entry === "string") {
         entry
           .split(",")
@@ -213,16 +236,13 @@ export async function fetchMissingSkills(
           .filter(Boolean)
           .forEach((s) => unique.add(s));
       } else if (entry && typeof entry === "object" && "name" in entry) {
-        // ultra-legacy: objects like { name: "python" }
-        const n = String((entry as any).name || "").trim().toLowerCase();
-        if (n) unique.add(n);
+        unique.add(String((entry as any).name || "").trim().toLowerCase());
       }
     }
     return Array.from(unique).sort();
   } catch (error: any) {
     if (error?.name === "AbortError") return [];
-    // ❌ Error logging retained for debugging
-    console.error("❌ Failed to fetch missing skills:", error); 
+    console.error("❌ Failed to fetch missing skills:", error);
     return [];
   }
 }
@@ -230,49 +250,56 @@ export async function fetchMissingSkills(
 // Optional: Missing skills WITH counts (useful for richer UI)
 export async function fetchMissingSkillsWithCounts(
   signal?: AbortSignal,
-  minThreshold?: number 
+  minThreshold?: number
 ): Promise<MissingSkill[]> {
   try {
-    const minQuery = minThreshold ? `min=${minThreshold}` : '';
-    // --- START TEMPORARY CACHE BUSTER ---
-    const cacheBuster = `cb=${Date.now()}`;
-    const separator = minQuery ? '&' : '?';
-    
-    const url = `${BASE_URL}/missing-skills${separator}${minQuery}${minQuery ? '&' : ''}${cacheBuster}`; 
-    // --- END TEMPORARY CACHE BUSTER ---
+    const params = new URLSearchParams();
+    if (typeof minThreshold === "number") params.set("min", String(minThreshold));
+    params.set("cb", String(Date.now()));
+    const url = `${BASE_URL}/missing-skills?${params.toString()}`;
 
     const { data } = await getWithVersionCache<any[]>(
       CK.missingSkills,
-      url, // <-- This unique URL will bypass the CDN cache
+      url,
       VERSION_URL,
       signal
     );
 
     if (!Array.isArray(data)) return [];
 
-    if (data.length > 0 && typeof data[0] === "object" && "skill" in data[0] && "count" in data[0]) {
-      // Preferred new shape
-      return (data as MissingSkill[])
-        .filter((d) => d?.skill)
-        .map((d) => ({ skill: String(d.skill), count: Number(d.count) || 0 }))
+    // New shape → map to canonical MissingSkill
+    if (data.length > 0 && typeof data[0] === "object" && "name" in data[0]) {
+      return (data as MissingSkillNameDemand[])
+        .map((d) => ({
+          skill: String(d.name || ""),
+          count: Number(d.demand) || 0,
+        }))
+        .filter((d) => d.skill.trim() !== "")
         .sort((a, b) => b.count - a.count);
     }
 
-    // Fallback: derive counts from legacy formats (count = 1 per occurrence)
+    // Legacy shape
+    if (data.length > 0 && typeof data[0] === "object" && "skill" in data[0]) {
+      return (data as MissingSkillSkillCount[])
+        .map((d) => ({
+          skill: String(d.skill || ""),
+          count: Number(d.count) || 0,
+        }))
+        .filter((d) => d.skill.trim() !== "")
+        .sort((a, b) => b.count - a.count);
+    }
+
+    // Fallbacks: infer counts
     const counts = new Map<string, number>();
+    const push = (v: string) => {
+      const k = v.trim().toLowerCase();
+      if (!k) return;
+      counts.set(k, (counts.get(k) ?? 0) + 1);
+    };
     for (const entry of data) {
-      const push = (v: string) => {
-        const key = v.trim().toLowerCase();
-        if (!key) return;
-        counts.set(key, (counts.get(key) ?? 0) + 1);
-      };
-      if (Array.isArray(entry)) {
-        entry.forEach((s) => push(String(s)));
-      } else if (typeof entry === "string") {
-        entry.split(",").forEach((s) => push(s));
-      } else if (entry && typeof entry === "object" && "name" in entry) {
-        push(String((entry as any).name || ""));
-      }
+      if (Array.isArray(entry)) entry.forEach((s) => push(String(s)));
+      else if (typeof entry === "string") entry.split(",").forEach((s) => push(s));
+      else if (entry && typeof entry === "object" && "name" in entry) push(String(entry.name || ""));
     }
     return Array.from(counts.entries())
       .map(([skill, count]) => ({ skill, count }))
