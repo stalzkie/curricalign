@@ -243,5 +243,32 @@ def extract_subject_skills_from_supabase():
         print(f"❌ Failed to fetch course_skills: {e}")
         return {}
 
+# ---------------------------
+# NEW: Read-only fetch helper
+# ---------------------------
+def fetch_subject_skills_from_db():
+    """
+    Return {course_code: [skill, ...]} from the course_skills table
+    WITHOUT calling Gemini or mutating the DB.
+    """
+    try:
+        rows = supabase.table("course_skills") \
+            .select("course_code, course_skills") \
+            .execute().data or []
+    except Exception as e:
+        print(f"❌ Failed to fetch course_skills: {e}")
+        return {}
+
+    out = {}
+    for r in rows:
+        code = r.get("course_code")
+        skills_field = r.get("course_skills") or ""
+        if not code:
+            continue
+        skills = [s.strip() for s in skills_field.split(",") if s.strip()]
+        if skills:
+            out[code] = skills
+    return out
+
 if __name__ == "__main__":
     extract_subject_skills_from_supabase()

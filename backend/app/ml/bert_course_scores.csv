@@ -1,36 +1,578 @@
 course,skills_taught,skills_in_market,score
-CompF,"analyzing computer systems, describing virus behavior, evaluating software applications, explaining computer security, identifying hardware components, presenting ict innovations, researching computing industry trends",,14.0
-Prog1,"analyzing requirements, applying cisco programming standards, debugging programs, designing programs, developing project prototypes, implementing programs, testing programs, using fundamental programming constructs",,48.0
-LITEP,"analyzing problems, communicating technical ideas visually, developing structured solutions, using flowcharts, writing pseudocode",,37.0
-2D,"animating 2d characters, creating movement arcs, designing game assets, designing game environments, designing game objects, implementing animation physics, preparing 2d assets for game integration, using animation software",,10.0
-Prog2,"analyzing requirements, applying programming paradigms, debugging programs, implementing algorithms, leveraging standard libraries, testing software, using data structures, writing clean code",,72.0
-Python,"automating tasks with python, controlling program flow, defining and calling functions, defining variables, developing web applications with python, handling errors in python, manipulating data with python, using data types, using python",,30.0
-SAD,"analyzing information systems, applying system development life cycle, designing information systems, developing information systems, prototyping software, using case tools, using oom tools",,51.0
-3D,"creating 3d assets, developing virtual environments, implementing game mechanics, rigging characters, scripting animation sequences, using 3d animation software, using game engines",,52.0
-DatSci,"applying machine learning, managing big data, mining data, using python, visualizing data",,98.0
-DStruc,"analyzing algorithm efficiency, applying hashing techniques, applying tree algorithms, implementing data structures, implementing searching algorithms, implementing sorting algorithms, performing set operations, using stacks and queues, working with graphs",,10.0
-GameMath,"applying matrices, calculating probability, implementing vector algebra, modeling game behavior, performing statistical analysis, simulating game scenarios, using analytical geometry, using mathematical equations in game development, using mathematical functions in game development",,11.0
-Infom1,"creating er diagrams, designing databases, designing schemas, implementing relational databases, modeling data, writing sql",,81.0
-OOPro,"applying composition, applying inheritance, defining classes, encapsulating data, implementing polymorphism, using abstraction, using java",,14.0
-SofEng,"designing software, gathering requirements, modeling with uml, performing quality assurance, programming applications, testing software, writing documentation",,71.0
-MATH3DS,"applying induction and recursion, applying mathematical logic, calculating discrete probabilities, constructing proofs, designing finite state machines, manipulating sets and functions",,0.0
-ADA,"analyzing algorithm performance, analyzing algorithm space complexity, analyzing algorithm time complexity, applying graph algorithms, implementing divide and conquer algorithms, performing searches and sorts, selecting appropriate algorithms",,0.0
-CompOrg,"interfacing microcontrollers, interfacing with electronic components, managing memory, programming in assembly language, programming microcontrollers, using inputoutput systems, working with peripheral devices",,26.0
-Infom2,"concurrency control, database management systems, database normalization, database security, domainspecific database development, nosql databases, performance tuning",,53.0
-ProElec1,"collecting data, creating dashboards, generating reports, mining data, using power bi, using tableau, visualizing data",,83.0
-MATH3C,"analyzing functions, applying calculus, computing derivatives, computing integrals, modeling with equations, solving equations",,0.0
-Automata,"analyzing computational theory, applying regular expressions, designing compilers, designing finite automata, implementing pushdown automata, processing languages, using formal grammars, working with contextfree grammars",,0.0
-CloudApp,"building apis, deploying cloud applications, implementing cloud security, managing cloud scalability, practicing devops principles, using cloud services",,76.0
-HCI,"applying hci principles, applying usercentered design practices, conducting usability testing, creating guis, evaluating user experience",,19.0
-Math4pS,"applying probability theory, calculating descriptive statistics, conducting hypothesis tests, performing regression analysis, working with probability distributions",,35.0
-CSSAC,"conducting case studies, developing prototypes, presenting technical information, pursuing microcertifications, researching emerging technologies",,56.0
-DatMine,"building predictive models, interpreting analytics, performing classification analysis, performing clustering analysis, performing regression analysis, using r",,47.0
-InfoAs,"analyzing system vulnerabilities, applying cryptography, implementing access control, managing risks, securing web systems",,19.0
-MobApp,"designing user experiences, designing user interfaces, developing mobile applications, integrating data, testing mobile applications, using android apis, using ios apis",,94.0
-NETW1,"applying subnetting, configuring routers, configuring switches, implementing network security, implementing tcpip, managing vlans, troubleshooting networks, using cisco ios",,57.0
-OS,"analyzing file systems, analyzing multiuser environments, handling memory, implementing security measures, managing processes, managing threads, simulating operating systems, synchronizing processes",,12.0
-ProElec3,"building neural networks, deploying machine learning models, developing machine learning models, evaluating machine learning models, implementing support vector machines, performing clustering analysis, using ensemble models",,52.0
-ProElec4,"applying ai in analytics, building decisionmaking models, designing ai systems, implementing search algorithms, representing knowledge",,19.0
-ProLan,"analyzing programming language semantics, analyzing programming language syntax, developing applications, implementing functional programming paradigms, implementing imperative programming paradigms, implementing logic programming paradigms, implementing objectoriented programming paradigms, managing scoping in programming languages, understanding memory models, using control structures",,27.0
-WebDev,"integrating google analytics, managing versions with git, performing rest api interactions, using javascript, using node.js, using react, writing css, writing html",,72.0
-Techno,"conducting product validation, creating financial projections, developing business models, performing market research, pitching business ideas, using presentation software",,15.0
+0,"algorithmic thinking, basic data structures, control flow, debugging, functions, problem decomposition, programming fundamentals",,52.0
+1,"algorithms and data structures, c programming, flask, html css, javascript, python, sql",,96.0
+2,"algorithmic thinking, analytical problem solving, computer science fundamentals, control flow, python, variables and data types",,16.0
+3,"basic circuit design, embedded systems, feedback control systems, microcontroller programming, robotics algorithms, robotics programming, sensor integration",,25.0
+4,"algorithms, c programming, computational thinking, data structures, python, sql, web development",,85.0
+5,"clientserver model, domain name system, http protocol, internet architecture, network protocols, packet switching, web technologies",,13.0
+6,"basic algorithms, computational thinking, control flow, data types, debugging, functions, variables",,39.0
+7,"computational social science, data analysis, data science, digital footprint analysis, machine learning, simulation modeling, social network analysis",,55.0
+8,"function composition, functional programming, higherorder functions, immutability, lambda functions, pure functions, recursion",,27.0
+9,"assembly language programming, computer architecture, computer organization, digital logic design, hardware simulation, instruction set architecture, machine language",,24.0
+10,"agentbased modeling, complex systems modeling, computer simulation, data analysis, model validation, python",,61.0
+11,"algorithmic problem solving, computational thinking, control flow, functions, problem decomposition, programming fundamentals, variables and data types",,24.0
+12,"boolean algebra, formal verification, logical reasoning, propositional logic, symbolic logic, truth tables",,16.0
+13,"algorithms, c programming, computational thinking, data structures, python, sql, web development",,85.0
+14,"agentbased modeling, data simulation, natural language processing, network analysis, python, social media data analysis, web scraping",,57.0
+15,"advanced css techniques, css, css custom properties, css theming, css variables, dynamic styling, scalable css",,38.0
+16,"data analysis, gradient descent, linear regression, machine learning, model evaluation, predictive analysis",,63.0
+17,"absolute positioning, containing blocks, css, css positioning, fixed positioning, relative positioning, static positioning, sticky positioning",,12.0
+19,"css, css fixed positioning, css positioning, css sticky positioning, frontend development, html, web layout",,42.0
+20,"backgroundrepeat property, crossbrowser compatibility, css, css background patterns, css background properties, css rendering behavior",,33.0
+21,"css, css animations, css grid layout, css scaling, css transforms, css transitiondelay, css transitions",,14.0
+22,"css, css grid layout, css hover effects, css positioning, css transitions, frontend development, html",,42.0
+23,"advanced css selectors, css architecture, css custom properties, css flexbox, css grid, css specificity, responsive web design",,26.0
+24,"css, css animations, css property interpolation, css pseudoelements, css transitions, html, html detailssummary elements",,28.0
+26,"advanced css, css, css overflow, css text wrapping, lineclamp, overflowanchor, wordbreak",,26.0
+27,"css, css element sizing, css layout control, css relative units, css viewport units, media queries, responsive web design",,28.0
+28,"crossbrowser compatibility, css, css anchor positioning, css animations, css polyfills, popover api, positionaware ui development",,28.0
+29,"css, css animations, css conicgradients, css gradients, css masking, css pseudoelements, dynamic visual effects",,26.0
+31,"css, css architecture, css naming conventions, css scope, css specificity, modular css",,30.0
+767,"biosuefi configuration, computer assembly, driver installation, hardware compatibility analysis, hardware troubleshooting, pc hardware component selection, windows os installation",,14.0
+32,"css, css collapsing margins, css flexbox, css grid, css layout, css positioning, responsive web design",,40.0
+33,"startingstyle rule, crossbrowser compatibility, css, css animations, css transitions, element visibility management, performant css animations",,28.0
+34,"browser developer tools, css, css cascade, css properties, css syntax, frontend development, html",,81.0
+35,"counterincrement property, counterreset property, css, css content property, css counters, css pseudoelements, html",,28.0
+36,"css, css animations, css transforms, css transitions, html, user interface development",,48.0
+37,"alignitems, css, css flexbox, css layout, flexbox alignment, flexbox axis model, justifycontent",,26.0
+38,"css, css pseudoclasses, css selectors, dynamic content highlighting, html, scroll spy implementation, user interface development",,53.0
+39,"css, css color gamuts, css color manipulation, css color mixing functions, css color spaces, css relative colors",,16.0
+40,"css, css boxshadow, css gradients, css layout, css positioning, frontend development",,47.0
+41,"css animation, css keyframes, css pseudoclasses, css timing functions, css transforms, responsive design, ui animation techniques",,25.0
+42,"css, css flexbox, css grid, readingflow, responsive web design, source order vs. visual order, web accessibility",,28.0
+43,"cascading style sheets, css anchor positioning, css carousel implementation, css custom select styling, css mixins, css view transitions api",,0.0
+44,"css, css all property, css containing blocks, css gradients, css masking, css scroll containers, css userselect property",,14.0
+45,"css, css backdropfilter, css gradients, css transparency, glassmorphism, rgbahsla color models, ui component development",,14.0
+46,"css, css animations, css transitions, css view transitions api, dynamic theme switching, ui animation",,16.0
+47,"computer vision, feature extraction, image classification, image processing, machine learning, opencv, python",,57.0
+48,"algorithms, conditional logic, control flow, data structures, java, objectoriented design, objectoriented programming",,57.0
+49,"classification, clustering, machine learning, python, regression, scikitlearn, scipy, supervised learning, unsupervised learning",,64.0
+50,"cloud resource management, data backup and recovery, disaster recovery planning, it infrastructure management, server administration, systems administration, user administration",,75.0
+53,"cloud computing, concurrency and parallelism, distributed systems, memory management, mobile operating systems, operating systems principles, process management",,28.0
+59,"algorithms, asymptotic analysis, data structures, hashtables, linked lists, performance analysis, trees",,28.0
+62,"ai ethics, ai governance, algorithmic fairness, artificial intelligence, philosophy of computer science, robotics",,16.0
+70,"machine learning, model training, neural networks, numpy, pandas, python, supervised learning, tensorflow",,84.0
+73,"access control concepts, cryptography, cybersecurity fundamentals, cybersecurity governance, it compliance, network security, risk management",,52.0
+78,"algorithm analysis, automata theory, computability theory, computational complexity theory, formal languages, turing machines, undecidability",,0.0
+79,"algorithm design, complexity theory, cryptography, interactive proofs, theoretical computer science, zeroknowledge protocols",,0.0
+80,"algorithm design, computational algebra, graph isomorphism, group actions, invariant theory, moment polytopes, theoretical computer science",,0.0
+81,"css debugging, database connection troubleshooting, http redirection configuration, permalink troubleshooting, php error log analysis, wordpress plugin management, wordpress troubleshooting",,0.0
+82,"boolean function analysis, discrete mathematics, fourier analysis of boolean functions, hypercontractive inequalities, influence analysis, pcp theory, theoretical computer science",,0.0
+83,"abstractions, algorithms, compiler design, compilers, computational thinking, large dataset handling, quantum computation",,14.0
+84,"algorithm analysis, circuit complexity, computational complexity theory, computational lower bounds, discrete mathematics, proof complexity, proof systems analysis",,0.0
+85,"css, css theming, css variables, dom manipulation, javascript, javascript integration with css, responsive web design",,68.0
+86,"combinatorics, communication complexity, information theory, quantum communication complexity, quantum computing, randomized algorithms, shannon entropy",,0.0
+87,"css, css box model, css properties, css selectors, html, web page layout, web styling",,63.0
+88,"css, css absolute length units, css container query units, css relative length units, css viewport units, fluid typography, responsive web design",,28.0
+89,"advanced css selectors, css, css attribute selectors, css pseudoclasses, css specificity, responsive design principles",,32.0
+90,"css, css box model, css layout, css styling, frontend development, html",,80.0
+91,"css, css custom properties, css theming, css variables, frontend development, modular css, reusable css",,41.0
+92,"absolute positioning, css, css positioning, fixed positioning, relative positioning, sticky positioning, web page layout",,14.0
+93,"binary arithmetic, binary number system, bitwise operations, boolean algebra, character encoding, digital data representation, logic gates, number base conversion",,0.0
+94,"css, css box model, css colors, css gradients, css pseudoclasses, css selectors, html",,40.0
+95,"css, css background properties, css gradients, css lineargradient function, css repeatinglineargradient function, css visual effects, web design",,37.0
+96,"css, css flexbox, css grid, css preprocessors, css variables, responsive design, stylesheet architecture",,42.0
+97,"componentbased development, css, css animations, css custom properties, css flexbox, css grid, responsive web design",,28.0
+98,"componentbased design, css, css container queries, css media queries, frontend development, responsive web design, web layout implementation",,42.0
+99,"bem, css, css modules, css scoping, cssinjs, managing global css, stylesheet architecture",,14.0
+100,"css, css animations, css layout, css selectors, debugging css, html, responsive design",,66.0
+101,"container queries, css, css custom properties, css flexbox, css grid layout, modern css syntax, responsive design principles",,28.0
+103,"css, css architecture, css container queries, css scopes, dom, stylesheet management",,30.0
+104,"css, css animations, css art, css pseudoelements, css transforms, css transitions, css variables",,26.0
+105,"advanced css techniques, css, css debugging, css layout, css scrollsnap, frontend development, responsive web design",,66.0
+106,"browser rendering, css, css cascade, css cascade layers, css origins, css specificity, css style resolution",,14.0
+107,"3d modeling with css, css, css 3d transforms, css animations, css perspective, css pseudoelements, css shading techniques",,26.0
+108,"advanced css layout techniques, algorithmic layouts, css, css flexbox, custom elements, design systems, web components",,27.0
+109,"css, css box model, css cascade, css selectors, css specificity, declarative programming, domainspecific languages",,26.0
+110,"css, css line box model, leading control, line layout, vertical rhythm, web typography",,16.0
+111,"css, css animations, css custom properties, css flexbox, css grid, css transitions, responsive web design",,28.0
+112,"css, css flexbox, css grid, css layouts, firefox devtools, responsive web design",,47.0
+113,"css, css clippath, css pseudoelements, css text effects, variable fonts, web typography",,16.0
+114,"application publishing, css, development environment setup, firefox marketplace, firefoxos, html, javascript, mobile web application development",,49.0
+115,"advanced algorithms, advanced data structures, algorithm analysis, computational complexity, dynamic programming, graph algorithms, recursion",,37.0
+117,"boosting techniques, ensemble methods, gradient boosting, machine learning, model performance evaluation, predictive modeling, random forest",,39.0
+118,"boosting, ensemble methods, gradient boosting, hyperparameter tuning, machine learning, model evaluation, predictive modeling",,27.0
+119,"classification, decision trees, feature engineering, handling imbalanced datasets, logistic regression, model evaluation, support vector machines",,41.0
+120,"code optimization, compiler optimization, controlflow graphs, dataflow analysis, intermediate representation, program transformation, static analysis",,25.0
+121,"container queries, css, css flexbox, css grid, intrinsic web design, media queries, responsive web design",,28.0
+123,"advanced css styling, css, css clippath, css pseudoelements, css visual effects, frontend development, html",,66.0
+124,"css, css flexbox, css grid, html, responsive web design, visual studio code, web page development",,69.0
+126,"css, css cascade, css debugging, css inheritance, css specificity, html, style rule resolution",,28.0
+127,"css, css architecture, css flexbox, css grid, css variables, html, responsive web design",,54.0
+128,"css, dom manipulation, dynamic styling, python, ui development, web development",,65.0
+129,"container queries, css, css flexbox, css grid, css layout techniques, responsive web design",,33.0
+131,"css, css aspectratio, css container queries, css grid, css layout, modern css, responsive web design",,53.0
+132,"advanced css selectors, css, css art, css positioning, css pseudoelements, css transforms, html",,41.0
+133,"advanced css techniques, css, dom manipulation, glassmorphism, html, javascript, javascript event handling, mouse tracking",,59.0
+134,"css, css animations, css styling, dom manipulation, html, javascript, ui development",,70.0
+135,"browser devtools, css, css box model, css debugging, css specificity, frontend development, html",,42.0
+136,"css, css box model, css layout models, css selectors, css specificity, the cascade",,30.0
+137,"cache coherency, dataoriented design, memory allocation, memory management, memory pooling, performance optimization",,32.0
+138,"css, css animations, css scroll timeline api, frontend web development, html, scrollytelling, web animation",,41.0
+139,"advanced css, css, css anchor positioning, css layout techniques, css positioning, html, responsive web design",,55.0
+140,"css, css animations, css boxshadow, css keyframes, css transforms, css transitions",,16.0
+917,"concurrency control, file systems, memory management, process management, scheduling algorithms, system calls, virtual memory",,27.0
+141,"has selector, container queries, css, css cascade layers, css nesting, css subgrid, relative color syntax",,14.0
+142,"advanced css selectors, code minification, css, css code optimization, css layout techniques, css pseudoelements, css shape creation",,14.0
+143,"advanced css techniques, css, css debugging, css layout techniques, css specificity, maintainable css, responsive design",,40.0
+144,"crossbrowser compatibility, css, css animations, css custom properties, css fallbacks, css transitions",,33.0
+145,"css, css animations, css boxshadow, css custom properties, css gradients, css transitions",,16.0
+146,"css, css container queries, css custom properties, css style queries, css theming, responsive design",,48.0
+147,"artificial intelligence fundamentals, generative ai, machine learning, neural networks, supervised learning, unsupervised learning",,92.0
+150,"algorithmic analysis, analytic combinatorics, calculus, generating functions, permutation analysis, symbolic methods, tree analysis",,0.0
+151,"clustering techniques, document retrieval, expectationmaximization algorithm, kmeans clustering, knearest neighbors, latent dirichlet allocation, topic modeling",,0.0
+154,"assembly language, computer architecture, computer organization, hardwaresoftware interface, instruction set architecture, memory hierarchy, processor design",,11.0
+158,"internet of things, mobile networking, network architecture, technological convergence, telecommunication principles, telephony systems",,15.0
+164,"requirements analysis, requirements elicitation, software requirements specification, stakeholder analysis, use case modeling, user story writing",,56.0
+165,"classical cryptography, cryptographic hashing, cryptography, digital signatures, publickey encryption, rsa algorithm, symmetrickey encryption",,0.0
+172,"clean code practices, code quality analysis, code refactoring, debugging techniques, software design principles, testdriven development, unit testing",,53.0
+175,"artificial intelligence, computer vision, machine learning, model building, scalable models, tensorflow",,66.0
+180,"aspen plus, chemical process modeling, data analysis, engineering computing, interactive simulations, mathematica, matlab",,26.0
+185,"automated debugging, debugging tool development, fault localization, program analysis, python, software debugging, systematic debugging",,64.0
+191,"cloud networking, network architecture design, network automation, network security principles, network traffic analysis, softwaredefined networking, tcpip protocol suite",,38.0
+232,"computer networking, network algorithms, network architecture, network protocols, osi model, routing algorithms, tcpip protocol suite",,26.0
+194,"ai decisionmaking systems, algorithmic fairness analysis, explainable ai, model interpretability, model selection, model validation, statistical inference",,10.0
+196,"communication complexity, cryptographic protocol design, informationtheoretic security, malicious security models, passive security models, secure multiparty computation, threshold cryptography",,0.0
+197,"approximation theory, control systems, gaussian kernel factorization, kernel methods, machine learning",,39.0
+198,"computer vision, distributed systems, embedded systems, network protocols, network systems design, wireless networking",,47.0
+199,"ab testing, collective intelligence models, crowdsourcing system design, gamification, human computation, largescale data collection",,16.0
+200,"benchmarking, caching strategies, data analysis, latency measurement, performance analysis, performance testing, system design",,51.0
+201,"algorithmic analysis, cache eviction policies, cache invalidation strategies, cache performance optimization, caching strategies, timewindow caching, weighted caching algorithms",,12.0
+202,"computational modeling, computational neuroscience, largescale dynamic systems modeling, machine learning, neural circuit modeling, neuroimaging data analysis, python",,28.0
+203,"3d modeling, 3d printing, 3d scanning, computeraided design, digital fabrication, parametric design, sensor data acquisition",,12.0
+204,"borderradius property, css, css animations, css gradients, css shape creation, css transitions",,16.0
+205,"css, css conditional rules, css variables, scoped style sheets, shadow dom, web components",,16.0
+206,"advanced css techniques, crossbrowser compatibility, css, css blend modes, css filter effects, frontend development, ui design implementation",,54.0
+207,"advanced css syntax, cascading style sheets, crossbrowser compatibility, css debugging, css security vulnerabilities, css specificity and cascade",,16.0
+208,"css, css flexbox, css grid, frontend development, responsive design, web design, web layout",,53.0
+209,"adaptive design, css, css auto sizing, css flexbox, css grid, css layout, layout engine primitives",,40.0
+210,"css, css best practices, css cascade, css inheritance, css specificity, modular css, web development",,28.0
+211,"crossbrowser compatibility, css preprocessors, modern css syntax, programmatic css, sass, sass functions, sass mixins",,67.0
+212,"css, css mental models, design systems, designtocode implementation, frontend development, html",,65.0
+213,"crossbrowser compatibility, css, css internationalization, css line breaking, css text properties, css text wrapping, html, responsive web design",,50.0
+214,"css, css animations, interactive graphics, responsive design, svg, svg styling",,33.0
+215,"cie lab color space, color management, color rendering intents, css color level 4, icc profiles, web color standards",,0.0
+216,"css, css code refactoring, css methodologies, css preprocessors, modular css, objectoriented css, scalable css architecture",,28.0
+217,"advanced css selectors, browser developer tools, css, css positioning, css pseudoclasses and pseudoelements, css transforms, html",,42.0
+218,"css, css basic shapes, css clippath property, css path function, svg path syntax",,20.0
+219,"advanced css techniques, css, css custom properties, css functions, css layouts, web styling",,71.0
+220,"css, css writing modes, inclusive web design, internationalization, responsive web design, vertical typesetting, web accessibility",,40.0
+221,"crossbrowser compatibility, css, css language design, css syntax, web standards, web styling",,60.0
+222,"css, css box model, css flexbox, css grid, css layout, css positioning, responsive web design",,40.0
+223,"css, css apis, css grid layout, css houdini, css variable fonts, web development",,33.0
+224,"css, css box alignment, css flexbox, css grid, firefox devtools, responsive web design",,33.0
+225,"componentbased styling, css, css container queries, flexible layouts, frontend development, responsive design, web styling",,53.0
+226,"css, css sprites, http request optimization, image optimization, page load time analysis, web performance optimization",,33.0
+227,"computer architecture, computer systems, concurrency, parallel computing, performance analysis, processor design, simultaneous multithreading",,37.0
+228,"concurrency control, distributed system design, distributed systems, fault tolerance, network protocols, performance optimization, scalability",,25.0
+229,"algorithm design, algorithmic problemsolving, data structures, dynamic programming, graph algorithms, recursion, time and space complexity analysis",,26.0
+230,"bgp, distributed systems, graph theory, network algorithms, network optimization, network protocols, routing algorithms",,0.0
+231,"advanced algorithms, advanced data structures, algorithm analysis, algorithmic problemsolving, computational complexity, dynamic programming, graph theory",,25.0
+233,"boosting algorithms, data analysis, decision trees, ensemble methods, machine learning, predictive modeling, python, scikitlearn",,62.0
+234,"computer science research, critical analysis, data analysis, innovation, project development, scientific communication, technical presentation",,25.0
+235,"3d printing, cad programming, computational design, computational fabrication, functional programming, machine knitting, wireless analytics",,26.0
+236,"artificial intelligence, deep learning, machine learning, neural networks, python, pytorch, tensorflow",,98.0
+237,"advanced algorithms, algorithmic analysis, algorithmic design, big o notation, data structures, time complexity analysis",,31.0
+239,"code improvement, compiler optimization, controlflow graphs, dataflow analysis, dead code elimination, intermediate representation, program transformation",,12.0
+240,"code generation, compiler optimization, controlflow analysis, dataflow analysis, intermediate representation, program transformation, static analysis",,12.0
+242,"consensus algorithms, distributed systems, fault tolerance, largescale system design, network architecture, scalability",,29.0
+243,"consensus algorithms, distributed computing, distributed systems, fault tolerance, largescale system design, network architecture, scalability",,25.0
+244,"consensus algorithms, distributed systems, fault tolerance, largescale system design, network architecture, scalability",,29.0
+245,"consensus algorithms, distributed systems, fault tolerance, largescale system design, networked systems, scalability",,14.0
+246,"concurrency control, consensus algorithms, data replication, distributed systems, fault tolerance, network architecture, system scalability",,24.0
+247,"advanced database concepts, data management techniques, database indexing strategies, database performance tuning, execution plan analysis, query optimization, sql query analysis",,27.0
+248,"advanced algorithms, advanced data structures, algorithm design, amortized analysis, computational complexity analysis, dynamic programming, graph theory",,25.0
+250,"advanced data structures, algorithm analysis, automata theory, computability theory, computational complexity theory, graph algorithms",,29.0
+251,"advanced data structures, algorithm analysis, algorithm design, complexity theory, theoretical computer science",,18.0
+254,"algorithm design, computer science research, emerging technologies analysis, programming paradigms, software design patterns, software engineering, system architecture",,54.0
+256,"code improvement techniques, compiler optimization, control flow analysis, dataflow analysis, program transformation, static program analysis",,14.0
+257,"code generation, code optimization, compiler design, intermediate representation, parsing, register allocation, static analysis",,25.0
+258,"code generation, code optimization, compiler design, intermediate representation, lexical analysis, semantic analysis, syntax analysis",,13.0
+260,"concurrency control, data management, database indexing, database systems, query optimization, sql, transaction management",,28.0
+261,"advanced data modeling, concurrency control, data indexing, database management, query optimization, sql, transaction management",,40.0
+262,"data manipulation, database management, query optimization, relational algebra, sql",,40.0
+263,"computing science, design principles, ethical design, humancomputer interaction, inclusive design, systems design, technology development",,12.0
+264,"category theory, comprehension principles, functors, isbell duality, martinlof type theory, refinement type systems, type theory",,0.0
+266,"advanced css selectors, css, css custom properties, css flexbox, css grid, responsive web design, ui prototyping",,41.0
+267,"algorithmic models, computational expressiveness, interactive computation paradigms, persistent turing machines, software engineering theory, theory of computation",,0.0
+268,"artificial intelligence, computer vision, data analysis, geospatial data analysis, machine learning, python",,83.0
+269,"css, css opacity property, css pseudoclasses, css transforms, css transitions, html, user interface animation",,28.0
+270,"data analysis, data science, data visualization, machine learning, pandas, python, scikitlearn, statistical modeling",,100.0
+271,"css, css container queries, css layers, css parent selectors, css style queries, css viewport units, responsive web design",,28.0
+272,"css, frontend development, maintainable stylesheets, responsive design, scalable css architecture, tailwind css, utilityfirst css",,56.0
+273,"adversarial robustness, data stream analysis, resilient systems design, robust algorithm design, streaming algorithms, streaming data processing",,0.0
+274,"css, css box model, css selectors, frontend development, html, web browser developer tools, web page styling",,67.0
+275,"algorithm implementation, automated theorem proving, computational number theory, computer algebra systems, formal verification, proof assistant software, symbolic computation",,0.0
+276,"browser engine architecture, embedded systems development, rust, servo rendering engine, systems integration, tauri, web standards",,25.0
+277,"advanced css selectors, css animations, css custom properties, css pseudoelements, css transforms, css transitions, responsive web design",,14.0
+278,"css, css animations, css transforms, css transitions, keyframe animations, page transition effects, responsive design",,28.0
+279,"css, css flexbox, css grid, css layout, semantic html, web accessibility",,30.0
+280,"css, css layout techniques, html, responsive web design, ui component development, web accessibility, web performance optimization",,57.0
+281,"concurrent system modeling, graphical modeling, mathematical modeling, petri net simulation, petri net theory, system analysis, system design",,23.0
+282,"algorithmic design, binary representation, computational thinking, conditional logic, flowcharting, looping constructs, pseudocode",,14.0
+283,"css, css length units, em, fixed length units, px, relative length units, rem, viewport units",,12.0
+284,"css, css animations, css keyframes, css transforms, css transitions, html, web animation",,28.0
+285,"css, css backgrounds, css box model, css inheritance, css selectors, font styling, text styling",,26.0
+286,"css, css pseudoclasses, css selectors, dom element targeting, interactive ui styling, structural pseudoclasses",,30.0
+287,"css, css properties, css selectors, embedded css, external css, html, inline css",,52.0
+290,"css, css border properties, css selectors, html, html tables, table styling",,47.0
+291,"absolute positioning, css, css positioning, dynamic web layouts, fixed positioning, relative positioning, static positioning, sticky positioning",,12.0
+293,"critical thinking, data analysis, data interpretation, public speaking, research, scientific communication",,46.0
+294,"css, css anchor positioning, css popover api, frontend development, html, tooltip implementation, ui development",,42.0
+295,"css, css transitions, dom manipulation, html, javascript, responsive web design, scrolltriggered animations",,70.0
+296,"css, css display property, css grid, css positioning, document flow, flexbox, web layout",,14.0
+300,"arrays, control flow, functions, java, objectoriented programming, recursion",,47.0
+301,"computational logic, functional logic, information encoding, logical reasoning, propositional logic, relational logic",,16.0
+307,"algorithmic thinking, computational thinking, control flow, functions, problem decomposition, programming fundamentals, variables and data types",,24.0
+308,"agile estimation, agile methodology, agile project management, product roadmap development, release planning, software development lifecycle, software requirements gathering",,52.0
+310,"boolean algebra, combinatorics, graph theory, mathematical proof techniques, number theory, propositional and predicate logic, set theory",,0.0
+313,"algorithmic thinking, computational thinking, control flow, debugging, problem decomposition, programming logic, variables and data types",,14.0
+315,", computer science fundamentals, game development, lua, löve 2d, unity",,49.0
+316,"api creation, bootstrap, cloud services deployment, django, flask, javascript, python, sql",,98.0
+317,"algorithms, binary systems, boolean logic, computer hardware, database concepts, networks, visual basic",,41.0
+318,"algorithms, artificial intelligence, data structures, intelligent systems design, machine learning, programming fundamentals, python",,83.0
+319,"algorithms, binary data representation, boolean logic, computer hardware fundamentals, computer networking principles, data structures, programming fundamentals",,52.0
+320,"algorithms, big o notation, boolean logic, control flow, data structures, procedural programming, recursion",,28.0
+326,"algorithmic problemsolving, algorithms, big o notation, data structures, objectoriented programming, recursion, system design",,54.0
+329,"algorithms, computer science fundamentals, control flow, data structures, problem solving with code, programming fundamentals, python",,55.0
+332,"abstraction, algorithms, data analysis, data structures, data visualization, r programming, statistical computing",,71.0
+335,"algorithm analysis, bigo notation, divide and conquer algorithms, master method, randomized algorithms, searching algorithms, sorting algorithms",,12.0
+336,"applied cryptography, cryptography, digital signatures, hash functions, information security, publickey cryptography, symmetrickey cryptography",,0.0
+337,"algorithmic thinking, basic data structures, control flow, functions, problemsolving with code, python, variables and data types",,39.0
+339,"algorithms, c programming, css, data structures, html, javascript, python, sql",,99.0
+340,"artificial intelligence, knowledge representation, machine learning, problemsolving algorithms, python, search algorithms, supervised learning",,67.0
+342,"cache design, computer architecture, digital logic design, instruction set architecture, memory hierarchy, microprocessor design, pipelining",,24.0
+343,"algorithms, data structures, graph processing, java, performance analysis, searching algorithms, sorting algorithms",,54.0
+345,"algorithmic analysis, algorithms, computational complexity, data structures, programming fundamentals, software development principles, system design",,66.0
+346,"algorithm design, divide and conquer, dynamic programming, greedy algorithms, searching algorithms, sorting algorithms, time complexity analysis",,12.0
+347,"classification, clustering, deep learning, machine learning, python, recommender systems, regression",,57.0
+348,"authentication systems design, humancomputer interaction, privacypreserving design, secure systems design, threat modeling, usability engineering, user experience security",,0.0
+350,"algorithms, artificial intelligence, data mining, data structures, encryption, ruby, simulations",,98.0
+351,"basic computing, c programming, css, database management, html, office automation, web design",,79.0
+360,"computer vision, digital image processing, image adjustment, image compression, image segmentation, matlab, medical imaging",,40.0
+361,"business process auditing, control evaluation, information system controls, information system risk assessment, it auditing, it risk management, systems development life cycle security",,11.0
+362,"big data, cloud computing, cloud infrastructure, cloud storage services, platform as a service, serverless architectures, virtualization",,80.0
+363,"arrays, c programming, control flow, data types, functions, pointers, recursion",,26.0
+364,"effects management, functional programming, lazy evaluation, monads, scala, state management, typedirected programming",,40.0
+367,"algorithm analysis, baxter permutations, combinatorial analysis, data structures, floorplan data structures, graph theory, twintrees",,14.0
+368,"fault injection, hardware intellectual property protection, hardware vulnerability analysis, physical attack techniques, secure hardware design, sidechannel analysis, trusted system design",,0.0
+370,"artificial intelligence, deep learning, machine learning, model building, model training, neural networks",,64.0
+371,"advanced algorithms, advanced data structures, algorithmic analysis, graph algorithms, java, performance analysis, string processing algorithms",,52.0
+373,"audio analysis, classification algorithms, gesture recognition, machine learning, regression analysis, segmentation algorithms, sensor data processing",,40.0
+375,"ai model apis, generative ai, google ai platform, large language models, machine learning, model finetuning, prompt engineering",,56.0
+377,"binary arithmetic, binary number system, boolean logic, computer science fundamentals, data representation, digital logic, number base conversion",,0.0
+379,"aipowered content generation, chatgpt, generative artificial intelligence, google bard, large language models, microsoft bing chat, prompt engineering",,55.0
+381,"crossvalidation, linear regression, model performance evaluation, parameter estimation, predictive modeling, python, regression analysis",,51.0
+382,"concurrency, distributed systems, highperformance computing, performance optimization, scalability, software architecture, system design",,51.0
+383,"architectural patterns, design patterns, software architecture, software modeling, solid principles, system design, uml",,66.0
+384,"algorithm analysis, algorithm design, algorithmic problemsolving, computational complexity theory, data structures, dynamic programming, graph algorithms",,26.0
+385,"chainofthought prompting, chatgpt, fewshot prompting, generative ai, large language models, prompt engineering, zeroshot prompting",,56.0
+386,"concurrency and synchronization, cpu scheduling, file systems, interprocess communication, memory management, process management, system calls, virtual memory",,22.0
+387,"branch prediction, instructionlevel parallelism, memory hierarchy, performance measurement, pipelining, superscalar architecture, threadlevel parallelism",,12.0
+388,"algorithmic thinking, computational thinking, data analysis, pattern recognition, problem decomposition, python, python scripting",,42.0
+391,"abstract data types, assignment semantics, formal logic, operator overloading, type conversion, type theory, value vs. reference equality",,0.0
+393,"formal verification, fuzz testing, model checking, software testing, software verification, static analysis, symbolic execution",,14.0
+394,"data visualization, git, python, reproducible research, scientific computing, scripting, version control",,71.0
+395,"embedded systems, hardwaresoftware interaction, iot architecture, iot communication protocols, iot system design, microcontroller programming, network fundamentals",,25.0
+397,"algorithms, control flow, data structures, debugging, programming fundamentals, software development lifecycle, version control",,83.0
+398,"advanced data structures, algorithm analysis, graph algorithms, graph theory, network optimization, pathfinding algorithms, resource allocation algorithms",,38.0
+399,"caret, data collection, machine learning, machine learning algorithms, model evaluation, ",,63.0
+401,"algorithm analysis, computability theory, computational complexity theory, computational models, formal language theory, p vs np problem, turing machines",,0.0
+403,"artificial intelligence, computer vision, deep learning, machine learning, natural language processing, neural networks, reinforcement learning",,96.0
+405,"computer networking, domain name system, internet protocols, network architecture, request for comments, simple mail transfer protocol, tcpip",,40.0
+406,"algorithms and data structures, mvc architecture, objectoriented programming, relational databases, ruby, ruby on rails, software testing",,96.0
+410,"cloud computing, cybersecurity, deep learning, internet structure, neural networks",,77.0
+412,"aienhanced learning, chatgpt, cognitive science principles, knowledge synthesis with ai, large language models, prompt engineering",,49.0
+417,"artificial intelligence, machine learning, numpy, pandas, python, scikitlearn, supervised learning",,98.0
+421,"coding standards, combinatorics, computational problemsolving, counting principles, probability, python, software testing",,40.0
+422,"algorithm analysis, algorithms, big o notation, data structures, java, objectoriented programming, sorting algorithms",,57.0
+423,"algorithm analysis, algorithmic design, big o notation, complexity analysis, data structures, mathematical modeling, performance analysis",,14.0
+425,"arduino ide, arduino programming, basic electronics, c++, esp32esp8266 programming, microcontroller programming",,16.0
+426,"blockchain technology, consensus algorithms, cryptocurrency security, cryptographic hash functions, digital signatures, publickey cryptography, smart contracts",,12.0
+427,"algorithm implementation, algorithms, arrays, data manipulation, data structures, hash tables, tree structures",,28.0
+428,"aiassisted coding, automated content generation, chatgpt, code debugging, code generation, large language models, prompt engineering",,69.0
+429,"abstract data types, algorithms, data structures, java, linked lists, recursion, time complexity analysis",,42.0
+431,"assembly language, caching principles, computer architecture, digital logic design, instruction set architecture, memory hierarchy, processor design",,24.0
+432,"algorithmic thinking, control flow, data types and variables, debugging, functions, programming fundamentals, scripting",,52.0
+433,"compiler design, computer architecture, instruction set architecture, memory management, operating system design, systems programming, virtual machine implementation",,36.0
+434,"algorithms, data science, induction, invariants, logic, machine learning, recursion",,42.0
+437,"bootstrap, bootstrap grid system, css box model, css media queries, css positioning, css selectors, css3, responsive web design",,47.0
+438,"algorithms, , control flow, data structures, memory management, pointers, structured programming",,57.0
+441,"big data processing, , cpugpu architecture, cuda, multithreading, parallel processing, python",,55.0
+442,"algorithms, data modeling, data structures, objectoriented programming, python, search algorithms, web crawling",,83.0
+443,"computer hardware, computer hardware assembly, it troubleshooting, network fundamentals, operating system installation, software troubleshooting",,62.0
+444,"algorithm design, c programming, dynamic memory allocation, file handling, modular programming, monte carlo simulation, user interaction programming",,14.0
+449,"algorithm design, algorithm implementation, algorithms, , computational thinking, data collection",,33.0
+454,"data science, deep learning, linear models, machine learning, python, reinforcement learning, statistics",,69.0
+455,", cloud systems, distributed algorithms, distributed computing, mapreduce, nosql",,50.0
+459,"bayesian inference, bayesian networks, machine learning, markov networks, probabilistic graphical models, probabilistic modeling, statistical modeling",,28.0
+460,"big data analysis, code optimization, highperformance computing, linux, machine learning, parallel programming",,63.0
+461,"access control management, encryption principles, network security, risk management, system protection, threat detection, vulnerability assessment",,69.0
+462,"algorithms, computer science fundamentals, data structures, debugging, objectoriented programming, procedural programming, python",,71.0
+464,"datadriven problemsolving, decision analysis, graph theory, linear programming, mathematical modeling, optimization techniques, resource allocation modeling",,25.0
+465,"cloud application development, cloud computing, cloud infrastructure management, cloud networking, cloud storage solutions, google cloud platform",,77.0
+467,"c programming, conditional logic, data analysis, data representation, iteration, loops, statistical calculation",,28.0
+468,"algorithm analysis, algorithms, computational theory, computer architecture, data structures, sorting",,46.0
+469,"requirements engineering, system optimization, system verification, systems architecture, systems development life cycle, systems engineering, verification and validation",,60.0
+470,"change control, requirements engineering, risk assessment, scope definition, systems engineering, technical program management",,45.0
+471,"ai applications, ai business strategy, ai ethics, artificial intelligence fundamentals, deep learning concepts, machine learning concepts, neural network principles",,48.0
+472,"design reviews, engineering management, functional analysis, requirements analysis, system design, systems engineering, trade studies",,38.0
+473,"algorithm analysis, automation, c programming, file io, parallelization, pointer manipulation, simulation",,42.0
+474,"abstraction, arrays, c programming, functions, problem decomposition, strings",,30.0
+475,"enterprise search, information retrieval, ranking algorithms, search engine indexing, search quality evaluation, user intent analysis, web search technologies",,0.0
+476,"algorithmic thinking, control flow, programming concepts, programming language fundamentals, variables, visual programming",,28.0
+478,"requirements analysis, system architecture, system design, system integration, systems engineering, systems lifecycle modeling, verification and validation",,64.0
+480,"data analysis, data visualization, machine learning, numpy, pandas, python, scikitlearn",,100.0
+481,"arduino, arduino ide, c programming, debugging, embedded systems, hardware interfacing, physical computing",,41.0
+483,"data analysis, data manipulation, data visualization, machine learning, pandas, python, scikitlearn",,85.0
+485,"cloud computing, fpga programming, hardware acceleration, sdaccel, sequence alignment, smithwaterman algorithm",,16.0
+486,"deep learning, machine learning, neural networks, pattern recognition, python, pytorch, tensorflow",,84.0
+487,"algorithmic thinking, computational modeling, computational thinking, mathematical modeling, numerical methods, problem decomposition, simulation modeling",,12.0
+488,"computational modeling, numerical methods, numerical simulation, optimization algorithms, python, scientific computing, uncertainty quantification",,39.0
+490,"algorithmic analysis, algorithms, computational thinking, data analysis, data structures, python",,66.0
+491,"augmented reality, big data, cloud computing, development planning, internet of things, mobile computing, technology research",,28.0
+492,"edge detection, image processing, image segmentation, matlab, mri image analysis, region analysis, spatial filtering",,27.0
+495,"complex systems analysis, computational modeling, cyberphysical systems modeling, digital network analysis, finite state machine design, physical process modeling, simulation techniques",,37.0
+497,"economic network modeling, graph theory, information diffusion models, network formation models, network structure analysis, social network analysis",,14.0
+498,"arm assembly programming, arm memory model, arm programmers model, armv8m architecture, embedded systems development, exception and interrupt handling, memory protection unit configuration",,23.0
+499,"abstraction, algorithmic thinking, algorithms, computer programming fundamentals, data structures, logical thinking",,47.0
+500,"highperformance data transfer, network programming, rdma connection management, rdma operations, rdma programming, remote direct memory access, servertoserver communication",,12.0
+501,"automated reasoning, binary decision diagrams, computation tree logic, formal verification, state space analysis, symbolic model checking, transition systems",,0.0
+502,"message passing interface, multithreading, openmp, parallel algorithm design, parallel programming, performance analysis of parallel systems, synchronization techniques",,14.0
+505,"behavioral modeling, formal methods, formal verification, linear process modeling, model checking, protocol modeling, software modeling",,12.0
+506,"distributed algorithms, formal methods, formal specification, model checking, process behavior modeling, protocol design and analysis, system property analysis",,24.0
+507,"automated verification, embedded systems, fixedpoint logic, formal methods, formal requirements specification, modal logic, model checking",,12.0
+509,"algorithms, artificial intelligence, big data, computational thinking, computer science fundamentals, programming",,66.0
+510,"advanced loops, algorithmic thinking, clean coding, data science, python, web development",,63.0
+511,"data science, defining functions, objectoriented programming, python, python data types, web application development",,65.0
+512,"computer ethics, computer fundamentals, computer networking, internet technologies, office suite software, spreadsheet software, word processing",,26.0
+513,"component styling, css, css keyframe animations, css layouts, css pseudoelements, css transitions",,30.0
+516,"climate modeling, computational modeling, computational thinking, data analysis, data science, interactive programming, mathematical modeling",,40.0
+517,"css, css animations, css layouts, html, responsive design, tailwind css",,80.0
+518,"css, css animations, css gradients, css shadows, responsive web design, tailwind css, ui component design",,54.0
+519,"algorithmic thinking, computational thinking, control flow, debugging, functions, python, variables and data types",,40.0
+520,"css, css animations, flexbox, grid, html, responsive design, tailwind css",,56.0
+521,"crossbrowser compatibility, css, css box model, css layout, css selectors, xhtml",,61.0
+522,"css, css box model, css color systems, css selectors, text formatting, web typography, xhtml",,26.0
+524,"computer vision, convolutional neural networks, deep learning, image processing, neural style transfer, residual networks, video processing",,54.0
+526,"error analysis, machine learning project structuring, ml strategy, model debugging, model evaluation, model performance optimization",,30.0
+527,"advanced probability, computational methods, data analysis, r programming, statistical modeling",,59.0
+529,"automata theory, computability theory, computational complexity theory, contextfree grammars, finite automata, formal languages, turing machines",,0.0
+532,"css, frontend development, html, html structure, javascript, web design",,93.0
+533,"bootstrap, css, frontend development, html, responsive web design, user interface development",,98.0
+535,"cloud computing, computer networking, network administration, network protocols, network services management, network troubleshooting",,79.0
+536,"abstraction, algorithms, computational modeling, computational thinking, encapsulation, machine learning",,33.0
+537,"artificial intelligence, chatgpt, generative ai, language models, natural language processing, prompt engineering",,98.0
+538,"agile methodologies, software architecture, software design patterns, software development life cycle, software testing, system design, version control",,97.0
+540,"digital accessibility, game mechanics design, gamification, inclusive design, user experience design, wcag standards",,54.0
+543,"design patterns, objectoriented design, objectoriented programming, software architecture, system design, uml diagramming",,63.0
+544,"abstract data types, data abstraction, decomposition, modular programming, objectoriented programming, software design, system design",,40.0
+545,"binary number systems, computer architecture, computer networking fundamentals, computer systems organization, data representation, network protocols",,13.0
+546,"constraint analysis, project classification, requirements analysis, stakeholder analysis, systems engineering, systems thinking, tradeoff analysis",,24.0
+547,"blockchain technology, consensus algorithms, cryptography, distributed systems, game theory, network architecture, peertopeer networking",,26.0
+548,"apache spark, big data analysis, data preparation, machine learning, machine learning modeling, scalable data processing",,76.0
+551,"boosting, classification models, decision trees, loan default prediction, logistic regression, machine learning, sentiment analysis",,41.0
+552,"amazon sagemaker, aws, deep learning, machine learning, mlops, model deployment, python, tensorflow",,98.0
+554,"ai accountability, ai ethics, ai fairness, ai governance, ai safety, ai transparency, responsible ai",,12.0
+555,"algorithmic thinking, computational modeling, control flow, data structures, javascript programming, objectoriented programming, simulation development",,54.0
+556,"chain rule, gradients, multivariate calculus, neural networks, optimization techniques, regression, taylor series",,39.0
+557,"artificial life, cellular automata, computational modeling, evolutionary algorithms, lenia, pattern recognition, simulation modeling",,12.0
+558,"cache design, computer architecture, domainspecific architectures, instruction set architecture, memory hierarchy, pipelining, processor design",,24.0
+559,"cache access, computer architecture, cpu caches, memory hierarchy, mill architecture",,16.0
+560,"c++, compiler optimization, cpu architecture, memory hierarchy optimization, parallel programming, performance profiling, simd programming",,26.0
+561,"formal methods, hoare logic, loop invariants, precondition and postcondition analysis, program specification, program verification, proof of correctness",,12.0
+564,"combinatorial optimization, constraint modeling, constraint programming, routing problems, scheduling problems, solver implementation",,15.0
+570,"chainofthought prompting, fewshot prompting, large language models, llm api integration, prompt engineering, retrievalaugmented generation, zeroshot prompting",,42.0
+572,"information retrieval, natural language processing, search engine technologies, text data analysis, text mining, vector space models",,16.0
+573,"3d modeling, algorithmic design, computational geometry, digital drawing, python, rhinoscript, scripting for 3d applications",,27.0
+721,"browser compatibility, css, css contain, css counters, css filters, css inset, css isolation",,26.0
+574,"algorithmic thinking, data structures, game development, mobile development, software engineering, web development",,83.0
+575,"computer hardware fundamentals, computer networking, data representation, information security principles, operating systems concepts, programming fundamentals",,69.0
+578,"constraint programming, discrete optimization, heuristics, integer programming, local search, optimization algorithms, search algorithms",,37.0
+583,"algorithmic complexity, concurrency, memory management, performance optimization, problem modeling, python, python decorators, python generators",,36.0
+587,"ai ethics, ai regulation, computational theory, history of artificial intelligence, large language models, principles of artificial intelligence, turing machines",,13.0
+588,"bootstrap, crossplatform design, css3, fluid design, media queries, mobilefirst design, responsive web development, wireframing",,59.0
+593,"3d model analysis, 3d model generation, 3d model visualization, generative modeling, möbius modeller, performative modeling, procedural modeling, spatial data manipulation",,10.0
+594,"cpu microarchitecture, digital circuit design, hardware description language, logic simulation, open source eda tools, registertransfer level design, riscv instruction set architecture",,0.0
+598,"arm architecture, computer architecture, instruction set architecture, microprocessor architecture, pipelining, processor simulation, superscalar processors",,24.0
+601,"computer architecture principles, embedded systems concepts, instruction set design, processor privilege levels, riscv instruction set architecture, riscv isa extensions, riscv specifications",,10.0
+602,"data analysis, machine learning, numpy, pandas, python, scikitlearn, statistical analysis",,100.0
+605,"combinational logic design, computer architecture, digital design, multicycle processor design, pipelined processor design, singlecycle processor design, synchronous sequential logic",,11.0
+606,"cache coherence protocols, computer architecture, energyefficient computing, multicore processor design, parallel computing, performance analysis, poweraware design",,11.0
+607,"computer architecture, energyefficient computing, instruction set architecture, memory hierarchy, performance analysis, pipelining, processor design",,24.0
+608,"asymmetric cryptography, cryptographic techniques, decryption, digital signatures, encryption, hashing algorithms, secure communication protocols, symmetric cryptography",,12.0
+612,"cache memory design, computer architecture, instruction set architecture, microprocessor design, parallelism, pipelining",,28.0
+613,"computer architecture, fpga programming, hardware description languages, hardware simulation, riscv architecture, systemonchip design",,13.0
+614,"boolean algebra, circuit simulation, combinational circuits, digital logic, hardware implementation, number systems, sequential circuits",,0.0
+616,"computer vision, image classification, matlab, medical imaging, motion tracking, object detection",,31.0
+617,"code generation, compiler design, compiler optimization, intermediate representation, lexical analysis, parsing, riscv architecture",,12.0
+619,"blockchain technology, decentralized identifiers, digital wallets, distributed ledger technology, publickey cryptography, selfsovereign identity, verifiable credentials",,12.0
+620,"data analysis, data visualization, database management, formula creation, presentation software, spreadsheets, word processing",,55.0
+625,"binary data representation, binary logic, boolean algebra, computer architecture, digital circuit design, logic gates, lowlevel data processing",,11.0
+637,"ai ethics, ai safety, algorithmic fairness, algorithmic transparency, bias detection in ai, model interpretability, responsible ai development",,24.0
+653,"hardwaresoftware interface, kernel design, memory management, operating system internals, privilege separation, system calls, x8664 architecture",,14.0
+662,"cryptography, data structures and algorithms, digital forensics, incident response, network security, penetration testing, threat modeling",,41.0
+663,"algorithmic thinking, data analysis, data relationships, database development, normalization, search optimization, sql",,40.0
+665,"applied cryptography, cryptographic random number generation, digital certificates, pseudorandom number generation, public key infrastructure, randomness testing, vulnerability analysis",,11.0
+666,"algorithmic fairness, bias detection in machine learning, data anonymization techniques, data privacy, differential privacy, machine learning",,16.0
+667,"affordances and signifiers, direct manipulation, feedback cycles, humancomputer interaction, interaction design principles, usability analysis, user interface design",,13.0
+668,"coding fundamentals, computer hardware, computer science fundamentals, digital media concepts, internet fundamentals, software concepts",,30.0
+669,"applied machine learning, clustering, machine learning, model evaluation, predictive modeling, python, scikitlearn",,68.0
+670,"instruction set architecture, mips architecture, multithreading, processor architecture, simd, virtualization",,44.0
+671,"authentication systems design, cuepinselect algorithm, humancomputer interaction for security, information security principles, passphrasebased authentication, password security, usable security",,11.0
+672,"ai hardware acceleration, computational memory, inmemory computing, inmemory data processing, memorycentric computing architectures, neuromorphic computing, resistive memory devices",,0.0
+673,"3d ic integration, architectural simulation, computer architecture, emerging memory technologies, moores law, performance scaling analysis",,13.0
+674,"3d xpoint, nvme, persistent memory, platformlevel storage optimization, storage latency reduction, storage media architecture, storage technology analysis",,0.0
+675,"computational performance analysis, computer architecture, energyefficient computing, processor design, rex neo architecture",,16.0
+676,"cache coherence, computer architecture, concurrency control, dependency analysis, parallelism, systems programming",,13.0
+677,"cpu design, cpu pipeline design, dynamic code optimization, nvidia denver architecture, performance analysis, processor architecture",,12.0
+678,"algorithm design, computational problemsolving, computer science theory, programming, software development, system design",,47.0
+679,"assembly language concepts, computer architecture, instruction set architecture design, opensource hardware, processor design principles, risc design principles, riscv instruction set architecture",,11.0
+680,"computer architecture, cpu design, cpu performance analysis, mill cpu architecture, outoforder execution, singlethread performance, superscalar architectures",,11.0
+681,"computer science, data abstraction, distributed systems, fault tolerance, programming languages, software engineering, system design",,38.0
+682,"digital image analysis, image enhancement, image processing, image segmentation, matlab, satellite imagery analysis",,32.0
+683,"analogdigital signal conversion, arduino libraries, arduino programming, c++, hardware prototyping, internet of things, sensor and actuator interfacing",,27.0
+686,"algoritmi di ia, analisi dati, analisi scientifica, etica dellia, intelligenza artificiale, machine learning, valutazione di modelli ia",,14.0
+688,"base conversion algorithms, binary arithmetic, binary to decimal conversion, bitwise operations, data representation, decimal to binary conversion, number system conversions",,0.0
+689,"7segment display control, binarytodecimal conversion, boolean algebra, digital logic design, digital number representation, double dabble algorithm",,0.0
+690,"css, css box model, css layout, css selectors, css typography, html, web styling",,63.0
+692,"context window management, fewshot prompting, gpt3 api, large language models, model parameter tuning, prompt engineering, retrievalaugmented generation",,42.0
+694,"cognitive computing, energyefficient computing, hardware optimization, resilient system design, sensor fusion, swarm intelligence",,0.0
+695,"algorithmic governance, computational ecosystem modeling, model validation, simulation, systems architecture, systems integration",,61.0
+697,"aiassisted translation, automated text generation, chatgpt, code generation, generative ai, large language models, prompt engineering",,56.0
+698,"algorithmic thinking, algorithms, computational principles, data structures, python, recursion",,50.0
+699,"algorithm analysis, algorithm implementation, data analysis, graph algorithms, graph theory, python, time complexity analysis",,40.0
+700,"bash scripting, commandline data processing, commandline tools, devops automation, process management, text processing, unix shell",,38.0
+701,"computer hardware, computer networking, computer science fundamentals, cybersecurity principles, programming fundamentals, web development fundamentals",,75.0
+702,"algorithmic fairness, automata theory, complexity theory, computability theory, computational complexity analysis, formal languages, turing machines",,0.0
+704,"automata theory, complexity theory, computability theory, computational theory, npcompleteness, turing machines, undecidability",,0.0
+705,"control systems theory, electronic circuit analysis, git, linear systems analysis, python, signal processing, software engineering",,55.0
+707,"candidate generation, feature engineering, machine learning, model ensembling, python, recommendation systems, reranking",,55.0
+708,"fractal generation, generative art, genetic algorithms, javascript, natural systems simulation, p5.js, physics simulation",,38.0
+709,"algorithms, computational thinking, computer science fundamentals, data structures, problemsolving, programming fundamentals",,64.0
+710,"deep learning, hyperparameter tuning, neural networks, optimization, regularization, tensorflow",,64.0
+711,"agile methodologies, extreme programming, pair programming, scrum, software development life cycle, testdriven development, user story creation",,56.0
+712,"language modeling, long shortterm memory, machine translation, natural language processing, recurrent neural networks, sequence models, speech recognition, transformers",,22.0
+714,"disk partitioning, file system management, linux administration, process control, remote access management, software installation, user permission management, windows administration",,47.0
+715,"algorithmic thinking, data modeling, graph algorithms, graph data structures, graph theory, problem modeling",,44.0
+720,"approximate nearest neighbor search, data preprocessing, locality sensitive hashing, minhashing, python, shingling, similarity search",,28.0
+722,"has pseudoclass, advanced css selectors, advanced form styling, conditional styling, css, css theming, styling interactive components",,26.0
+723,"css, css architecture, css custom properties, open props, responsive design, web typography",,47.0
+724,"cascade layers, container queries, css, css color functions, css layout, css selectors",,44.0
+725,"css, css animations, css pseudoclasses, css pseudoelements, css transforms, css transitions, html",,28.0
+726,"css, css animations, css custom properties, css flexbox, css grid layout, css transitions, responsive web design",,28.0
+727,"css, css box model, css font sizing, css layout, css positioning, css units, responsive design principles",,40.0
+728,"css, css animations, css layout, css styling, html, responsive web design, user interface development",,82.0
+729,"color management, css, css animations, css gradients, css masks, css open props, design systems, ui development",,24.0
+730,"css, css color properties, css font properties, css text decoration, css text properties, css typography, letterspacing property, lineheight property",,12.0
+731,"css, css animations, css scrolldriven animations, css stacking contexts, html, parallax effect implementation",,33.0
+732,"css, css aspectratio, css container queries, css grid layout, css logical properties, css subgrid, flexbox, responsive web design",,24.0
+733,"digital image processing, image compression, image enhancement, image recovery, image segmentation, python, video processing",,51.0
+737,"bioinformatics, clinical trial data analysis, genomic data analysis, machine learning, predictive modeling, python, statistical modeling",,42.0
+740,"requirements engineering, software architecture, software design, software development life cycle, software quality assurance, software testing",,94.0
+745,"algorithmic design, computational thinking, control flow, data structures, debugging, problem decomposition, python",,42.0
+746,"api integration, generative ai application development, google ai apis, large language models, prompt tuning, vertex ai",,59.0
+755,"css, database integration, dynamic web development, html, php, requestresponse cycle, web application structure",,80.0
+786,", cloud systems, distributed computing, mapreduce, nosql, scalability",,64.0
+816,"data preprocessing, machine learning, model training, neural networks, python, pytorch, supervised learning",,82.0
+817,"cryptanalysis, cryptographic algorithms, cryptography, decryption, encryption, publickey cryptography, symmetrickey cryptography",,14.0
+825,"content management systems, domain setup, mobile optimization, social media integration, website layout design, wordpress, wordpress plugin management",,28.0
+826,"debugging, gpio programming, hardware interfacing, iot development, linux, python, raspberry pi",,55.0
+830,"bash scripting, cloud computing, command line interface, git, unix tools, version control",,80.0
+834,"algorithm analysis, complexity theory, formal proof techniques, latex, research methods in computer science, theoretical computer science",,0.0
+835,"control flow, data types, functions, inputoutput operations, operators, python, variables",,26.0
+836,"computational materials science, computational modeling, computer simulation, highperformance computing, molecular dynamics, parallel computing, scientific computing",,12.0
+837,"computer vision, convolutional neural networks, data augmentation, data preprocessing, keras, python, tensorflow",,71.0
+838,"database migration, highavailability systems, legacy system modernization, observability and monitoring, software migration strategies, system architecture refactoring, zerodowntime deployment",,12.0
+839,"actor model, concurrent programming, distributed systems, erlang, faulttolerant systems, otp, system design",,11.0
+840,"a search algorithm, combinatorial optimization, computational complexity analysis, graph traversal algorithms, heuristic function design, pathfinding algorithms, statespace search",,0.0
+841,"data analysis, data extraction, data visualization, data wrangling, machine learning, model training, statistical analysis",,71.0
+843,"creative development workflows, critical game analysis, game art principles, game design theory, ludology, narrative design",,0.0
+845,"algorithmic complexity, data structures, graph algorithms, graph traversal, search algorithms, social network analysis",,44.0
+847,"algorithm implementation, algorithmic abstraction, algorithmic problemsolving, data structures, python, search algorithms, statespace search",,40.0
+848,"algorithm analysis, algorithm design, algorithm implementation, data analysis, divideandconquer algorithms, dynamic programming, python",,28.0
+849,"cloud computing concepts, container orchestration, containerization, continuous integrationcontinuous deployment, devops methodologies, git, infrastructure as code",,81.0
+850,"3d animation, 3d lighting and shading, 3d mesh manipulation, geometric transformations, javascript, three.js, webgl",,53.0
+852,"graph algorithms, graph theory, graph traversal, minimum spanning tree algorithms, network analysis, shortest path algorithms, social network analysis",,26.0
+855,"container orchestration, containerization, docker, google kubernetes engine, kubernetes, microservices, yaml",,82.0
+856,"ab testing, conversion rate optimization, data interpretation, experimental design, hypothesis testing, statistical analysis, statistical significance",,41.0
+863,"clustering algorithms, dynamic programming, greedy algorithms, huffman codes, knapsack problem, minimum spanning trees, sequence alignment",,0.0
+865,"c programming, classes, data structures, development environment setup, memory management, objectoriented programming, software engineering",,71.0
+866,"generative ai application development, generative ai concepts, google cloud generative ai tools, large language models, machine learning concepts, prompt engineering",,75.0
+867,"burrowswheeler transform, genomic sequence analysis, information retrieval, pattern matching, suffix trees, text processing algorithms, trie data structures",,0.0
+869,"automatic annotation, corpus creation, text analysis, text annotation, text digitization, xml",,16.0
+870,"algorithm implementation, image enhancement, image filtering, image processing, image restoration, image segmentation, python",,42.0
+904,"artificial intelligence, automated planning, classical search algorithms, logicbased reasoning, machine learning, probability theory",,50.0
+905,"ai algorithms, machine learning, portfolio management, python, quantitative analysis, trading signal generation",,48.0
+907,"algorithm analysis, big o notation, computational complexity theory, npcompleteness, polynomialtime reduction, time complexity analysis, tractability analysis",,0.0
+908,"binary representation, computer organization, cybersecurity fundamentals, number base conversion, number systems, operating system fundamentals",,14.0
+909,"api integration, image manipulation, optical character recognition, python, software engineering principles",,75.0
+911,"analog circuit design, circuit simulation, electronic filter design, integrated circuit design, operational amplifier design, semiconductor device physics, vlsi design",,11.0
+913,"ai algorithms, artificial intelligence, computer vision, machine learning, natural language processing, reinforcement learning, speech recognition",,82.0
+914,"clientserver model, css, html, http protocol, javascript, web application architecture, web server fundamentals",,57.0
+915,"control and data plane separation, network automation, network programmability, openflow protocol, sdn architecture, sdn controllers, software defined networking",,11.0
+918,"ai agent development, automated reasoning, cognitive modeling, expert systems, knowledge representation and reasoning, knowledgebased artificial intelligence, symbolic ai",,13.0
+920,"computer vision, deep learning, image recognition, machine learning, natural language processing, python, pytorch",,85.0
+921,"classification algorithms, financial data analysis, machine learning, pandas, predictive modeling, python, scikitlearn, supervised learning",,61.0
+922,"actuator control, api integration, gpio programming, network programming, raspberry pi, sensor interfacing, socket programming",,14.0
+923,"algorithm analysis, algorithmic efficiency, asymptotic analysis, big o notation, runtime analysis, time complexity analysis, worstcase analysis",,0.0
+924,"cardinality, countability, diagonalization, infinite sets, set theory, theoretical computer science",,0.0
+925,"computational theory, formal definitions, formal language theory, interpreter design, theoretical computer science, tm subroutine design, turing machine programming",,0.0
+926,"binary trees, computability theory, formal deductive systems, formal proof techniques, logical equivalence, propositional logic",,0.0
+927,"deterministic finite automata, finite automata theory, formal language theory, nondeterministic finite automata, regular expressions, regular languages, theory of computation",,0.0
+928,"automata theory, churchturing thesis, computability theory, formal languages, halting problem, turing machines, undecidable problems",,0.0
+929,"formal logic, mathematical proofs, mathematical reasoning, proof by contradiction, proof by induction, proof construction techniques, set theory",,11.0
+930,"blockchain technology, consensus algorithms, cryptography, distributed ledger technology, distributed systems, peertopeer networking, theoretical computer science",,12.0
+931,"combinatorial optimization, complex systems analysis, computational complexity theory, information theory, phase transitions, statistical mechanics, thermodynamic modeling",,0.0
+932,"blockchain technology, cryptography, multiparty computation, pseudorandomness, secure computation, theoretical computer science",,14.0
+933,"computational type theory, group theory, homotopy theory, homotopy type theory, martinlöf type theory, univalence",,0.0
+934,"algorithmic design, algorithms, big o notation, complexity analysis, data structures, recursion",,33.0
+935,"algorithm design, complexity analysis, data structures, software architecture, software design patterns, system design",,63.0
+936,"algorithm design, cryptography concepts, data structures, frontend development, git, javascript",,66.0
+937,"algorithm analysis, algorithmic thinking, optimization algorithms, search algorithms, sorting algorithms, time complexity",,29.0
+938,"automata theory, computability theory, computational complexity theory, formal languages, theoretical computer science",,0.0
+939,"algebra, combinatorics, discrete mathematics, graph theory, logic and proofs, number theory, set theory",,0.0
+940,"algorithm implementation, approximate inference algorithms, conditional probability queries, exact inference algorithms, graphical models, map inference, probabilistic inference",,0.0
+941,"ehremr systems support, hardware troubleshooting, help desk ticketing systems, hipaa compliance principles, it support fundamentals, network diagnostics, software troubleshooting",,41.0
+944,"algorithmic analysis, bellmanford algorithm, computational complexity theory, floydwarshall algorithm, graph algorithms, heuristic algorithms, npcompleteness",,11.0
+948,"computer vision, kalman filters, lidar data processing, object tracking, perception pipeline development, radar data processing, sensor fusion",,14.0
+949,"file permissions management, linux, linux commandline interface, linux file system management, linux system administration, shell scripting, user account management",,41.0
+951,"application federation, cloud infrastructure design, cloud networking, data transfer optimization, global network architecture, lowlatency network design, wan optimization",,36.0
+953,"device connectivity, dragonboard 410c, embedded systems development, hardware prototyping, internet of things, mobile application development, sensor integration",,39.0
+954,"dimensionality reduction, inner products, linear algebra, orthogonal projections, principal component analysis, statistics",,0.0
+955,"chainofthought prompting, chatgpt, context engineering, fewshot prompting, large language models, prompt engineering, zeroshot prompting",,53.0
+957,"algorithm development, applied ai, artificial intelligence, deep learning, machine learning, nocode development",,80.0
+958,"aidriven task automation, automated reporting, chatgpt, generative ai, large language model application, prompt engineering",,78.0
+959,"css, html, static web page development, web hosting, web page structure, website deployment",,59.0
+960,", c++, embedded system design, embedded systems testing, firmware development, hardware interfacing, microcontroller programming",,28.0
+966,"data structure algorithms, data structure implementation, hashmaps, heap data structures, java, nonlinear data structures, skiplists, tree data structures",,33.0
+967,"functional programming, language design principles, ml, racket, ruby",,38.0
+968,"incident response planning, intrusion detection, log analysis, network auditing, network forensics, network security, vulnerability assessment",,66.0
+969,"autonomous vehicle navigation, carla simulator, control systems, path planning algorithms, python, robotics software development, simulation",,42.0
+973,"algorithmic design, approximation algorithms, computational complexity theory, nphard problem analysis, performance analysis of algorithms, traveling salesperson problem, vertex cover problem",,0.0
+974,"fourier analysis, functional analysis, hypercontractivity, mathematical analysis, probability theory, proof techniques, theoretical computer science",,14.0
+975,"algorithmic complexity analysis, algorithms, data structures, database design, objectoriented programming, ruby, ruby on rails, sql",,86.0
+976,"arangodb, cassandra, cockroachdb, consensus algorithms, distributed data stores, distributed transactions, query optimization, rethinkdb",,12.0
+977,"collaborative problemsolving, interdisciplinary research, participatory methods, qualitative analysis, stakeholder engagement, systems analysis, usercentered design",,24.0
+978,"azure, azure computer vision, data acquisition, data storage, natural language processing, optical character recognition, visual studio code",,68.0
+979,"algorithm analysis, computational complexity theory, cryptography, obfuscation, secure computation, theoretical computer science",,0.0
+980,"algorithm design and analysis, game theory, network coordination games, online computation, prophet inequalities, scheduling algorithms, theoretical computer science",,12.0
+981,"algorithm design, coding theory, communication protocols, cryptography, faulttolerant algorithms, secure computation, theoretical computer science",,0.0
+982,"agreement expansion, distribution testing, influence maximization, neural networks, probability distribution learning, random object sampling, theoretical computer science",,12.0
+983,"analysis of random strings, computational complexity theory, computational hardness, decision tree complexity, pseudorandomness, theoretical computer science",,0.0
+984,"artificial intelligence, cognitive modeling, computational neuroscience, models of computation, theoretical computer science, theory of computation, turing machines",,14.0
+985,"compiler design, compiler internals, compiler techniques, intermediate representation, software engineering practices, wolfram compiler, wolfram language",,11.0
+986,"event ordering in distributed systems, handling clock skew, logical clocks, system clock management, time synchronization protocols, timestamping, vector clocks",,0.0
+988,"automata theory, churchturing thesis, complexity theory, computability theory, formal language theory, the halting problem, turing machines",,0.0
+989,"algorithmic modeling, computer science research methods, data analysis, information diffusion models, network theory, simulation techniques, social network analysis",,26.0
+990,"algorithm design and analysis, computational geometry, geometric algorithms, mathematical modeling, pattern matching, spatial data structures, string algorithms",,11.0
+991,"algorithm design, computational complexity analysis, eigenvalue analysis, matrix decomposition, numerical linear algebra, scientific computing, singular value decomposition",,0.0
+992,"advanced matrix methods, algorithm design, algorithmic analysis, eigenvalue analysis, matrix decomposition, numerical linear algebra, scientific computing",,0.0
+993,"binary representation of data, color space conversion, computational color science, digital color theory, hexadecimal color codes, rgb color model",,0.0
+994,", computer vision, image processing, optical character recognition, tesseract, text extraction from images",,65.0
+995,"churchturing thesis, computability theory, computational complexity theory, decidability and undecidability, formal languages and automata theory, the halting problem, turing machines",,0.0
+996,"data analysis, machine learning, neural networks, neuromorphic algorithm design, neuromorphic computing, python, spiking neural networks",,55.0
+997,"algorithm analysis, combinatorics, expander graphs, highdimensional expanders, pure mathematics, spectral graph theory, theoretical computer science",,0.0
+998,"3d animation, 3d modeling, computer graphics, gui development, interactive application development, realtime rendering, shading",,37.0
+1020,"ai model evaluation, ai strategy implementation, artificial intelligence, machine learning, machine learning frameworks, python",,50.0
+1021,"analysis of healthcare data, machine learning fundamentals, machine learning problem framing, ml model development, ml model implementation, model evaluation metrics",,13.0

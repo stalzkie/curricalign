@@ -1,0 +1,1044 @@
+course_id,course_code,course_title,course_description,created_at
+0,0,CS50's Introduction to Computer Science,An introduction to the intellectual enterprises of computer science and the art of programming.,2025-10-29 22:34:43
+1,1,Harvard CS50 – Full Computer Science University Course,"Learn the basics of computer science from Harvard University. This is CS50, an introduction to the intellectual enterprises of computer science and the art of programming.",2025-10-29 22:34:43
+2,2,Introduction to Computer Science and Programming Using Python,An introduction to computer science as a tool to solve real-world analytical problems using Python 3.5.,2025-10-29 22:34:43
+3,3,Introduction to Electrical Engineering and Computer Science I,"This course provides an integrated introduction to electrical engineering and computer science, taught using substantial laboratory experiments with mobile robots.",2025-10-29 22:34:43
+4,4,CS50's Computer Science for Business Professionals,This is CS50’s introduction to computer science for business professionals.,2025-10-29 22:34:43
+5,5,"Internet History, Technology, and Security","This course will open up the Internet and show you how it was created, who created it and how it works. Along the way we will meet many of the innovators who developed the Internet and Web technologies that we use today.",2025-10-29 22:34:43
+6,6,Computer Science 101,Introduction to Computer Science for a zero-prior-experience audience. Play with little phrases of code to understand what computers are all about.,2025-10-29 22:34:43
+7,7,Computational Social Science Methods,"Explore computational social science's impact on society, covering data science, machine learning, social networks, and simulations. Gain insights into digital footprints and emerging social patterns.",2025-10-29 22:34:43
+8,8,Functional Programming Principles in Scala,In this course you will discover the elements of the functional programming style and learn how to apply them usefully in your daily programming tasks.,2025-10-29 22:34:43
+9,9,Build a Modern Computer from First Principles: From Nand to Tetris (Project-Centered Course),"Hands-on journey to build a modern computer system from logic gates to a functioning general-purpose computer, covering hardware, machine language, and assembly.",2025-10-29 22:34:43
+10,10,Computer Simulations,"Explore complex social phenomena through computer simulations. Learn to create and analyze agent-based models, combining hypothetical scenarios with real-world data to study and improve societal systems.",2025-10-29 22:34:43
+11,11,Introduction to Computer Science and Programming in Python,The course is intended for students with little or no programming experience. It aims to provide students with an understanding of the role computation can play in solving problems and to help students.,2025-10-29 22:34:43
+12,12,An Introduction to Logic for Computer Science,"Explore propositional logic fundamentals and applications in computer science, enhancing problem-solving skills through hands-on exercises and real-world examples.",2025-10-29 22:34:43
+13,13,CS50's Computer Science for Lawyers,"This course is a variant of Harvard University's introduction to computer science, CS50, designed especially for lawyers (and law students).",2025-10-29 22:34:43
+14,14,Computational Social Science Capstone Project,"Integrative lab applying computational social science skills: web scraping, network analysis, NLP, and agent-based modeling to analyze social media data and simulate idea diffusion.",2025-10-29 22:34:43
+15,15,CSS Variable Secrets - Harnessing the Full Power of Custom Properties,"Unlock the full potential of CSS custom properties with expert tips, tricks, and gotchas. Gain a deeper understanding and refresh your CSS toolbox in this interactive journey from practical to cutting-edge techniques.",2025-10-29 22:34:43
+16,16,Machine Learning - Lecture 2,"Explore machine learning fundamentals, focusing on linear regression, gradient descent, and model evaluation techniques for predictive analysis and data-driven decision making.",2025-10-29 22:34:43
+17,17,"CSS Position Deep Dive - Understanding Static, Relative, Absolute, Fixed, and Sticky","Comprehensive exploration of CSS positioning properties, covering static, relative, absolute, fixed, and sticky, with practical examples and insights into containing blocks and potential pitfalls.",2025-10-29 22:34:43
+18,18,CSS Art Crash Course - By Example,"Learn to create simple illustrations using HTML and CSS techniques, exploring CSS art through hands-on examples and step-by-step guidance.",2025-10-29 22:34:43
+19,19,You Probably Want Position- Sticky Instead of Fixed,"Explore the differences between position: fixed and sticky in CSS, with practical examples and creative use cases for sticky positioning in web design.",2025-10-29 22:34:43
+20,20,CSS Background Values: Space and Round - Enhancing Image Repetition,"Discover lesser-known CSS background values: space and round. Learn their unique behaviors, browser support, and practical applications to enhance your web designs.",2025-10-29 22:34:43
+21,21,Creating a Cool Bubble Zoom Effect with CSS,"Learn to create an engaging bubble zoom effect using CSS, including grid animations, avatar scaling, and transition delays for a dynamic and interactive design.",2025-10-29 22:34:43
+22,22,Cloning CSS Day Effect Using Modern CSS,"Learn to recreate a fun CSS effect from CSS Day using modern techniques. Explore grid layouts, image positioning, and hover effects to enhance your web design skills.",2025-10-29 22:34:43
+23,23,Start Over-Engineering Your CSS - Benefits and Techniques,"Explore the benefits of embracing complexity in CSS solutions, deepening understanding and creating robust alternatives to simple approaches.",2025-10-29 22:34:43
+24,24,Simple Details and Summary Animation with Pure CSS,"Master modern CSS techniques to create smooth animations for details/summary elements, exploring interpolate-size and pseudo-elements for enhanced user interactions.",2025-10-29 22:34:43
+25,25,Solving CSS Battles - Live Coding and Problem-Solving,"Watch a live CSS problem-solving session as the instructor tackles complex challenges on CSS Battles, demonstrating effective techniques and thought processes for mastering advanced CSS skills.",2025-10-29 22:34:43
+26,26,Master CSS Overflow and Text Wrapping Techniques for Senior Developers,"Discover advanced CSS overflow and text wrapping techniques, including lesser-known properties like overflow-anchor, word-break, and line-clamp, to enhance your web development skills.",2025-10-29 22:34:43
+27,27,7 CSS Responsive Sizing Features You Should Know,"Discover 7 essential CSS responsive sizing features for optimal element sizing and layout control, enhancing your web design skills and site functionality.",2025-10-29 22:34:43
+28,28,CSS Popover and Anchor Positioning Tutorial - Creating Dynamic Element Connections,"Master CSS anchor positioning and popover functionality to create dynamic, position-aware elements with modern techniques and polyfills for cross-browser compatibility and smooth animations.",2025-10-29 22:34:43
+29,29,Creating a Rotating Gradient Border Effect with CSS,"Master CSS gradient animations by recreating a rotating, blurred border effect with conic gradients, masks, and pseudo-elements. Learn advanced techniques for creating dynamic visual effects through practical implementation.",2025-10-29 22:34:43
+30,30,Top 5 Front-End Development Tips - From Console.log to Modern CSS,"Discover essential front-end development tricks, from CSS debugging techniques and dynamic favicons to advanced number input handling and modern CSS functions like min() for more efficient coding.",2025-10-29 22:34:43
+31,31,CSS @scope: Simplifying Naming and Specificity Management,"Explore @scope in CSS: simplify naming, manage specificity, and enhance style organization. Learn its benefits, usage, and potential challenges in this comprehensive guide.",2025-10-29 22:34:43
+32,32,5 Common CSS Mistakes Beginners Should Avoid,"Learn to avoid common CSS pitfalls, including collapsing margins, overusing positioning, and misusing flexbox/grid. Gain insights on best practices for efficient and effective styling.",2025-10-29 22:34:43
+33,33,Transitioning To and From Display: None in CSS,"Learn to smoothly animate elements between visible and hidden states using CSS transitions and the new @starting-style rule, with tips on browser support and best practices.",2025-10-29 22:34:43
+34,34,@property - One of the Coolest New CSS Features,"Explore the revolutionary @property CSS feature, its potential impact, and how to effectively implement it in your web development projects.",2025-10-29 22:34:43
+35,35,Dynamic Numbering with CSS Counters,"Explore dynamic numbering with CSS counters, from basic implementation to advanced techniques. Learn to create, increment, and customize counters for enhanced web design.",2025-10-29 22:34:43
+36,36,Creating Discord's CSS-Only Search Input Animation Tutorial,"Master the creation of Discord's elegant search input animation using pure CSS, including width transitions and icon transformations for an enhanced user interface.",2025-10-29 22:34:43
+37,37,Understanding Flexbox Alignment - Main and Cross Axis Explained,"Demystifies flexbox alignment, explaining main and cross-axis concepts, flex-direction changes, and practical tips for effective CSS layout using justify-content and align-items.",2025-10-29 22:34:43
+38,38,Pure CSS Scroll Spy Table of Contents - No JavaScript Required,Master the creation of JavaScript-free scroll spy navigation using pure CSS techniques to build dynamic table of contents that automatically track user position on webpages.,2025-10-29 22:34:43
+39,39,Mastering CSS Colors: From Color Gamuts to Advanced Color Functions,"Master advanced CSS color techniques, from color spaces and gamuts to relative colors and color mixing functions. Elevate your styling capabilities with modern color manipulation methods.",2025-10-29 22:34:43
+40,40,Creating Overlapping Website Sections with CSS - Box Shadow and Gradient Methods,Master CSS techniques for creating overlapping website sections using box-shadow and gradient methods in this practical web design tutorial.,2025-10-29 22:34:43
+41,41,Creating a Focus by Negation Effect with CSS - Animation Tutorial,"Master CSS animation techniques to create an engaging ""focus by negation"" effect, exploring scaling, springiness, mobile optimization, and transform properties for dynamic user interactions.",2025-10-29 22:34:43
+42,42,The Most Important CSS Update We've Seen in a Long Time,"Explore the groundbreaking ""reading-flow"" CSS feature that enhances grid and flexbox element ordering, with Kevin Powell examining its potential impact and implementation before its official release.",2025-10-29 22:34:43
+43,43,New CSS Features to Know for 2025,"Discover upcoming CSS features for 2025, including custom selects, carousels, mixins, anchor positioning, view transitions, and more, plus newly available and widely supported capabilities.",2025-10-29 22:34:43
+44,44,5 CSS Tips Every Developer Should Know,"Discover 5 essential CSS techniques: single-color gradients, user-select property, the all property, masks, and containing blocks for scroll containers, with practical examples and use cases.",2025-10-29 22:34:43
+45,45,Create This Trendy Blurry Glass Effect with CSS,"Master the trendy blurry glass effect using CSS backdrop-filter, gradients, and transparency techniques to create modern, elegant UI components.",2025-10-29 22:34:43
+46,46,Spice Up Your Site with Quick and Easy Theme Transitions,"Master CSS view transitions to create smooth, engaging theme switches with sliding, bouncing, and circle effects in just 13 minutes.",2025-10-29 22:34:43
+47,47,Introduction to Computer Vision,"This course provides an introduction to computer vision including fundamentals, methods for application and machine learning classification.",2025-10-29 22:34:43
+48,48,AP Computer Science A: Java Programming,"Learn Java programming fundamentals, including variables, selection, and object-oriented design. Develop problem-solving skills and explore computer science concepts relevant to the AP Computer Science A exam.",2025-10-29 22:34:43
+49,49,Machine Learning with Python,"Dive into Machine Learning with Python, covering supervised and unsupervised learning, regression, classification, and clustering. Gain hands-on experience using SciPy and scikit-learn libraries.",2025-10-29 22:34:43
+50,50,System Administration and IT Infrastructure Services,"Learn to manage IT infrastructure, cloud resources, servers, and users. Explore disaster recovery, backup strategies, and best practices for hardware and service selection. Gain practical skills for effective systems administration.",2025-10-29 22:34:43
+51,51,The Web Developer Bootcamp 2025,Udemy,2025-10-29 22:34:43
+52,52,Python - Intro to Computer Science - Harvard's CS50 (2018),freeCodeCamp,2025-10-29 22:34:43
+53,53,Advanced Operating Systems,"In this course, we will see all the advances that have led to the state-of-the-art operating system that we know today, covering variety of platforms -- cell phones, multi-core, parallel systems, distributed systems, and cloud computing.",2025-10-29 22:34:43
+54,54,Introducción a la programación en C: Instrucciones de control y ficheros de texto,"En este curso aprenderás sobre condicionales, bucles y ficheros de texto en el lenguaje de programación C, uno de los más utilizados.",2025-10-29 22:34:43
+55,55,"Machine Learning A-Z: AI, Python & R + ChatGPT Prize [2025]",Udemy,2025-10-29 22:34:43
+56,56,Linux Command Line Basics,Udacity,2025-10-29 22:34:43
+57,57,Data Structures - Intro to Computer Science - Harvard's CS50 (2018),freeCodeCamp,2025-10-29 22:34:43
+58,58,C Programming Language - Intro to Computer Science - Harvard's CS50 (2018),freeCodeCamp,2025-10-29 22:34:43
+59,59,Data Structures and Performance,"Explore data structures and algorithms for efficient handling of large datasets. Learn asymptotic analysis, linked lists, trees, and hashtables to improve program performance and flexibility.",2025-10-29 22:34:43
+60,60,Frontend Development Course - Create a Blog with HTML & CSS,freeCodeCamp,2025-10-29 22:34:43
+61,61,Behavioral Interview Practice for Computer Science Students,CodeSignal,2025-10-29 22:34:43
+62,62,Trial Lessons: Philosophy and Computer Science,"Explore the intersection of philosophy and computer science through seven concise lectures, covering topics from AI governance to robot rights in this unique master's program preview.",2025-10-29 22:34:43
+63,63,Code of Life – When Computer Science Meets Genetics,,2025-10-29 22:34:43
+64,64,Complete Intro to Computer Science,Frontend Masters,2025-10-29 22:34:43
+65,65,SQL - Intro to Computer Science - Harvard's CS50 (2018),freeCodeCamp,2025-10-29 22:34:43
+66,66,"HTTP, HTML, CSS - Intro to Computer Science - Harvard's CS50 (2018)",freeCodeCamp,2025-10-29 22:34:43
+67,67,Data Structures - Computer Science Course for Beginners,freeCodeCamp,2025-10-29 22:34:43
+68,68,Online Computer Science Degree,Zero To Mastery,2025-10-29 22:34:43
+69,69,Executive Briefing: Artificial Intelligence (AI) + ChatGPT,Udemy,2025-10-29 22:34:43
+70,70,Introduction to Machine Learning with TensorFlow,Introduction to Machine Learning with TensorFlow,2025-10-29 22:34:43
+71,71,Machine Learning with Python,freeCodeCamp,2025-10-29 22:34:43
+72,72,The Complete Prompt Engineering for AI Bootcamp (2025),Udemy,2025-10-29 22:34:43
+73,73,Cybersecurity and Its Ten Domains,"Comprehensive introduction to cybersecurity covering ten domains, including governance, compliance, cryptography, network security, and more. Suitable for beginners and professionals seeking foundational knowledge.",2025-10-29 22:34:43
+74,74,ChatGPT: Complete ChatGPT Course For Work 2025 (Ethically)!,Udemy,2025-10-29 22:34:43
+75,75,Kubernetes for the Absolute Beginners - Hands-on,Udemy,2025-10-29 22:34:43
+76,76,Curso Completo de Computación con Windows,Udemy,2025-10-29 22:34:43
+77,77,Introduction to Service Management with ITIL 4,Udemy,2025-10-29 22:34:43
+78,78,Ulam Lectures - Cris Moore - Limits of Computers in Science and Society Part 1,"Explore computational limits, problem complexity, and algorithmic challenges in science and society. From easy puzzles to impossible problems, delve into the nature of computation and its societal impact.",2025-10-29 22:34:43
+79,79,Berkeley in the 80s - Episode 1- Shafi Goldwasser,"Insightful interview with Turing Laureate Shafi Goldwasser, exploring her groundbreaking research in theoretical computer science, interactive proofs, and zero-knowledge protocols at UC Berkeley in the 1980s.",2025-10-29 22:34:43
+80,80,Invariant Theory for Computer Scientists,"Explore algebraic methods in computer science, focusing on invariant theory, graph isomorphism, and group actions. Learn about algorithms, moment polytopes, and open problems in the field.",2025-10-29 22:34:43
+81,81,The Beginners Guide to WordPress Troubleshooting,"Learn to troubleshoot common WordPress issues, from broken sites and plugin rollbacks to backend lockouts, CSS problems, redirections, 404 errors, and server issues in this comprehensive guide.",2025-10-29 22:34:43
+82,82,An Introduction to Boolean Function Analysis - Dor Minzer,"Explore Boolean function analysis, covering influences, PCP theory, and hypercontractive inequalities. Gain insights into fundamental concepts and advanced techniques in discrete mathematics and theoretical computer science.",2025-10-29 22:34:43
+83,83,"Turing Lecture 2021 - Abstractions, Their Algorithms, and Their Compilers","Explore computational thinking through abstractions, algorithms, and compilers. Delve into compiler design, large dataset handling, and quantum computation, with insights from renowned computer scientists.",2025-10-29 22:34:43
+84,84,A Brief Tour of Proof Complexity - Lower Bounds and Open Problems - Toniann Pitassi,"Explore proof complexity, lower bounds, and open problems in computer science and discrete mathematics with insights on proof systems and their limitations.",2025-10-29 22:34:43
+85,85,Introduction to CSS Variables - CSS Custom Properties - Full Tutorial,"Comprehensive tutorial on CSS variables, covering creation, overriding, theming, JavaScript integration, and responsiveness. Learn to enhance code efficiency and flexibility in web development.",2025-10-29 22:34:43
+86,86,It Is Entropy That Counts by Jaikumar Radhakrishnan,"Explore Shannon entropy's applications in combinatorics and computer science, including randomized two-party communication complexity and quantum communication complexity of Set Disjointness problem.",2025-10-29 22:34:43
+87,87,Getting Started with CSS - CSS Tutorials for Beginners - Learn CSS,"Comprehensive introduction to CSS, covering selectors, properties, and styling techniques. Includes practical demonstrations and examples for beginners to create visually appealing web pages.",2025-10-29 22:34:43
+88,88,Ranking CSS Units from Best to Worst,"Comprehensive guide ranking CSS units, exploring absolute, relative, viewport, and container units, with insights on their practical applications and benefits.",2025-10-29 22:34:43
+89,89,Styling With Attribute Selectors,Explore advanced CSS techniques using attribute selectors to enhance styling capabilities and solve complex design challenges efficiently.,2025-10-29 22:34:43
+90,90,Learn CSS Box Model - Build a Rothko Painting,"Explore CSS box model concepts while creating a Rothko-inspired painting, enhancing your web design skills and artistic expression through practical coding exercises.",2025-10-29 22:34:43
+91,91,Reverse-Engineering Stripe's Themes with CSS Custom Properties,"Learn to create customizable CSS themes using custom properties, inspired by Stripe's design approach. Practical tutorial on building flexible, reusable styles for modern web development.",2025-10-29 22:34:43
+92,92,CSS Position Property - Tutorial 28,"Explore CSS position properties: static, relative, absolute, fixed, and sticky. Learn their applications and effects on element positioning in web layouts.",2025-10-29 22:34:43
+93,93,Binary Number Systems and Conversions,"Explore the fundamentals of binary, its applications in computing, and how it forms the basis for digital information storage and processing.",2025-10-29 22:34:43
+94,94,Learn CSS - Code Marker-Pens With Me,"Hands-on CSS tutorial for creating marker-pens, ideal for beginners. Practice fundamental styling techniques while building a fun, interactive project.",2025-10-29 22:34:43
+95,95,Linear Gradient in CSS - HTML & CSS,Learn to create visually appealing linear gradients in CSS using linear-gradient and repeating-linear-gradient functions. Enhance your web design skills with this practical tutorial.,2025-10-29 22:34:43
+96,96,Modern CSS Evolution: From Past Practices to Future Trends,"Explore CSS evolution, from preprocessors to modern techniques. Learn about influential changes, new features, and future trends in writing efficient and powerful stylesheets.",2025-10-29 22:34:43
+97,97,Modern CSS for Dynamic Component-Based Architecture,"Explore modern CSS techniques for dynamic, component-based web development. Learn theming, responsive layouts, and advanced features for scalable, future-friendly projects with real-world examples.",2025-10-29 22:34:43
+98,98,CSS Containers - Understanding and Implementing Container Queries,"Comprehensive exploration of CSS Container Queries: from concept to implementation. Learn key differences from media queries, hidden powers, and practical applications in web projects.",2025-10-29 22:34:43
+99,99,Why Doesn't CSS Have Scope?,"Explore CSS scoping, its necessity, and alternatives. Challenges global CSS, questions stylesheets and frameworks, and draws unexpected parallels with Swedish death metal.",2025-10-29 22:34:43
+100,100,Tinkerer by Night - Exploring CSS Possibilities Through Experimentation,"Explore CSS possibilities through live-coding experiments. Discover elegant, joyful ways to design and code the web, embracing both successes and failures as valuable learning experiences.",2025-10-29 22:34:43
+101,101,State of the CSS Community - CSS Day 2023,"Explore the current landscape of CSS, its evolving features, and the vibrant community shaping its future in this insightful talk by Una Kravets.",2025-10-29 22:34:43
+102,102,CSS Runtime Performance - Optimizing Style and Layout Calculation,"Explore CSS runtime performance optimization techniques, understanding browser optimizations and developer strategies to enhance styling speed and efficiency.",2025-10-29 22:34:43
+103,103,"Keeping CSS Small - Scopes, Containers, and New Technologies","Explore new CSS and DOM technologies for managing complex stylesheets without adopting complex tooling. Learn about scopes, containers, and other features to keep your CSS small and understandable.",2025-10-29 22:34:43
+104,104,The Joy of CSS - Live-Coding a CSS Landscape,"Explore CSS landscape live-coding with Ben Evans, discovering creative techniques, design insights, and the unexpected joys of drawing with code in this entertaining and informative session.",2025-10-29 22:34:43
+105,105,"CSS Scroll-Snap: Basics, Tricks, and Future Developments","Explore CSS scroll-snap essentials, debugging techniques, and advanced tricks. Learn about related properties and future developments for enhanced web design and user experience.",2025-10-29 22:34:43
+106,106,The CSS Cascade - A Deep Dive,"Explore the intricacies of CSS Cascade, including Origins, Specificity, and Cascade Layers. Gain insights into browser mechanics for determining CSS declaration application.",2025-10-29 22:34:43
+107,107,3D Transforms in CSS - Creating Complex Shapes and Animations,"Explore advanced 3D transforms in CSS, creating complex shapes with shading, animations, and transformations. Learn techniques for building intricate geometric solids and dynamic visual effects.",2025-10-29 22:34:43
+108,108,Flexbox Holy Albatross - Algorithmic Layouts and Design Systems,"Explore the Flexbox Holy Albatross technique for algorithmic layouts and its integration into design systems using custom elements, presented by Heydon Pickering at CSS Day 2019.",2025-10-29 22:34:43
+109,109,Algorithms in CSS - Declarative Programming in Web Design,"Explore CSS as a declarative, domain-specific programming language. Learn to appreciate its unique features and understand why it's crucial to view CSS as a true programming language in web development.",2025-10-29 22:34:43
+110,110,CSS Line Layout and Vertical Rhythm - Upcoming Features and Improvements,"Explore upcoming CSS features for improved line layout, half-leading control, and vertical rhythm maintenance. Learn about advancements in the CSS line box model and their impact on web design.",2025-10-29 22:34:43
+111,111,Refactoring the Way We Talk About CSS,"Explores the evolution of CSS and proposes a new approach to teaching and discussing the language, challenging outdated perceptions and emphasizing its modern capabilities and strengths.",2025-10-29 22:34:43
+112,112,Understanding Modern CSS Layouts with Firefox DevTools,"Explore modern CSS layouts using Firefox DevTools. Learn Flexbox and Grid properties, understand browser interpretation, and master layout techniques for responsive web design.",2025-10-29 22:34:43
+113,113,Text Experiments with CSS - Creating Print-Like Effects on the Web,"Explore innovative CSS techniques to create stunning text effects, combining properties like pseudo-elements, clip-path, and variable fonts for impactful web typography.",2025-10-29 22:34:43
+114,114,"FirefoxOS - Developer Environment, Apps, and Marketplace","Explore FirefoxOS development, including the environment setup, app creation, and publishing to the Marketplace. Learn essential skills for building and distributing mobile web applications.",2025-10-29 22:34:43
+115,115,Natural Language Processing - Lecture 5,"Explore advanced topics in computer science, focusing on cutting-edge algorithms, data structures, and problem-solving techniques in this comprehensive lecture.",2025-10-29 22:34:43
+116,116,Natural Language Processing - Lecture 3,"Explore advanced topics in natural language processing, focusing on deep learning techniques and their applications in text analysis and generation.",2025-10-29 22:34:43
+117,117,Machine Learning - Lecture 8,"Explore advanced machine learning concepts, focusing on ensemble methods and boosting techniques to enhance model performance and predictive accuracy.",2025-10-29 22:34:43
+118,118,Machine Learning - Lecture 6,"Explore advanced machine learning concepts, focusing on ensemble methods and boosting techniques to enhance model performance and predictive accuracy.",2025-10-29 22:34:43
+119,119,Machine Learning - Lecture 4,"Machine learning techniques for classification, including decision trees, logistic regression, and support vector machines. Explores model evaluation, feature engineering, and handling imbalanced datasets.",2025-10-29 22:34:43
+120,120,CSEP 501 - Compilers for Computer Languages - Lecture 10,"Explore advanced compiler optimization techniques, focusing on data-flow analysis and its applications in program transformation and code improvement.",2025-10-29 22:34:43
+121,121,Intrinsic Patterns as Alternatives to Media and Container Queries,"Explore intrinsic CSS patterns as alternatives to media and container queries, offering flexible layouts that adapt to content width using flexbox and grid techniques.",2025-10-29 22:34:43
+122,122,Understanding Flexbox and the min-width: 0 Debate,"Explores the implications of using min-width: 0 in CSS, discussing Flexbox behavior, potential issues, and when to apply this technique intentionally for better layout control.",2025-10-29 22:34:43
+123,123,Recreating Cut-Corner Photo Effect with CSS,"Learn to recreate a cut-corner photo effect using CSS, exploring techniques like pseudo-elements, clip paths, and fake borders to achieve a unique and visually appealing design.",2025-10-29 22:34:43
+124,124,ASMR Coding - Build a CSS Landing Page Without Talking,Experience the soothing process of building a responsive landing page with HTML and CSS through ASMR coding. Learn Visual Studio Code shortcuts while enjoying the calming sounds of mechanical keyboard typing.,2025-10-29 22:34:43
+125,125,Front-End Developer Takes on a CSS Battle,"Enhance CSS skills through live coding challenges, exploring creative solutions and advanced techniques in a fun, interactive format.",2025-10-29 22:34:43
+126,126,"The ""Other"" C in CSS - Exploring Cascading Style Sheets","Explore the often-overlooked ""Cascade"" in CSS with Sara Soueidan, delving into its intricacies and impact on web development practices.",2025-10-29 22:34:43
+127,127,Creating a CSS Boilerplate,Develop a robust CSS boilerplate to streamline your web development process and enhance consistency across projects. Learn essential techniques for efficient styling.,2025-10-29 22:34:43
+128,128,Python: CSS Introduction,"Learn to manipulate web page styles using Python and CSS. Explore techniques for dynamic styling, enhancing user interfaces, and creating visually appealing web applications.",2025-10-29 22:34:43
+129,129,What's New with CSS - Modern Features and Capabilities,"Discover the latest CSS features and capabilities, from container queries to directional layouts, empowering you to create more dynamic and responsive designs with fewer dependencies.",2025-10-29 22:34:43
+130,130,Motion One - A Lightweight JavaScript Animation Library,"Explore Motion One, a lightweight JavaScript animation library. Learn project setup, HTML/CSS basics, and create simple and scroll-based animations for engaging frontend designs.",2025-10-29 22:34:43
+131,131,"Modern CSS: Grid, Aspect Ratio, Container Queries, and More","Explore modern CSS features like Grid, Aspect Ratio, and Container Queries with expert Stephanie Eckles. Learn powerful techniques to simplify layout design and create responsive web experiences.",2025-10-29 22:34:43
+132,132,A Single Spooky Div - CSS Art Techniques,Explore creative CSS techniques with Lynn Fisher's A Single Div project. Learn to push CSS boundaries and create impressive designs using minimal HTML in this Halloween-themed tutorial.,2025-10-29 22:34:43
+133,133,"Glassmorphism Button Effect with Mouse Tracking - HTML, CSS and JavaScript Tutorial","Learn to create an interactive glassmorphism button effect with mouse tracking using HTML, CSS, and JavaScript. Master advanced CSS techniques and enhance your web design skills.",2025-10-29 22:34:43
+134,134,"Animated Neon Buttons with HTML, CSS, and JavaScript","Create eye-catching animated neon buttons using HTML, CSS, and JavaScript in this interactive live coding session. Learn techniques for adding visual flair to web elements.",2025-10-29 22:34:43
+135,135,Finding and Debugging CSS Issues - Techniques and Tools,"Discover effective techniques for identifying and resolving CSS issues using dev tools, browser extensions, and specialized software to improve your debugging skills and web development workflow.",2025-10-29 22:34:43
+136,136,How to Teach CSS - Effective Strategies for Engaging Developers,"Discover effective strategies to teach CSS, exploring mental models and analogies that make it engaging for JavaScript-focused developers. Learn to inspire enthusiasm for CSS in your peers.",2025-10-29 22:34:43
+137,137,Game Programming: Cache Coherency and Memory Pooling - Lecture 19,Optimize game performance through cache coherency and memory pooling techniques. Learn efficient memory management for game development.,2025-10-29 22:34:43
+138,138,Scroll-Enhanced Experiences - Creating Dynamic Narratives with CSS,"Explore scrollytelling techniques using CSS Scroll Timeline API to create dynamic, story-driven web experiences that captivate users as they scroll through content.",2025-10-29 22:34:43
+139,139,Anchor Positioning - CSS Day 2024,"Explore advanced CSS techniques for precise element positioning using anchor-based methods, enhancing layout control and design flexibility.",2025-10-29 22:34:43
+140,140,Creating a Fun Quick Text Flip Effect Tutorial,"Learn how to create a text flip animation effect in CSS with three different approaches, exploring keyframes, box-shadow, and transform techniques for dynamic text transitions.",2025-10-29 22:34:43
+141,141,20 NEW CSS Features You Need To Know In 2025,"Discover 20 cutting-edge CSS features for 2025, including @layer, text-wrap, nesting, container queries, relative colors, :has selector, @property, subgrid, and more to enhance your web development toolkit.",2025-10-29 22:34:43
+142,142,This Was So Much Harder Than I Thought - CSS Battle Optimization Challenge,"Dive into the challenges of CSS Battle optimization as we explore strategies for minimizing code characters while creating effective designs, from initial approach to advanced techniques.",2025-10-29 22:34:43
+143,143,Can I Survive CSS Hell? - Navigating CSS Challenges,"Explore strategies to overcome CSS challenges and build confidence in your styling skills, from basic troubleshooting to advanced techniques for creating maintainable code.",2025-10-29 22:34:43
+144,144,Custom Property Trick for Solving Common CSS Problems,"Discover a simple custom property trick for creating CSS fallbacks in older browsers, solving common compatibility issues with transitions and animations.",2025-10-29 22:34:43
+145,145,Make an Animated Glowing Border Effect with CSS,"Master creating animated glowing border effects with CSS, inspired by Google's AI Mode design. Build gradients, glows, and smooth animations using modern CSS techniques.",2025-10-29 22:34:43
+146,146,CSS Style Queries Have So Much Potential,"Explore CSS style queries and their powerful potential beyond container queries, covering advanced use cases, theme examples, and practical implementation techniques.",2025-10-29 22:34:43
+147,147,Introduction to Artificial Intelligence (AI),"Explore AI fundamentals, applications, and ethical considerations. Learn about machine learning, neural networks, and generative AI. Gain insights into AI's impact on various industries and future career opportunities.",2025-10-29 22:34:43
+148,148,The Complete Web Developer Course 3.0,Udemy,2025-10-29 22:34:43
+149,149,Web Design Certificate (Live Online),Noble Desktop,2025-10-29 22:34:43
+150,150,Analysis of Algorithms,"Explore algorithms through calculus, generating functions, and symbolic methods. Analyze structures like permutations, trees, and strings. Gain quantitative insights into large combinatorial structures.",2025-10-29 22:34:43
+151,151,Machine Learning: Clustering & Retrieval,"Explore similarity-based algorithms for document retrieval, clustering techniques, and topic modeling. Learn to implement k-nearest neighbors, k-means, EM, and LDA for analyzing large text datasets.",2025-10-29 22:34:43
+152,152,Docker Mastery: with Kubernetes +Swarm from a Docker Captain,Udemy,2025-10-29 22:34:43
+153,153,Docker for the Absolute Beginner - Hands On - DevOps,Udemy,2025-10-29 22:34:43
+154,154,计算机组成 Computer Organization,本课程重点讲述计算机的内部结构和工作原理，着眼于软件和硬件的衔接互动，注重基本概念和真实系统的对应。,2025-10-29 22:34:43
+155,155,Docker and Kubernetes: The Complete Guide,Udemy,2025-10-29 22:34:43
+156,156,How to use ChatGPT and Generative AI to help create content,Udemy,2025-10-29 22:34:43
+157,157,Introduction to OpenAI API & ChatGPT API for Developers,Udemy,2025-10-29 22:34:43
+158,158,Internet of Things: How did we get here?,"Explore the evolution of telecommunications, from early telephony to modern smartphones and IoT. Understand key innovations, network types, and technological convergence shaping our interconnected world.",2025-10-29 22:34:43
+159,159,Mastering Data Structures & Algorithms using C and C++,Udemy,2025-10-29 22:34:43
+160,160,Data Structures - Full Course Using C and C++,freeCodeCamp,2025-10-29 22:34:43
+161,161,"Deep Learning A-Z 2025: Neural Networks, AI & ChatGPT Prize",Udemy,2025-10-29 22:34:43
+162,162,Python and Django Full Stack Web Developer Bootcamp,Udemy,2025-10-29 22:34:43
+163,163,"The Complete AI Guide: Learn ChatGPT, Generative AI & More",Udemy,2025-10-29 22:34:43
+164,164,Client Needs and Software Requirements,This course covers practical techniques to elicit and express software requirements from client interactions.,2025-10-29 22:34:43
+165,165,Cryptography,"Explore the foundations of modern cryptography, focusing on practical applications and covering topics from classical methods to digital signatures and public-key encryption.",2025-10-29 22:34:43
+166,166,"Artificial Intelligence A-Z 2025: Agentic AI, Gen AI, and RL",Udemy,2025-10-29 22:34:43
+167,167,Ansible for the Absolute Beginner - Hands-On - DevOps,Udemy,2025-10-29 22:34:43
+168,168,Learn Linux in 5 Days and Level Up Your Career,Udemy,2025-10-29 22:34:43
+169,169,"Advanced CSS and Sass: Flexbox, Grid, Animations and More!",Udemy,2025-10-29 22:34:43
+170,170,Generative AI for Beginners,Udemy,2025-10-29 22:34:43
+171,171,Front-End Web Development Certificate (Live Online),Noble Desktop,2025-10-29 22:34:43
+172,172,How to Code: Simple Data,"Learn the secret to writing well-tested and easy to improve programs, that will set you up to master any programming language",2025-10-29 22:34:43
+173,173,Supervised Machine Learning: Regression and Classification,29447 ratings at Coursera,2025-10-29 22:34:43
+174,174,Complete Linux Training Course to Get Your Dream IT Job 2025,Udemy,2025-10-29 22:34:43
+175,175,"Introduction to TensorFlow for Artificial Intelligence, Machine Learning, and Deep Learning","Aprenda a implementar princípios de IA e aprendizado de máquina usando TensorFlow, construindo modelos escaláveis para resolver problemas do mundo real em visão computacional.",2025-10-29 22:34:43
+176,176,HTML and CSS for Beginners - Build a Website & Launch ONLINE,Udemy,2025-10-29 22:34:43
+177,177,Programming 101,Udemy,2025-10-29 22:34:43
+178,178,DevOps Beginners to Advanced with Projects,Udemy,2025-10-29 22:34:43
+179,179,Self Driving Car Engineer,5 reviews,2025-10-29 22:34:43
+180,180,"Software - Mathematica, MATLAB, Aspen Plus","Learn to use Mathematica, MATLAB, and Aspen Plus for engineering computing through comprehensive screencasts covering interactive simulations, data analysis, programming, and chemical process modeling.",2025-10-29 22:34:43
+181,181,Intro to ChatGPT and Generative AI,Udemy,2025-10-29 22:34:43
+182,182,Kubernetes Certified Application Developer (CKAD) with Tests,Udemy,2025-10-29 22:34:43
+183,183,"Machine Learning, Data Science and Generative AI with Python",Udemy,2025-10-29 22:34:43
+184,184,Docker & Kubernetes: The Practical Guide [2025 Edition],Udemy,2025-10-29 22:34:43
+185,185,Software Debugging,In this course you will learn how to debug programs systematically using scientific methods and build several automated debugging tools in Python.,2025-10-29 22:34:43
+186,186,Linux Command Line Basics,Udemy,2025-10-29 22:34:43
+187,187,How to ChatGPT: Master the Art of Prompt Engineering,Udemy,2025-10-29 22:34:43
+188,188,Microsoft SQL for Beginners,Udemy,2025-10-29 22:34:43
+189,189,LangChain- Develop AI Agents with LangChain & LangGraph,Udemy,2025-10-29 22:34:43
+190,190,JavaScript Algorithms and Data Structures Masterclass,Udemy,2025-10-29 22:34:43
+191,191,Computer Networking,This is an advanced Computer Networking course that delves into the latest concepts and tools used by the CN industry.,2025-10-29 22:34:43
+192,192,The DevOps Essentials -  The Handbook,Udemy,2025-10-29 22:34:43
+193,193,Linux Administration Bootcamp: Go from Beginner to Advanced,Udemy,2025-10-29 22:34:43
+194,194,Cris Moore on Algorithmic Justice and The Physics of Inference,"Exploring algorithmic justice and inference physics, this talk delves into the limits of AI decision-making, emphasizing transparency, model suitability, and the importance of understanding technology's boundaries in complex problem-solving.",2025-10-29 22:34:43
+195,195,Ethereum and Solidity: The Complete Developer's Guide,Udemy,2025-10-29 22:34:43
+196,196,More Communication Lower Bounds for Information-Theoretic MPC,"Explores communication complexity lower bounds in information-theoretic secure multiparty computation, covering perfect passive and malicious security settings with various party thresholds and reactive functionalities.",2025-10-29 22:34:43
+197,197,"ADSI Summer Workshop- Algorithmic Foundations of Learning and Control, Pablo Parrilo","Explore advanced Gaussian kernel factorization techniques and their applications in machine learning and control systems, with insights from approximation theory.",2025-10-29 22:34:43
+198,198,Wireless Network System Capstone,"Explore student projects showcasing innovative wireless network systems, from enhanced e-readers to collaborative tools and vision-based applications.",2025-10-29 22:34:43
+199,199,Luis von Ahn: Pioneering Crowdsourcing and Language Learning with Duolingo,"Pioneering crowdsourcing: From reCAPTCHA to Duolingo. Insights on harnessing collective intelligence for free language learning, tech entrepreneurship, and the impact of accessible education.",2025-10-29 22:34:43
+200,200,SIGCOMM 2020 - Caching with Delayed Hits,"Explore caching strategies with delayed hits, examining their impact on aggregate delay and performance through experimental results and in-depth analysis.",2025-10-29 22:34:43
+201,201,Caching with Time Windows,"Explore efficient caching strategies using time windows, including weighted caching algorithms and technical challenges in optimizing cache performance.",2025-10-29 22:34:43
+202,202,Neural Circuit Modeling of Large-Scale Brain Dynamics for Computational Psychiatry,"Explore neural circuit modeling for large-scale brain dynamics in computational psychiatry, bridging microcircuit perturbations with neuroimaging biomarkers to advance personalized therapeutics.",2025-10-29 22:34:43
+203,203,From Bits to Atoms - Turning Information into Things and Things into Information,"Explore the convergence of computer science and physical science, examining how information becomes tangible and objects transform into data, revolutionizing manufacturing and design.",2025-10-29 22:34:43
+204,204,The Humble Border-Radius - Exploring CSS Techniques,"Explore the versatility of border-radius in CSS, from basic shapes to complex animations and gradients, with expert insights and practical demonstrations.",2025-10-29 22:34:43
+205,205,Variables and Conditionals in CSS - CSS Day 2013,"Learn about CSS variables, conditionals, and advanced techniques from Tab Atkins. Explore modern use cases, hacks, and cutting-edge concepts like shadow DOM and scoped style sheets.",2025-10-29 22:34:43
+206,206,Filter Effects and Blend Modes in CSS - CSS Day 2013,"Explore advanced CSS techniques like filter effects and blend modes, learning their syntax, applications, and browser compatibility to enhance web design and create visually striking effects.",2025-10-29 22:34:43
+207,207,3.14 Things I Didn't Know About CSS - Obscure Facts and Quirks,"Discover obscure CSS facts, syntax quirks, and unexpected security vulnerabilities in this engaging talk that reveals surprising aspects of Cascading Style Sheets.",2025-10-29 22:34:43
+208,208,Present and Future of CSS Layout - CSS Day 2014,"Explore new CSS layout techniques like Flexbox and Grid, and learn how to apply them for improved web design. Discover the future of CSS layout and its practical applications.",2025-10-29 22:34:43
+209,209,"Defining ""Auto"" in CSS Layout Systems","Explore the intricacies of ""auto"" sizing in CSS layouts, understanding layout engine primitives and their incorporation into new systems for more effective adaptive designs.",2025-10-29 22:34:43
+210,210,The Back of the Class - Challenging CSS Best Practices,"Provocative critique of CSS ""best practices"" challenging modular approaches, encouraging simplicity, and embracing inheritance for more efficient and content-focused web development.",2025-10-29 22:34:43
+211,211,The Future of CSS Isn't CSS - Exploring Pre-processors,"Explore next-gen CSS syntax and pre-processors for enhanced styling capabilities, supporting older browsers while embracing programmatic approaches and advanced Sass techniques.",2025-10-29 22:34:43
+212,212,CSS at the Intersection - Mental Models and Team Communication,"Exploring CSS mental models, team communication, and effective tools for designer-developer collaboration. Insights on bridging gaps and fostering multidisciplinary practices in web development.",2025-10-29 22:34:43
+213,213,Line Breaking and Related Properties from CSS Text,"Comprehensive exploration of CSS text wrapping, line breaking, and related properties, covering language-specific nuances, implementation challenges, and practical examples for web developers.",2025-10-29 22:34:43
+214,214,CSS and SVG - The Dynamic Duo,"Explore the dynamic synergy between CSS and SVG for creating interactive, responsive web graphics. Learn techniques for animations, styling, and enhancing SVG with CSS to elevate your web design skills.",2025-10-29 22:34:43
+215,215,The Evolution of CSS4 Color,"Explore the evolution of CSS4 Color with Chris Lilley, covering ICC profiles, CIE Lab, and rendering intents. Learn about color management, practical applications, and the future of web color standards.",2025-10-29 22:34:43
+216,216,CSS for Software Engineers - Writing Better CSS Using Engineering Principles,"Explore software engineering principles applied to CSS development, enhancing code quality, maintainability, and scalability in web design and development.",2025-10-29 22:34:43
+217,217,"CSS for Evil, Not Good","Explore the potential misuse of CSS for deception and manipulation in web design, examining ethical implications and raising awareness about responsible development practices.",2025-10-29 22:34:43
+218,218,CSS Shapes and Vector Graphics: A Tale of Four Properties,"Exploring CSS shape-related properties: clip-path, basic shapes, and the unexpected path() function. Learn to navigate these complex features for creative web design.",2025-10-29 22:34:43
+219,219,The Far Future of CSS - Exploring Advanced Features and Customization,"Explore the future of CSS with Tab Atkins, delving into custom properties, functions, and layouts. Gain insights on upcoming features and potential developments in web styling.",2025-10-29 22:34:43
+220,220,Writing Modes and CSS Typography for Global Languages,"Explore CSS Writing Modes for inclusive web design, supporting diverse scripts and languages. Learn to implement vertical typesetting and create graphic design effects using writing mode properties.",2025-10-29 22:34:43
+221,221,CSS Reset - Redesigning CSS from Scratch,"Inventors of CSS discuss potential redesigns, exploring syntax choices and simplification for improved interoperability in this thought-provoking talk on the evolution of web styling.",2025-10-29 22:34:43
+222,222,Box Alignment in CSS - Understanding Layout and Positioning,Explore CSS box alignment techniques and their interactions with other layout properties. Learn how to effectively position and align content for better web design and user experience.,2025-10-29 22:34:43
+223,223,CSS on Today's Web Platform - View Source 2019,"Explore CSS evolution, pragmatic solutions, and upcoming APIs. Dive into grid layouts, variable fonts, and Houdini, discovering modern techniques for web development challenges.",2025-10-29 22:34:43
+224,224,Demystifying Modern CSS Layouts with DevTools,"Explore modern CSS layouts using Firefox DevTools. Learn to visualize and understand Flexbox, Grid, and Box alignment properties for responsive web design.",2025-10-29 22:34:43
+225,225,Demystifying CSS Container Queries with Miriam Suzanne,"Explore CSS Container Queries with expert Miriam Suzanne. Learn implementation, responsive design techniques, and practical applications for more powerful and flexible styling approaches.",2025-10-29 22:34:43
+226,226,Exactly How to Use CSS Sprites to Improve Website Performance,"Learn to optimize web performance using CSS sprites, reducing HTTP requests and improving load times for faster, more efficient websites.",2025-10-29 22:34:43
+227,227,Simultaneous Multithreading: Revolutionizing Processor Architecture - 2020 Women's Research Day Keynote,Renowned computer scientist Susan Eggers discusses her groundbreaking work on Simultaneous Multithreading and shares insights from her distinguished career in this inspiring keynote address.,2025-10-29 22:34:43
+228,228,Network Security - Lecture 9,"Advanced network protocols and distributed systems concepts explored, focusing on scalability, fault tolerance, and performance optimization in large-scale distributed environments.",2025-10-29 22:34:43
+229,229,Network Security - Lecture 7,"Explore advanced concepts in computer science, focusing on key algorithms, data structures, and problem-solving techniques to enhance your programming skills and theoretical understanding.",2025-10-29 22:34:43
+230,230,Network Security - Lecture 5,"Explore advanced network algorithms and protocols, focusing on routing techniques, distributed systems, and network optimization strategies.",2025-10-29 22:34:43
+231,231,Network Security - Lecture 4,"Explore advanced concepts in computer science, focusing on cutting-edge algorithms, data structures, and problem-solving techniques in this comprehensive lecture from the Paul G. Allen School.",2025-10-29 22:34:43
+232,232,Network Security and Cryptography - Lecture 2,"Explore advanced network algorithms, protocols, and architectures in this comprehensive lecture on computer networking fundamentals and cutting-edge technologies.",2025-10-29 22:34:43
+233,233,Machine Learning Fundamentals - Lecture 6,"Explore advanced machine learning concepts, focusing on decision trees, ensemble methods, and boosting algorithms for improved predictive modeling and data analysis.",2025-10-29 22:34:43
+234,234,Graduate Student Research Showcase - Hodgepodge,"Diverse research presentations by Allen School graduate students, showcasing innovative projects and cutting-edge findings in computer science and related fields.",2025-10-29 22:34:43
+235,235,"Computational Fabrication: Interactivity, Design, and Wireless Analytics - Lecture Series","Exploring computational fabrication: from interactive 3D printing to functional CAD programming, wireless analytics for printed objects, and machine knitting texture design.",2025-10-29 22:34:43
+236,236,Distributed Systems: Replication and Consistency - Lecture 3,"Explore advanced topics in computer science, focusing on cutting-edge research and emerging technologies in the field of artificial intelligence and machine learning.",2025-10-29 22:34:43
+237,237,CSEP 590A - Lecture 2,"Explore advanced topics in computer science, covering cutting-edge algorithms, data structures, and problem-solving techniques in this comprehensive lecture series.",2025-10-29 22:34:43
+238,238,CSEP 501 - Compilers for Computer Languages - Lecture 10,"Explore advanced compiler optimization techniques, focusing on data-flow analysis and its applications in program transformation and code improvement.",2025-10-29 22:34:43
+239,239,CSEP 501 - Compilers for Computer Languages - Lecture 9,"Explore advanced compiler optimization techniques, focusing on data-flow analysis and its applications in program transformation and code improvement.",2025-10-29 22:34:43
+240,240,CSEP 501 - Compilers for Computer Languages - Lecture 7,"Explore advanced compiler optimization techniques, focusing on data-flow analysis and its applications in program transformation and code improvement.",2025-10-29 22:34:43
+241,241,Compilers and Language Design - Lecture 3,"Explore advanced compiler techniques, optimization strategies, and code generation methods in this comprehensive lecture on modern compiler design and implementation.",2025-10-29 22:34:43
+242,242,Distributed Systems: Consensus and Replication - Lecture 10,"Explore advanced topics in distributed systems, focusing on consensus algorithms, fault tolerance, and scalability in large-scale networks.",2025-10-29 22:34:43
+243,243,Distributed Systems: Consensus and Replication - Lecture 8,"Explore advanced topics in distributed systems, focusing on consensus algorithms, fault tolerance, and scalability in large-scale networks.",2025-10-29 22:34:43
+244,244,Distributed Systems: Replication and Consistency - Lecture 4,"Explore advanced distributed systems concepts, focusing on consensus algorithms, fault tolerance, and scalability in large-scale networks.",2025-10-29 22:34:43
+245,245,Distributed Systems: Logical Time and Causality - Lecture 3,"Explore advanced distributed systems concepts, focusing on consensus algorithms, fault tolerance, and scalability in large-scale networked environments.",2025-10-29 22:34:43
+246,246,Distributed Systems: Synchronization and Coordination - Lecture 2,"Explore advanced distributed systems concepts, focusing on consensus algorithms, fault tolerance, and scalability in large-scale networked environments.",2025-10-29 22:34:43
+247,247,Database Management Systems - Lecture 9,"Explore advanced database concepts and techniques in this comprehensive lecture, focusing on query optimization, indexing strategies, and performance tuning for efficient data management.",2025-10-29 22:34:43
+248,248,Natural Language Processing - Lecture 7,"Explore advanced topics in computer science, focusing on cutting-edge algorithms, data structures, and theoretical concepts to enhance problem-solving skills and deepen understanding of computational complexity.",2025-10-29 22:34:43
+249,249,Operating Systems - Lecture 9,"Explore advanced concepts in computer science, focusing on cutting-edge topics and research areas. Gain insights into current trends and future directions in the field.",2025-10-29 22:34:43
+250,250,Operating Systems - Lecture 8,"Explore advanced concepts in computer science, focusing on cutting-edge topics and research areas. Gain insights into complex algorithms and theoretical foundations.",2025-10-29 22:34:43
+251,251,Operating Systems - Lecture 7,"Explore advanced concepts in computer science, focusing on key topics and algorithms discussed in Lecture 7 of this graduate-level course.",2025-10-29 22:34:43
+252,252,Operating Systems - Lecture 5,"Explore advanced concepts in computer science, focusing on key topics covered in Lecture 5 of CSEP 551, designed to deepen understanding and practical skills in the field.",2025-10-29 22:34:43
+253,253,Distributed Systems: Consensus and Replication - Lecture 10,Explore advanced topics in computer science with in-depth discussions on cutting-edge research and emerging technologies in this comprehensive lecture series.,2025-10-29 22:34:43
+254,254,Introduction to Natural Language Processing - Lecture 9,"Explore advanced topics in computer science, focusing on cutting-edge research and emerging technologies in the field of software engineering and programming.",2025-10-29 22:34:43
+255,255,Distributed Systems: Consensus and Replication - Lecture 7,Explore advanced topics in computer science with a focus on cutting-edge research and emerging technologies in this graduate-level lecture series.,2025-10-29 22:34:43
+256,256,Compilers and Language Design - Lecture 8,"Explore advanced compiler optimization techniques, focusing on data-flow analysis and its applications in program transformation and code improvement.",2025-10-29 22:34:43
+257,257,CSEP 501 - Compilers for Computer Languages - Lecture 6,"Explore advanced compiler techniques, optimization strategies, and code generation methods for efficient program execution in modern computing systems.",2025-10-29 22:34:43
+258,258,Compilers and Language Design - Lecture 4,"Explore advanced compiler techniques, optimization strategies, and code generation methods for modern programming languages in this comprehensive lecture.",2025-10-29 22:34:43
+259,259,Compilers and Language Design - Lecture 2,"Explore advanced compiler design concepts, focusing on optimization techniques and intermediate code generation for enhanced program performance and efficiency.",2025-10-29 22:34:43
+260,260,Database Management Systems - Lecture 7,"Explore advanced database concepts, query optimization techniques, and efficient data management strategies in this comprehensive lecture on modern database systems.",2025-10-29 22:34:43
+261,261,Database Management Systems - Lecture 6,"Explore advanced database concepts, query optimization techniques, and efficient data management strategies in this comprehensive lecture on modern database systems.",2025-10-29 22:34:43
+262,262,Database Management Systems - Lecture 2,"Explore relational algebra, SQL basics, and query optimization techniques for efficient database management and data manipulation.",2025-10-29 22:34:43
+263,263,Indigitalization: Indigenous Computing Theory,"Exploring Indigenous cultural knowledge as a framework for computing science, proposing an Indigenization approach to disrupt Western design principles and create more inclusive technologies.",2025-10-29 22:34:43
+264,264,Refinement Type Systems and Martin Lof Type Theory,"Explores refinement type systems, their connection to Martin-Lof type theory, and various notions of comprehension. Discusses recent work on functors as type refinement systems and Isbell duality theorem.",2025-10-29 22:34:43
+265,265,A Fibrational Framework for Modal Simple Type Theories,"Explore modal extensions of homotopy type theory, focusing on fibrational frameworks for modal simple type theories and their applications in topology, geometry, and spectra.",2025-10-29 22:34:43
+266,266,The Garden and The Treadmill - CSS Creativity and Modern Layout Techniques,Exploring CSS creativity: from Zen Garden to modern layout techniques. Discover how to prototype rapidly and unleash your design potential with current CSS features.,2025-10-29 22:34:43
+267,267,"Conjectures, Results, and Myths in Interactive Computation - 2005 Lecture","Explore interactive computation paradigms, challenging traditional algorithmic models. Gain insights into Persistent Turing Machines and their implications for computational expressiveness and software engineering.",2025-10-29 22:34:43
+268,268,Cyberinfrastructure Needs for Field Geology - Insights from Yosemite and Owens Valley,Explore challenges and opportunities for AI in field geology through a computer scientist's perspective on a unique interdisciplinary field trip to Yosemite and Owens Valley.,2025-10-29 22:34:43
+269,269,"Grow, Shrink and Appear on Container Hover - CSS Tutorial","Learn CSS techniques for dynamic container hover effects: grow, shrink, and appear animations using transitions and opacity.",2025-10-29 22:34:43
+270,270,Probabilistic Machine Learning - Lecture 17,Dive into advanced data science concepts through a comprehensive graduate-level lecture covering key theoretical foundations and practical applications in modern data analysis and machine learning.,2025-10-29 22:34:43
+271,271,Styling the Future: A Deep Dive into Modern CSS,"Explore cutting-edge CSS features like Layers, parent selectors, and container queries. Learn to create dynamic, adaptable layouts with viewport units and style queries for more responsive and organized web design.",2025-10-29 22:34:43
+272,272,Utility First CSS Isn't Inline Styles,"Explore utility-first CSS with Sarah Dayan, debunking misconceptions and showcasing its power in modern web development for efficient, scalable, and maintainable stylesheets.",2025-10-29 22:34:43
+273,273,Adversarially Robust Streaming Algorithms,"Explore techniques for designing streaming algorithms that maintain accuracy under adversarial data manipulation, enhancing resilience in data processing systems.",2025-10-29 22:34:43
+274,274,Styling Buttons with HTML and CSS - Live Coding Session,Learn to style buttons using HTML and CSS in this interactive live-coding session. Enhance your web development skills with practical examples and expert guidance.,2025-10-29 22:34:43
+275,275,Computing with or Despite the Computer - IPAM at UCLA,"Explore the interplay between manual, computer-assisted, and formally verified computations in number theory, examining challenges and opportunities in mathematical research.",2025-10-29 22:34:43
+276,276,A Year of Servo Reboot - Where Are We Now?,"Explore Servo's journey as an experimental rendering engine, its recent developments, collaboration with Tauri, and future plans for becoming an alternative in the embedded devices industry.",2025-10-29 22:34:43
+277,277,Character Modeling in CSS,"Explore advanced CSS techniques for creating dynamic, interactive character models, enhancing web design with engaging visual elements and animations.",2025-10-29 22:34:43
+278,278,CSS Between the Pages - DevWorld 2024,Explore innovative CSS techniques for seamless page transitions and enhanced user experiences in web applications.,2025-10-29 22:34:43
+279,279,Layout and Reading Order in CSS - CSS Day 2024,"Explore CSS layout techniques and their impact on reading order with Rachel Andrew, focusing on creating accessible and logically structured web content.",2025-10-29 22:34:43
+280,280,Stop Using JavaScript for That: Moving Features from CSS to HTML,"Explore modern CSS and HTML features to reduce JavaScript reliance, enhancing performance and accessibility in web development. Learn practical techniques for common UI components.",2025-10-29 22:34:43
+281,281,Petrinets: What Are They and How Can They Help Us?,"Explore Petri nets: their concepts, mathematical representation, and applications in computer science. Learn about system design, graphical representation, and simulation tools.",2025-10-29 22:34:43
+282,282,Igniting Potential: Overcoming Barriers to Coding in Africa,"Discover innovative approaches to teaching coding without computers in under-resourced areas of Africa, breaking barriers and empowering thousands of learners with essential skills through engaging, unplugged activities.",2025-10-29 22:34:43
+283,283,CSS Units - Fixed and Relative Length Measurements - Demo,"Explore fixed and relative CSS length units, including px, %, em, rem, viewport units, and more. Gain practical insights through demonstrations.",2025-10-29 22:34:43
+284,284,"CSS Transform, Transition, and Animation Properties - Demo","Explore CSS transform, transition, and animation properties through hands-on demos and practical examples.",2025-10-29 22:34:43
+285,285,"Cascading Style Sheets: Selectors, Font and Text Styling, Padding, Border, Inherit, and Background","Master CSS fundamentals: selectors, fonts, text styling, padding, borders, inheritance, and backgrounds. Enhance your web design skills with practical examples.",2025-10-29 22:34:43
+286,286,CSS Pseudo-classes Demonstration,"Explore CSS pseudo-classes like first-child, nth-child, :hover, and more to enhance webpage interactivity and styling precision.",2025-10-29 22:34:43
+287,287,"CSS Tutorial: Inline, Embedded and External Styles - Web Programming","Learn to differentiate and implement inline, embedded, and external CSS styles through practical demonstrations and examples.",2025-10-29 22:34:43
+288,288,CSS Box Model and Layout Properties,"Explore CSS box model, margin, float, overflow, z-index, box-shadow, and display properties through practical demonstrations and examples.",2025-10-29 22:34:43
+289,289,"CSS Combinators: Descendant, Child, and Sibling Selectors - Demo","Aprenda a usar seletores CSS avançados, incluindo descendentes, filhos e irmãos, para estilização precisa de elementos HTML.",2025-10-29 22:34:43
+290,290,Cascading Style Sheets (CSS) - Designing Tables,"Aprenda a projetar tabelas atraentes e funcionais usando CSS. Domine técnicas para estilizar cabeçalhos, células e bordas de tabelas.",2025-10-29 22:34:43
+291,291,"CSS Position Property - Static, Relative, Absolute, Fixed, and Sticky","Explore CSS positioning techniques: static, relative, absolute, fixed, and sticky. Master element placement for dynamic web layouts.",2025-10-29 22:34:43
+292,292,CSS Layout and Hover Animation Effects in WordPress Block Types,Master CSS layout techniques and hover animations to create engaging two-column designs in WordPress block development.,2025-10-29 22:34:43
+293,293,Colloquium - Advances in Natural Language Processing,Discover cutting-edge research insights and academic perspectives as David Smith from UIUC presents his work and findings in this engaging academic colloquium from the Paul G. Allen School.,2025-10-29 22:34:43
+294,294,How to Use CSS Anchor Positioning Today,"Discover how to implement CSS anchor positioning for tooltips and innovative web experiences, with practical guidance for immediate application in your projects.",2025-10-29 22:34:43
+295,295,Side-by-Side Scrolling Effect with Scroll Magic,"Discover how to create a side-by-side scrolling effect with text fading in based on right-side content, adding a unique touch to your website without using GSAP. Includes mobile-responsive CSS solutions.",2025-10-29 22:34:43
+296,296,Learn CSS Display Property - Full Tutorial,"Master the CSS display property, including block, inline, flex, grid, and flow concepts. Understand document flow fundamentals to effectively control layout and positioning in your web designs.",2025-10-29 22:34:43
+297,297,Learn CSS in 30 Minutes - 2025,"Master CSS fundamentals, responsive design, and essential properties in this beginner-friendly tutorial covering all basic styling rules and techniques.",2025-10-29 22:34:43
+298,298,Machine Learning for Absolute Beginners - Level 1,Udemy,2025-10-29 22:34:43
+299,299,Linux Mastery: Master the Linux Command Line in 11.5 Hours,Udemy,2025-10-29 22:34:43
+300,300,Computer Science: Programming with a Purpose,"Learn essential programming concepts and skills using Java, covering variables, conditionals, loops, arrays, functions, recursion, and object-oriented programming. Develop problem-solving abilities applicable in modern computing environments.",2025-10-29 22:34:43
+301,301,Introduction to Logic,"Explore computational logic: encode information, reason logically, and discover applications in various fields. Gain a solid foundation in propositional, relational, and functional logic.",2025-10-29 22:34:43
+302,302,Concepts in Computer Science,DataCamp,2025-10-29 22:34:43
+303,303,Bachelor of Science in Computer Science (BCS) Online Degree,University of the People,2025-10-29 22:34:43
+304,304,Associate of Science in Computer Science (ACS) Online Degree,University of the People,2025-10-29 22:34:43
+305,305,Computer Science 101: Master the Theory Behind Programming,Udemy,2025-10-29 22:34:43
+306,306,Computer Science 101 - Computers & Programming for Beginners,Udemy,2025-10-29 22:34:43
+307,307,Introduction to Computer Science and Programming (Fall 2008),This subject is aimed at students with little or no programming experience. It aims to provide students with an understanding of the role computation can play in solving problems.,2025-10-29 22:34:43
+308,308,Introduction to Software Product Management,"Learn to build better software through effective product management, covering Agile principles, processes, requirements, planning, and monitoring for successful software development.",2025-10-29 22:34:43
+309,309,Foundations of Computer Science: Theory and Practice,Udemy,2025-10-29 22:34:43
+310,310,Mathematics for Computer Science,This course covers elementary discrete mathematics for computer science and engineering. It emphasizes mathematical definitions and proofs as well as applicable methods.,2025-10-29 22:34:43
+311,311,Master of Computer Science,Coursera,2025-10-29 22:34:43
+312,312,Computer Science MetaBootcamp: Beginner to Intermediate 2025,Udemy,2025-10-29 22:34:43
+313,313,Introduction to Computer Science and Programming (Spring 2011),This subject is aimed at students with little or no programming experience. It aims to provide students with an understanding of the role computation can play in solving problems.,2025-10-29 22:34:43
+314,314,Mathematics for Computer Science,244 ratings at Coursera,2025-10-29 22:34:43
+315,315,Computer Science for Game Development,"Learn computer science fundamentals and game development techniques to create your own video games using popular frameworks and languages like Unity, LÖVE 2D, Lua, and C#.",2025-10-29 22:34:43
+316,316,Computer Science for Web Programming,"Learn to build web applications using Python, JavaScript, and SQL. Gain hands-on experience with frameworks like Flask, Django, and Bootstrap. Develop skills in API creation, UI design, and cloud services deployment.",2025-10-29 22:34:43
+317,317,Foundations of Computer Science,"Explore algorithms, computer hardware, networks, and software fundamentals. Gain essential knowledge for programming in Visual Basic, including binary systems, Boolean logic, and database concepts.",2025-10-29 22:34:43
+318,318,Computer Science for Artificial Intelligence,"Comprehensive introduction to computer science and AI, covering programming fundamentals, algorithms, and machine learning. Hands-on projects develop skills for designing intelligent systems and solving real-world problems.",2025-10-29 22:34:43
+319,319,Computer Science by CrashCourse,"In 40 episodes, Carrie Anne Philbin teaches you computer science! This course is based on introductory college-level material as well as the AP Computer Science Principles guidelines.",2025-10-29 22:34:43
+320,320,Introduction to Computer Science and Programming,"Comprehensive introduction to computer science fundamentals, programming skills, and essential mathematical concepts for aspiring developers and tech enthusiasts.",2025-10-29 22:34:43
+321,321,Computer Science Principles: Digital Information,LinkedIn Learning,2025-10-29 22:34:43
+322,322,Computer Science Summer Program (High School) (Live Online),CourseHorse,2025-10-29 22:34:43
+323,323,Accelerated Computer Science Fundamentals,Coursera,2025-10-29 22:34:43
+324,324,Bachelor of Computer Science,Coursera,2025-10-29 22:34:43
+325,325,Graduate Certificate in Computer Science,Coursera,2025-10-29 22:34:43
+326,326,Ace the Computer Science Interview: Strategies for Success,"Comprehensive strategies for acing computer science interviews, covering key concepts, coding techniques, and communication skills to help you confidently secure your dream tech role.",2025-10-29 22:34:43
+327,327,General Computer Science Lessons,Study.com,2025-10-29 22:34:43
+328,328,MTTC Computer Science (050): Practice & Study Guide,Study.com,2025-10-29 22:34:43
+329,329,Computer Science for Python Programming,Learn computer science fundamentals and Python programming through hands-on exercises inspired by real-world problems. Develop coding skills in multiple languages and gain a strong foundation in programming concepts.,2025-10-29 22:34:43
+330,330,OAE Computer Information Science (010): Study Guide & Practice,Study.com,2025-10-29 22:34:43
+331,331,Computer Science: Help and Review,Study.com,2025-10-29 22:34:43
+332,332,Computer Science for Data Science,"Dive into the fundamentals of computer science and R programming for data analysis. Master abstraction, algorithms, data structures, and statistical computing to manipulate data, create visualizations, and develop actionable insights from massive dataset…",2025-10-29 22:34:43
+333,333,Praxis 5652 Study Guide - Computer Science Exam Prep,Study.com,2025-10-29 22:34:43
+334,334,Computer Science Principles: Programming,LinkedIn Learning,2025-10-29 22:34:43
+335,335,"Divide and Conquer, Sorting and Searching, and Randomized Algorithms","The primary topics in this part of the specialization are: asymptotic (""Big-oh"") notation, sorting and searching, divide and conquer (master method, integer and matrix multiplication, closest pair), and randomized algorithms (QuickSort, contraction algor…",2025-10-29 22:34:43
+336,336,Cryptography I,Cryptography is an indispensable tool for protecting information in computer systems. In this course you will learn the inner workings of cryptographic systems and how to correctly use them in real-world applications.,2025-10-29 22:34:43
+337,337,CS For All: Introduction to Computer Science and Python Programming,"A fun, fast-paced introduction to solving interesting problems with computer science through Python programming.",2025-10-29 22:34:43
+338,338,Computer Science Principles: The Internet,LinkedIn Learning,2025-10-29 22:34:43
+339,339,CS50's Understanding Technology,This is CS50’s introduction to technology for students who don’t (yet!) consider themselves computer persons.,2025-10-29 22:34:43
+340,340,Artificial Intelligence,"This course introduces students to the basic knowledge representation, problem solving, and learning methods of artificial intelligence.",2025-10-29 22:34:43
+341,341,Online Master of Science in Computer Science (OMSCS),Independent,2025-10-29 22:34:43
+342,342,Computer Architecture,"In this course, you will learn to design the computer architecture of complex modern microprocessors.
+
+All the features of this course are available for free.  It does not offer a certificate upon completion.",2025-10-29 22:34:43
+343,343,"Algorithms, Part I","Explore algorithms and data structures with hands-on Java implementations. Learn essential techniques for sorting, searching, and graph processing, emphasizing practical applications and performance analysis.",2025-10-29 22:34:43
+344,344,How to Program: Computer Science Concepts and Python Exercises,The Great Courses Plus,2025-10-29 22:34:43
+345,345,Fundamentals of Computer Science,"Comprehensive XSeries covering programming, data structures, and algorithms. Develop skills for designing complex systems used in popular tech applications and electronic gadgets.",2025-10-29 22:34:43
+346,346,Algorithmic Toolbox,"Master algorithmic techniques for efficient problem-solving: sorting, searching, divide-and-conquer, greedy algorithms, and dynamic programming. Gain practical skills in designing and implementing fast, effective solutions.",2025-10-29 22:34:43
+347,347,Machine Learning Foundations: A Case Study Approach,"Hands-on exploration of machine learning applications through practical case studies, covering regression, classification, clustering, recommender systems, and deep learning using Python.",2025-10-29 22:34:43
+348,348,Usable Security,"Learn to design secure systems with a human-centric approach, focusing on usability, interaction principles, and practical strategies for authentication and privacy in digital environments.",2025-10-29 22:34:43
+349,349,Introduction to Programming and Computer Science - Full Course,freeCodeCamp,2025-10-29 22:34:43
+350,350,Introduction to Computer Science and Programming,"Learn computer science fundamentals, from data and computation to encryption, while gaining hands-on programming experience in Ruby. Explore cutting-edge topics like AI, data mining, and simulations.",2025-10-29 22:34:43
+351,351,Sr.Secondary : Computer Science (330),"Comprehensive computer science course covering basic computing, office automation, C++ programming, databases, web design, and professional skills. Ideal for senior secondary students seeking practical knowledge.",2025-10-29 22:34:43
+352,352,Introduction to Computer Science and Programming,edX,2025-10-29 22:34:43
+353,353,Program Arcade Games - Learn Computer Science,,2025-10-29 22:34:43
+354,354,CS101: Introduction to Computer Science I,Saylor Academy,2025-10-29 22:34:43
+355,355,Memory - Intro to Computer Science - Harvard's CS50 (2018),freeCodeCamp,2025-10-29 22:34:43
+356,356,Arrays and Sorting Algorithms - Intro to Computer Science - Harvard's CS50 (2018),freeCodeCamp,2025-10-29 22:34:43
+357,357,Computational Thinking & Scratch - Intro to Computer Science - Harvard's CS50 (2018),freeCodeCamp,2025-10-29 22:34:43
+358,358,Think Like a Computer Science Professor,freeCodeCamp,2025-10-29 22:34:43
+359,359,Harvard CS50 (2023) – Full Computer Science University Course,freeCodeCamp,2025-10-29 22:34:43
+360,360,Image and Video Processing: From Mars to Hollywood with a Stop at the Hospital,"Explore digital imaging from camera technology to Hollywood special effects and Mars Rover photography. Learn algorithms for image adjustment, compression, segmentation, and medical applications. Optional MATLAB exercises included.",2025-10-29 22:34:43
+361,361,"Information Systems Auditing, Controls and Assurance","In the course you will explore risks of information systems, and how to mitigate the risks by proper IS Controls. You will also get familiar with the IS Audit procedures and how they are applied during the IS development throughout the Systems Developmen…",2025-10-29 22:34:43
+362,362,"Cloud Computing Applications, Part 1: Cloud Systems and Infrastructure","Learn about cloud computing, virtualization, and cloud infrastructure in this 4-week course from the UIUC. Explore major concepts, big data, and cloud service providers. Discover platform as a service, serverless architectures, and cloud storage services.",2025-10-29 22:34:43
+363,363,C for Everyone: Programming Fundamentals,"Learn C programming from scratch, covering fundamentals, data types, control flow, functions, recursion, arrays, and pointers. Suitable for beginners and valuable for all disciplines.",2025-10-29 22:34:43
+364,364,Functional Program Design in Scala,"Explore functional programming in Scala, covering lazy evaluation, monads, type-directed programming, state management, and timely effects for building larger applications.",2025-10-29 22:34:43
+365,365,Fundamentos TIC para profesionales de negocios: Hardware,¿Tienes que trabajar con las Tecnologías de la Información y te faltan conocimientos? Aprende las bases hardware de los Sistemas de Información y las Redes de Comunicaciones.,2025-10-29 22:34:43
+366,366,Sample-based Learning Methods,43 reviews,2025-10-29 22:34:43
+367,367,"Twintrees, Baxter Permutations, and Floorplans in Computer Science - Lecture 2022","Explore the fascinating connections between twintrees, Baxter permutations, and floorplans in this lecture by renowned computer scientist Don Knuth, revealing unexpected relationships in mathematics and data structures.",2025-10-29 22:34:43
+368,368,Hardware Security,"Explore hardware vulnerabilities, physical attacks, and secure design techniques. Learn to build trusted systems and protect intellectual property in digital hardware.",2025-10-29 22:34:43
+369,369,Elements of AI,921 reviews,2025-10-29 22:34:43
+370,370,Neural Networks and Deep Learning,"Explore neural networks and deep learning fundamentals, from building and training models to applying them in real-world scenarios. Gain practical skills for AI development and machine learning applications.",2025-10-29 22:34:43
+371,371,"Algorithms, Part II","Explore advanced algorithms and data structures, focusing on graph and string processing. Learn efficient Java implementations and analyze their performance for real-world applications.",2025-10-29 22:34:43
+372,372,Data Structures and Algorithms in Python - Full Course for Beginners,freeCodeCamp,2025-10-29 22:34:43
+373,373,Machine Learning for Musicians and Artists,"Explore machine learning techniques for creating interactive art, music, and installations. Learn to analyze gestures, audio, and sensor data using classification, regression, and segmentation algorithms.",2025-10-29 22:34:43
+374,374,Responsive Web Design,freeCodeCamp,2025-10-29 22:34:43
+375,375,Introduction to Generative AI,"Explore the fundamentals of Generative AI, its applications, and how it differs from traditional machine learning, with an introduction to Google's development tools.",2025-10-29 22:34:43
+376,376,Shafi Goldwasser: Journey from Israel to Turing Award - A Life in Computer Science,"Explore Shafi Goldwasser's journey from childhood in Israel to becoming a pioneering computer scientist, covering her education, influences, and experiences that shaped her career.",2025-10-29 22:34:43
+377,377,Binary and Computer Science All-in-One Tutorial Series,"Comprehensive exploration of binary systems and computer science fundamentals, covering essential concepts and practical applications in a detailed, accessible format.",2025-10-29 22:34:43
+378,378,Fundamentals of Reinforcement Learning,24 reviews,2025-10-29 22:34:43
+379,379,Unlocking the Power of Generative AI with ChatGPT for Higher Education,"Discover how generative artificial intelligence, such as ChatGPT, Bard, or Bing, can be used by teachers to enrich and optimize the teaching-learning process.",2025-10-29 22:34:43
+380,380,Advanced HTML & CSS (Live Online),Noble Desktop,2025-10-29 22:34:43
+381,381,Machine Learning: Regression,"Explore regression models for predicting continuous values, from simple linear to complex techniques. Learn to estimate parameters, tune with cross-validation, analyze performance, and implement in Python.",2025-10-29 22:34:43
+382,382,Performance Engineering of Software Systems,"This is an 18-unit class that provides a hands-on, project-based introduction to building scalable and high-performance software systems.",2025-10-29 22:34:43
+383,383,Software Architecture & Design,Software Architecture and Design teaches the principles and concepts involved in the analysis and design of large software systems.,2025-10-29 22:34:43
+384,384,Advanced Algorithms - COMPSCI 224,"Explore cutting-edge algorithmic techniques through comprehensive lectures, enhancing problem-solving skills and deepening understanding of complex computational challenges.",2025-10-29 22:34:43
+385,385,ChatGPT Prompt Engineering Course,"Learn prompt engineering techniques for ChatGPT, covering basic concepts, advanced prompts, and practical examples to enhance AI interactions and improve outcomes.",2025-10-29 22:34:43
+386,386,GT - Refresher - Advanced OS,"This course covers the essential Operating Systems concepts students need in preparation for the rest of the GT ""Advanced Operating Systems"" sequence.",2025-10-29 22:34:43
+387,387,High Performance Computer Architecture,"The HPCA course covers performance measurement, pipelining, and improved parallelism through various means.",2025-10-29 22:34:43
+388,388,Computational Thinking for Problem Solving,"Develop systematic problem-solving skills using computational thinking principles and Python programming, applicable across diverse fields for real-world impact and data-centric challenges.",2025-10-29 22:34:43
+389,389,Computer Science and IT at the University of Melbourne - Faculty of Engineering and IT Overview,"Explore computer science and IT programs at Melbourne, covering graduate courses, career prospects, and admission details for aspiring tech professionals.",2025-10-29 22:34:43
+390,390,Arduino Course for Beginners - Open-Source Electronics Platform,freeCodeCamp,2025-10-29 22:34:43
+391,391,Equality in Computer Science - Sociological and Mathematical Perspectives,"Exploring fundamental issues in programming and mathematics related to equality, assignment, and conversion, with insights on how computer science can provide solid foundations for pure mathematics.",2025-10-29 22:34:43
+392,392,Introduction to Computer Science with CS50 - The Most Popular Course on edX,Learn the basics of Computer Science from Harvard's Prof. David Malan in this engaging 39-minute video. Discover key concepts and gain insights into the world's most popular edX course.,2025-10-29 22:34:43
+393,393,My Plan B: Exploring Alternative Strategies in Computer Science Research,Explore innovative approaches to software testing and verification with Professor Alastair Donaldson in his Imperial Inaugural lecture.,2025-10-29 22:34:43
+394,394,Computer Science Graduate School Research and Programming Best Practices,"Learn essential research and programming practices for computer science grad school, from version control to experiment organization and data visualization.",2025-10-29 22:34:43
+395,395,Introduction to the Internet of Things and Embedded Systems,"Explore IoT's impact, components, and design considerations. Learn embedded systems, hardware-software interaction, networking basics, and IoT's role in society. Gain practical knowledge for innovating in the rapidly evolving IoT landscape.",2025-10-29 22:34:43
+396,396,AI Programming with Python,Udacity,2025-10-29 22:34:43
+397,397,Fundamentos TIC para profesionales de negocios: Desarrollo de Software,¿Tienes que trabajar con las Tecnologías de la Información y te faltan conocimientos? Aprende los fundamentos básicos del desarrollo de software.,2025-10-29 22:34:43
+398,398,Advanced Data Structures in Java,"Explore advanced data structures and algorithms for real-world problem-solving, focusing on graphs and their applications in route planning, network optimization, and resource allocation.",2025-10-29 22:34:43
+399,399,Practical Machine Learning,"Learn essential machine learning concepts and techniques, from data collection to model evaluation, with hands-on practice using popular algorithms and the caret package in R.",2025-10-29 22:34:43
+400,400,JavaScript Algorithms and Data Structures,freeCodeCamp,2025-10-29 22:34:43
+401,401,Tutorial on Computer Science - Josh Grochow,"Explore key concepts in computer science, from model independence to computational complexity theory, with insights on P vs NP and various computational models.",2025-10-29 22:34:43
+402,402,Introduction to Computer Science - Lecture 1,"Embark on a foundational journey through key concepts and principles, setting the stage for deeper learning and understanding in this introductory session.",2025-10-29 22:34:43
+403,403,CSEP 590A - Lecture 11: Advanced Topics in Computer Science,"Explore advanced topics in computer science, focusing on cutting-edge research and emerging technologies in the field of artificial intelligence and machine learning.",2025-10-29 22:34:43
+404,404,"CS201 - Introduction to Computer Science - November 16, 2023","Explore advanced computer science concepts with renowned expert Zvi Galil in this UCLA lecture, delving into cutting-edge topics and research in the field.",2025-10-29 22:34:43
+405,405,CS 201 - Introduction to Computer Science - Lecture 3/16/2023,"Explore Ray Mooney's insights on Jon Postel's contributions to computer science in this UCLA lecture, delving into the foundational principles of internet protocols and networking.",2025-10-29 22:34:43
+406,406,Computer Science Topics for Rails Developers - Relevance and Applications,"Explore the relevance of Computer Science topics to professional Rails development, examining their practical applications and limitations.",2025-10-29 22:34:43
+407,407,Introducción a la programación en C: Tipos de datos y estructuras,"Aprende a programar en C, uno de los lenguajes de programación más usados. En este curso en línea adquirirás los conocimientos necesarios para comenzar a convertirte en un experto en C.",2025-10-29 22:34:43
+408,408,Algorithms and Data Structures Tutorial - Full Course for Beginners,freeCodeCamp,2025-10-29 22:34:43
+409,409,"Responsive Website Basics: Code with HTML, CSS, and JavaScript",27 reviews,2025-10-29 22:34:43
+410,410,Computer Science,"Explore key computer science topics with expert lectures on neural networks, cloud computing, cybersecurity, deep learning, and internet structure from renowned researchers.",2025-10-29 22:34:43
+411,411,The CSS Bootcamp: Zero to Mastery,Zero To Mastery,2025-10-29 22:34:43
+412,412,Accelerate Your Learning with ChatGPT,"Explore AI-enhanced learning strategies, combining neuroscience insights with ChatGPT to boost cognitive abilities, improve study techniques, and foster critical thinking skills.",2025-10-29 22:34:43
+413,413,Basics of CSS,CodeSignal,2025-10-29 22:34:43
+414,414,Front End Web Developer,Udacity,2025-10-29 22:34:43
+415,415,Prediction and Control with Function Approximation,23 reviews,2025-10-29 22:34:43
+416,416,Creative Applications of Deep Learning with TensorFlow,Kadenze,2025-10-29 22:34:43
+417,417,CS50's Introduction to Artificial Intelligence with Python,Learn to use machine learning in Python in this introductory course on artificial intelligence.,2025-10-29 22:34:43
+418,418,A Complete Reinforcement Learning System (Capstone),26 reviews,2025-10-29 22:34:43
+419,419,How does the internet work? (Full Course),freeCodeCamp,2025-10-29 22:34:43
+420,420,Introduction to Computer Programming,907 ratings at Coursera,2025-10-29 22:34:43
+421,421,Principles of Computing (Part 1),"Enhance Python skills with coding standards, testing, and mathematical problem-solving. Apply probability, combinatorics, and counting to computational challenges through engaging weekly mini-projects.",2025-10-29 22:34:43
+422,422,Introduction to Java Programming: Fundamental Data Structures and Algorithms,Learn to enhance your code by using fundamental data structures and powerful algorithms in Java.,2025-10-29 22:34:43
+423,423,Introduction to Algorithms,"Comprehensive exploration of algorithmic concepts, data structures, and problem-solving techniques, emphasizing mathematical modeling and performance analysis for computational challenges.",2025-10-29 22:34:43
+424,424,Computer Architecture and Computer Organization Masterclass,Udemy,2025-10-29 22:34:43
+425,425,Introduction to the Internet of Things,This is a preliminary course in which we deal with the basics of electronics and programming using Arduino and ESP boards.,2025-10-29 22:34:43
+426,426,Bitcoin and Cryptocurrency Technologies,"Comprehensive exploration of Bitcoin and cryptocurrency technologies, covering technical aspects, security, economics, and societal impact. Equips learners with knowledge to understand and engage with the crypto ecosystem.",2025-10-29 22:34:43
+427,427,Data Structures,"Explore fundamental data structures, algorithms, and their implementations. Learn efficient techniques for managing and manipulating data, from basic arrays to advanced tree structures and hash tables.",2025-10-29 22:34:43
+428,428,ChatGPT Tutorial - A Crash Course on Chat GPT for Beginners,"Comprehensive guide exploring ChatGPT's capabilities, from basic usage to advanced applications like coding, writing, and content creation. Ideal for beginners seeking to harness AI's potential.",2025-10-29 22:34:43
+429,429,"Data Structures & Algorithms I: ArrayLists, LinkedLists, Stacks and Queues","Master fundamental data structures and algorithms, including ArrayLists, LinkedLists, Stacks, and Queues. Develop skills in time complexity analysis, recursion, and implementation of abstract data types in Java.",2025-10-29 22:34:43
+430,430,How Computers Work,566 ratings at Coursera,2025-10-29 22:34:43
+431,431,Introduction to Computer Architecture,"Explore fundamental concepts of computer systems, including processor design, memory hierarchy, and instruction set architecture.",2025-10-29 22:34:43
+432,432,Introduction to Computational Thinking and Data Science,"The course aims to provide students with an understanding of the role computation can play in solving problems and to help students, regardless of their major, feel justifiably confident of their ability to write small programs that allow them to accompl…",2025-10-29 22:34:43
+433,433,Build a Modern Computer from First Principles: Nand to Tetris Part II (project-centered course),"Hands-on journey through modern software hierarchy, implementing virtual machine, compiler, and basic OS. Gain deep understanding of core computer science concepts through practical projects.",2025-10-29 22:34:43
+434,434,Mathematical Thinking in Computer Science,"Develop critical thinking skills for computer science through induction, recursion, logic, and invariants. Solve interactive puzzles to grasp key concepts in algorithms, data science, and machine learning.",2025-10-29 22:34:43
+435,435,Introduction to Artificial Intelligence,Udacity,2025-10-29 22:34:43
+436,436,Harvard CS50’s Artificial Intelligence with Python – Full University Course,freeCodeCamp,2025-10-29 22:34:43
+437,437,Introduction to CSS3,"Learn to create visually appealing, responsive websites using CSS3. Master selectors, box model, positioning, media queries, and Bootstrap's grid system for efficient web design.",2025-10-29 22:34:43
+438,438,C for Everyone: Structured Programming,"Explore structured programming in C, covering algorithms, advanced concepts, and an intro to C++. Gain deep understanding of computing processes and valuable coding skills.",2025-10-29 22:34:43
+439,439,Fundamentos TIC para profesionales de negocios: Aplicaciones empresariales,¿Tienes que trabajar con las Tecnologías de la Información y te faltan conocimientos? Conoce los fundamentos de los sistemas de información para la empresa.,2025-10-29 22:34:43
+440,440,Crash Course Digital Electronics,Udemy,2025-10-29 22:34:43
+441,441,Introduction to Concurrent Programming with GPUs,"Aprenda a desenvolver código para processar grandes volumes de dados em paralelo, explorando arquiteturas de CPU/GPU, programação multithread em C e Python, e introdução ao software/hardware CUDA.",2025-10-29 22:34:43
+442,442,Intro to Computer Science,"Learn key computer science concepts in this introductory Python course. You'll learn by doing, and will build your own search engine and social network.",2025-10-29 22:34:43
+443,443,Technical Support Fundamentals,"Learn essential IT skills: computer hardware, software, networking, troubleshooting, and customer service. Build a computer, install operating systems, and understand Internet fundamentals for an entry-level IT Support role.",2025-10-29 22:34:43
+444,444,Interacting with the System and Managing Memory,"Explore advanced C programming techniques, including user interaction, file handling, dynamic memory allocation, and large-scale project development, culminating in a Monte Carlo poker simulation.",2025-10-29 22:34:43
+445,445,Advanced HTML & CSS (Live Online),CourseHorse,2025-10-29 22:34:43
+446,446,Intro to HTML and CSS,Udacity,2025-10-29 22:34:43
+447,447,Ethics of AI,Independent,2025-10-29 22:34:43
+448,448,Embrace HEX Numbers NOW!,Udemy,2025-10-29 22:34:43
+449,449,"Algorithms, Data Collection, and Starting to Code","Explore computational thinking, algorithms, and data collection while learning to write your first C programs. Develop problem-solving skills and implement STEM computations without prior coding experience.",2025-10-29 22:34:43
+450,450,Design a CPU,Udemy,2025-10-29 22:34:43
+451,451,HTML and CSS Tutorial - Create a Website for Beginners,freeCodeCamp,2025-10-29 22:34:43
+452,452,CSS Essential Training,LinkedIn Learning,2025-10-29 22:34:43
+453,453,"Language, Proof and Logic","Explore formal logic concepts, from basics to advanced theories, using FOL language. Develop skills in truth analysis, proof techniques, and logical reasoning.",2025-10-29 22:34:43
+454,454,Machine Learning with Python: from Linear Models to Deep Learning.,"An in-depth introduction to the field of machine learning, from linear models to deep learning and reinforcement learning, through hands-on Python projects. -- Part of the MITx MicroMasters program in Statistics and Data Science.",2025-10-29 22:34:43
+455,455,"Cloud Computing Concepts, Part 1","Explore fundamental distributed computing concepts for cloud systems, including MapReduce, NoSQL stores, and key algorithms. Gain hands-on experience through C++ programming assignments and industry insights.",2025-10-29 22:34:43
+456,456,Intro to Theoretical Computer Science,Udacity,2025-10-29 22:34:43
+457,457,The Fundamentals of Computing Capstone Exam,Comprehensive exam testing mastery of computing fundamentals through 25 questions. Demonstrates individual proficiency and enhances the value of the specialization certificate.,2025-10-29 22:34:43
+458,458,In-Memory Data Management,openHPI,2025-10-29 22:34:43
+459,459,Probabilistic Graphical Models 1: Representation,"Explore probabilistic graphical models, including Bayesian networks and Markov networks, to encode complex probability distributions for applications like medical diagnosis and speech recognition.",2025-10-29 22:34:43
+460,460,Introduction to High-Performance and Parallel Computing,"Explore high-performance computing fundamentals, from Linux basics to parallel programming models. Gain skills in big-data analysis, machine learning, and code optimization for scientific and engineering applications.",2025-10-29 22:34:43
+461,461,Cybersecurity Fundamentals,"Learn cybersecurity fundamentals, including how to detect threats, protect systems and networks, and anticipate potential cyber attacks.",2025-10-29 22:34:43
+462,462,Fundamentals of Computing,"Master Python programming through 20+ fun projects, covering first-year Computer Science fundamentals. Develop sophisticated coding skills and demonstrate your knowledge in a comprehensive Capstone exam.",2025-10-29 22:34:43
+463,463,The Foundations of Computer Design,Udemy,2025-10-29 22:34:43
+464,464,Introduction to Technology-Assisted Decision-Making,"Explore technology-assisted decision-making, learning graph theory and linear programming to optimize outcomes in various fields. Gain practical skills for data-driven problem-solving and resource allocation.",2025-10-29 22:34:43
+465,465,Google Cloud Fundamentals: Core Infrastructure,"Explore Google Cloud's core services, infrastructure, and management tools through hands-on labs. Learn about computing, storage, networking, and application development in the cloud.",2025-10-29 22:34:43
+466,466,Productive coding with WebStorm,Udemy,2025-10-29 22:34:43
+467,467,"Data Analysis and Representation, Selection and Iteration","Explore data analysis, representation, selection, and iteration in C programming. Learn to calculate statistics, make decisions in code, represent data sets, and use loops for efficient problem-solving.",2025-10-29 22:34:43
+468,468,"Computer Science:  Algorithms, Theory, and Machines","Explore algorithms, theory, and machines in computer science. Learn about sorting, data structures, computational theory, and computer architecture. Gain insights into the field's history and fundamental concepts.",2025-10-29 22:34:43
+469,469,Systems Engineering,"Comprehensive overview of systems engineering principles for complex project development, covering architecture, requirements, optimization, and verification techniques.",2025-10-29 22:34:43
+470,470,Systems Engineering and Program Management,"Learn to apply Systems Engineering to complex program management, including risk assessment, scope definition, and change control, while developing essential leadership skills for engineering and technical roles.",2025-10-29 22:34:43
+471,471,AI For Everyone,"Learn AI fundamentals, applications, and implications for business and society. Gain practical insights to leverage AI in your organization and navigate ethical considerations.",2025-10-29 22:34:43
+472,472,Applying Systems Engineering to the Design Process,"Learn to apply systems engineering principles to design processes, covering requirements analysis, functional analysis, trade studies, and design reviews for effective engineering management.",2025-10-29 22:34:43
+473,473,"Simulation, Algorithm Analysis, and Pointers","Explore advanced C programming concepts including file I/O, automation, simulation, parallelization, algorithm analysis, and in-depth pointer usage to enhance problem-solving skills.",2025-10-29 22:34:43
+474,474,"Abstraction, Problem Decomposition, and Functions","Learn to use arrays, strings, abstraction, and functions in C programming. Develop problem-solving skills through decomposition and implement solutions using these fundamental programming concepts.",2025-10-29 22:34:43
+475,475,Search Engines for Web and Enterprise Data,"Explore web and enterprise search technologies, including indexing, ranking, and advanced applications. Learn to evaluate search quality, understand user intent, and apply real-world examples to reinforce algorithm comprehension.",2025-10-29 22:34:43
+476,476,Programming for Everyone – An Introduction to Visual Programming Languages,"This MOOC will help participants understand what programming is, and how to use programs. It will review programming languages and teach how to program in visual and intuitive languages. It requires no prior knowledge of programming or ofmathematics.",2025-10-29 22:34:43
+477,477,Decoding AP Computer Science A,Udemy,2025-10-29 22:34:43
+478,478,Introduction to Systems Engineering,"Learn holistic systems engineering for complex projects. Master system design, lifecycle modeling, and effective management. Gain skills to lead engineering teams and speak the language of systems engineering.",2025-10-29 22:34:43
+479,479,Introduction to Linux,Never learned Linux? Want a refresh? Develop a good working knowledge of Linux using both the graphical interface and command line across the major Linux distribution families.,2025-10-29 22:34:43
+480,480,Introduction to Machine Learning Course,"This class will teach you the end-to-end process of investigating data through a machine learning lens. Learn online, with Udacity.",2025-10-29 22:34:43
+481,481,The Arduino Platform and C Programming,"Explore Arduino platform, C programming, and embedded systems. Learn board components, IDE usage, shields, programming concepts, and debugging techniques for interactive physical computing projects.",2025-10-29 22:34:43
+482,482,Choosing a Programming Language,Codecademy,2025-10-29 22:34:43
+483,483,Understanding the World Through Data,Become a data explorer – learn how to leverage data and basic machine learning algorithms to understand the world.,2025-10-29 22:34:43
+484,484,CSS Fundamentals: Comprehensive Training for Web Developers,Udemy,2025-10-29 22:34:43
+485,485,Developing FPGA-accelerated cloud applications with SDAccel: Practice,"Aprenda a desenvolver aplicações aceleradas por FPGA na nuvem usando SDAccel, com foco em um exemplo prático do algoritmo Smith-Waterman para alinhamento de sequências de DNA.",2025-10-29 22:34:43
+486,486,Introduction to Deep Learning,Deep Learning is subset of machine learning focused on extracting patterns from data using neural networks and use those patterns to inform the learning tasks.,2025-10-29 22:34:43
+487,487,Computational Thinking for Modeling and Simulation,"Develop the thought processes involved in formulating a problem so a computer can effectively carry out&nbsp;the solution.&nbsp; In particular, this course emphasizes use of computers for modeling physical systems and predicting their behavior.",2025-10-29 22:34:43
+488,488,Introduction to Computational Science and Engineering,CSE.0002x is an introduction to using computing to solve problems in engineering and science including simulation of time-dependent phenomena; optimization of systems; and quantification of uncertainty.,2025-10-29 22:34:43
+489,489,Compiler Design,YouTube,2025-10-29 22:34:43
+490,490,Computational Thinking using Python,"Learn computational thinking and Python programming to solve real-world problems. Covers algorithms, data structures, and analytical techniques for beginners and aspiring computer scientists.",2025-10-29 22:34:43
+491,491,Emerging Technologies: From Smartphones to IoT to Big Data,"Explore cutting-edge tech: Big Data, IoT, smartphones, AR, cloud computing. Gain expert knowledge for research, development, and strategic planning in advanced science and technology fields.",2025-10-29 22:34:43
+492,492,"Image Segmentation, Filtering, and Region Analysis","Learn advanced image processing techniques including spatial filtering, edge detection, and region analysis. Apply these skills to segment and analyze MRI brain images using MATLAB.",2025-10-29 22:34:43
+493,493,ITIL (Information Technology Infrastructure Library) Training Course,Cybrary,2025-10-29 22:34:43
+494,494,Computer Organization: CPU Cache and the Memory Hierarchy,Udemy,2025-10-29 22:34:43
+495,495,Cyber-Physical Systems: Modeling and Simulation,"Explore modeling and simulation of cyber-physical systems, focusing on physical processes, finite state machines, computation, converters, and digital networks. Gain practical skills for analyzing complex interconnected systems.",2025-10-29 22:34:43
+496,496,"Intro to Computer Organization, Number & Data Representation",Udemy,2025-10-29 22:34:43
+497,497,Social and Economic Networks:  Models and Analysis,"Explore social and economic network modeling, formation patterns, and their impact on human behavior. Learn concepts from various disciplines to analyze network structures and their influence on diffusion and learning.",2025-10-29 22:34:43
+498,498,Armv8-M Architecture Fundamentals,"Comprehensive exploration of Armv8-M architecture, covering programmers' model, assembly programming, memory model, protection, and exception handling for embedded systems developers.",2025-10-29 22:34:43
+499,499,ศาสตร์และศิลป์ของการเขียนโปรแกรมคอมพิวเตอร์ | The Art and Science of Computer Programming,เรียนรู้การเขียนโปรแกรมคอมพิวเตอร์ตั้งแต่พื้นฐาน สู่การทำ Abstraction และการใช้โครงสร้างข้อมูลและอัลกอริทึม เพื่อพัฒนาทักษะการคิดเชิงตรรกะอย่างเป็นระบบ,2025-10-29 22:34:43
+500,500,The Fundamentals of RDMA Programming,"Learn to program RDMA applications for high-performance data transfer between servers. Covers RDMA basics, core components, operations, and connection management with hands-on coding examples.",2025-10-29 22:34:43
+501,501,Automated Reasoning: Symbolic Model Checking,"Explore symbolic model checking using CTL and BDDs to verify properties of transition systems, enabling efficient analysis of large state spaces in automated reasoning.",2025-10-29 22:34:43
+502,502,Multicore Programming Primer,The course serves as an introductory course in parallel programming. It offers a series of lectures on parallel programming concepts as well as a group project providing hands-on experience with parallel programming.,2025-10-29 22:34:43
+503,503,CSS Part 2 (Live Online),CourseHorse,2025-10-29 22:34:43
+504,504,CSS Part 1 (Live Online),CourseHorse,2025-10-29 22:34:43
+505,505,"System Validation (4): Modelling Software, Protocols, and other behaviour","Explore advanced modeling techniques for software, protocols, and behaviors. Learn to create efficient, analyzable models using formal methods and linear processes.",2025-10-29 22:34:43
+506,506,System Validation (2): Model process behaviour,"Explore process behavior modeling, focusing on protocols and distributed algorithms. Learn to analyze system properties and manage complexity in behavioral models.",2025-10-29 22:34:43
+507,507,System Validation (3): Requirements by modal formulas,"Aprenda a especificar requisitos formais para sistemas usando lógica modal e fórmulas fixas, permitindo análise automatizada e garantia de comportamento correto em sistemas embarcados.",2025-10-29 22:34:43
+508,508,Microsoft 365 Fundamentals,"Domina Microsoft 365: mejora tus habilidades en Word, Excel y PowerPoint, aumenta tu productividad y prepárate para certificaciones oficiales en 22 semanas.",2025-10-29 22:34:43
+509,509,プログラミングしながら学ぶコンピュータサイエンス入門 : Introduction to Computer Science and Programming,プログラミング体験を通じてコンピュータサイエンスの基礎から最先端までを学び、ビッグデータやAI時代に必要な「計算」の活用法を習得する入門コース。,2025-10-29 22:34:43
+510,510,Basic Programming in Python II,"Hands-on Python programming covering core concepts, data science intro, and web app development. Practice clean coding, advanced loops, and real-world problem-solving.",2025-10-29 22:34:43
+511,511,Basic Programming in Python I,"Hands-on Python programming covering core concepts, data types, functions, and object-oriented basics. Explore data science and web application development while solving real-world problems creatively.",2025-10-29 22:34:43
+512,512,คอมพิวเตอร์สารสนเทศขั้นพื้นฐาน | Introduction to Computer Information science,เรียนรู้พื้นฐานเทคโนโลยีคอมพิวเตอร์ ระบบเครือข่าย อินเทอร์เน็ต และโปรแกรมสำนักงาน พร้อมกฎหมายและจริยธรรมที่เกี่ยวข้อง เหมาะสำหรับผู้สนใจทุกวัย,2025-10-29 22:34:43
+513,513,CSS Practice Questions,"Hands-on CSS challenges to recreate popular components, animations, and layouts. Refine skills in transitions, pseudo-elements, and keyframe animations while gaining practical experience.",2025-10-29 22:34:43
+514,514,プログラミングしながら学ぶコンピュータサイエンス入門 : Introduction to Computer Science and Programming,edX,2025-10-29 22:34:43
+515,515,Hacker Tools,Learn to make the most of the tools that hackers have been using for decades.,2025-10-29 22:34:43
+516,516,Introduction to Computational Thinking,"Explore computational thinking through interactive programming, combining math, data science, and climate modeling to develop sophisticated problem-solving skills for the modern interconnected world.",2025-10-29 22:34:43
+517,517,CSS,"Master modern web design fundamentals through hands-on practice with HTML, CSS layouts, responsive design, animations, and Tailwind CSS for building professional, adaptive websites.",2025-10-29 22:34:43
+518,518,Improve your CSS,"Master responsive layouts, advanced CSS techniques, and Tailwind CSS while building real-world components. Create stunning UI effects with shadows, gradients, and animations through hands-on practice.",2025-10-29 22:34:43
+519,519,Introduction to CS and Programming using Python,"Learn Python programming fundamentals, problem-solving techniques, and computational thinking. Develop coding skills through hands-on exercises and projects, suitable for beginners across all majors.",2025-10-29 22:34:43
+520,520,CSS,"Master the fundamentals of web design with HTML and CSS, exploring advanced techniques like Flexbox, Grid, variables, responsive design, animations, and Tailwind CSS for creating modern, interactive websites.",2025-10-29 22:34:43
+521,521,XHTML - Advanced Styling with CSS,"Master advanced XHTML styling with CSS through progressive modules covering selectors, box model, layout techniques, and cross-browser compatibility strategies.",2025-10-29 22:34:43
+522,522,XHTML - Styling with CSS,"Master XHTML styling with CSS fundamentals, typography, text formatting, color systems, and advanced decorative techniques for professional web design.",2025-10-29 22:34:43
+523,523,Deep Learning,Deep Learning,2025-10-29 22:34:43
+524,524,Convolutional Neural Networks,"Explore computer vision applications, build CNNs, and apply them to visual tasks. Learn advanced techniques like residual networks and neural style transfer for image and video processing.",2025-10-29 22:34:43
+525,525,Blockchain Developer,Udacity,2025-10-29 22:34:43
+526,526,Structuring Machine Learning Projects,"Learn to structure and optimize machine learning projects, diagnose errors, and make strategic decisions as an ML project leader to improve system performance and efficiency.",2025-10-29 22:34:43
+527,527,Statistical Methods for Computer Science,"Master advanced probability and statistical modeling techniques for data analysis, from fundamental concepts to computational methods, using R programming for real-world applications.",2025-10-29 22:34:43
+528,528,Introduction to CSS,LinkedIn Learning,2025-10-29 22:34:43
+529,529,Automata Theory,"Explore finite automata, context-free grammars, Turing machines, and intractable problems in this comprehensive study of theoretical computer science foundations.",2025-10-29 22:34:43
+530,530,Algoritmos e Lógica de Programação - O Curso COMPLETO,Udemy,2025-10-29 22:34:43
+531,531,AI Technology for Marketing Optimization,36 reviews,2025-10-29 22:34:43
+532,532,HTML Tutorials for Beginners,"Learn the fundamentals of web design with comprehensive tutorials covering HTML structure, tags, and elements. Create your first webpage and explore CSS and JavaScript integration for enhanced functionality.",2025-10-29 22:34:43
+533,533,Introduction to Front-End Development,"Learn to create responsive webpages using HTML, CSS, and Bootstrap. Explore core web technologies, understand front-end development roles, and gain practical skills for building interactive user interfaces.",2025-10-29 22:34:43
+534,534,Scientific Computing with Python,freeCodeCamp,2025-10-29 22:34:43
+535,535,The Bits and Bytes of Computer Networking,"Comprehensive overview of computer networking, covering protocols, troubleshooting, network services, and cloud computing. Equips learners with practical skills for modern IT environments.",2025-10-29 22:34:43
+536,536,Introduction to computational thinking,"Explore algorithms, abstraction, and applications of computational thinking across disciplines like biology, physics, economics, and sport science. Learn about models, encapsulation, and machine learning.",2025-10-29 22:34:43
+537,537,Transformando la educación con IA: ChatGPT,"Descubre cómo la inteligencia artificial, especialmente el modelo de lenguaje ChatGPT, puede ser utilizado para potenciar el proceso de enseñanza y aprendizaje.",2025-10-29 22:34:43
+538,538,Software Engineering: Introduction,Learn software engineering principles that are applicable to the breadth of large-scale software systems.,2025-10-29 22:34:43
+539,539,Computer Organization and Architecture,YouTube,2025-10-29 22:34:43
+540,540,Accessible Gamification,"Learn how accessibility plays into gamification fundamentals, creating efficiency in business for everyone.",2025-10-29 22:34:43
+541,541,C Programming: Modular Programming and Memory Management,8 ratings at edX,2025-10-29 22:34:43
+542,542,The Joy of Computing using Python,3 reviews,2025-10-29 22:34:43
+543,543,Software Construction: Object-Oriented Design,Learn how to design large software systems that solve real-world problems using object-oriented design techniques.,2025-10-29 22:34:43
+544,544,Software Construction: Data Abstraction,"Learn powerful data abstraction and decomposition techniques to build large, complex programs.",2025-10-29 22:34:43
+545,545,An introduction to computers and computer systems,"Explore processors, components, data representation, and networks in computer systems, from everyday devices to interconnected networks, with a glimpse into future developments.",2025-10-29 22:34:43
+546,546,Systems engineering: Challenging complexity,"Examine systems engineering's importance in managing complex projects. Learn to evaluate relationships, assess stakeholders, and classify projects based on demands, choices, and constraints.",2025-10-29 22:34:43
+547,547,Cryptocurrency Engineering and Design,"This course looks at the design of Bitcoin and other cryptocurrencies and how they function in practice, focusing on cryptography, game theory, and network architecture.",2025-10-29 22:34:43
+548,548,Machine Learning With Big Data,"Explore, analyze, and leverage big data using machine learning techniques. Learn to design approaches, prepare data, construct models, and scale solutions using open-source tools and Spark.",2025-10-29 22:34:43
+549,549,Learn CSS: Colors,,2025-10-29 22:34:43
+550,550,Theory of Computation,4 reviews,2025-10-29 22:34:43
+551,551,Machine Learning: Classification,"Learn to build and implement classification models for sentiment analysis and loan default prediction using logistic regression, decision trees, and boosting techniques. Gain hands-on experience with real-world datasets and machine learning algorithms.",2025-10-29 22:34:43
+552,552,AWS Machine Learning Engineer Nanodegree,AWS Machine Learning Engineer Nanodegree,2025-10-29 22:34:43
+553,553,Java Programming Essentials: AP Computer Science A,Udemy,2025-10-29 22:34:43
+554,554,Introduction to Responsible AI,"This is an introductory-level microlearning course aimed at explaining what responsible AI is, why it's important, and how Google implements responsible AI in their products. It also introduces Google's 7 AI principles.",2025-10-29 22:34:43
+555,555,"Nature, in Code: Biology in JavaScript","Learn JavaScript programming by implementing key biology concepts in code, including natural selection, genetics and epidemics.",2025-10-29 22:34:43
+556,556,Mathematics for Machine Learning: Multivariate Calculus,"Explore multivariate calculus essentials for machine learning, covering gradients, chain rule, Taylor series, and optimization techniques, with practical applications in neural networks and regression.",2025-10-29 22:34:43
+557,557,"Stanford Seminar - Lenia- Biology of Artificial Life, Bert Wang-Chak Chan","Explore artificial life through Lenia, a continuous cellular automaton. Delve into its evolution, physics, taxonomy, and comparisons with Earth life in this thought-provoking seminar.",2025-10-29 22:34:43
+558,558,Stanford Seminar - New Golden Age for Computer Architecture - John Hennessy,"Explore the evolution of computer architecture, from early IBM systems to modern domain-specific designs, highlighting key innovations and challenges in processor development.",2025-10-29 22:34:43
+559,559,Stanford Seminar - Mostly Missless Memory in the Mill CPU,This is one of the series of talks about the mill architecture. The particular topic discussed here is Cache Access. Ivan Godard attemps to oversimplify and provide an intuitive understanding for people who are not specialists in the field.,2025-10-29 22:34:43
+560,560,LAFF-On Programming for High Performance,Learn to squeeze high performance out of modern CPUs.,2025-10-29 22:34:43
+561,561,LAFF – On Programming for Correctness,"Learn to apply formal methods to systematically develop correct, loop-based programs, an essential skill for computer programmers.",2025-10-29 22:34:43
+562,562,CSS: Selectors,LinkedIn Learning,2025-10-29 22:34:43
+563,563,C Programming: Language Foundations,16 ratings at edX,2025-10-29 22:34:43
+564,564,Constraint Programming,Learn the basics of constraint programming from the implementation of solvers to modeling techniques for solving concrete combinatorial problems such as routing and scheduling.,2025-10-29 22:34:43
+565,565,Cutting-Edge CSS,LinkedIn Learning,2025-10-29 22:34:43
+566,566,C Programming: Pointers and Memory Management,8 ratings at edX,2025-10-29 22:34:43
+567,567,C Programming: Using Linux Tools and Libraries,7 ratings at edX,2025-10-29 22:34:43
+568,568,Computer Fundamentals,2 reviews,2025-10-29 22:34:43
+569,569,Learn CSS: Browser Compatibility,,2025-10-29 22:34:43
+570,570,Prompt Engineering Overview,"Comprehensive overview of prompt engineering techniques, from basics to advanced, with tools, applications, and future directions. Includes resources for further learning and practice.",2025-10-29 22:34:43
+571,571,Making Sense of the CSS Box Model,LinkedIn Learning,2025-10-29 22:34:43
+572,572,Text Retrieval and Search Engines,"Learn natural language processing, vector space models, and search engine technologies to effectively retrieve and analyze text data from various sources.",2025-10-29 22:34:43
+573,573,Computing Form and Shape: Python Programming with the Rhinoscript Library,"Explore Python programming with Rhinoscript to create and manipulate 3D forms. Learn algorithmic design techniques for digital drawing, modeling, and projection in architecture, art, and design.",2025-10-29 22:34:43
+574,574,CS50's AP® Computer Science Principles,"Explore algorithmic thinking and problem-solving in computer science. Learn programming languages, data structures, and software engineering while developing practical skills for web, mobile, or game development.",2025-10-29 22:34:43
+575,575,CIT-001: Fundamentals of Computer Systems,"Comprehensive introduction to computer systems, covering hardware, software, problem-solving, programming, networking, and information security. Provides practical knowledge for everyday ICT use.",2025-10-29 22:34:43
+576,576,Problem Solving through Programming in C,1 review,2025-10-29 22:34:43
+577,577,CSS Tips,LinkedIn Learning,2025-10-29 22:34:43
+578,578,Discrete Optimization,Learn how to solve complex search problems using discrete optimization concepts and algorithms in this 8-week course from the University of Melbourne.,2025-10-29 22:34:43
+579,579,High School Computer Science and Programming Intro Workshop,Udemy,2025-10-29 22:34:43
+580,580,CSS: Display,LinkedIn Learning,2025-10-29 22:34:43
+581,581,CSS: Transforms and Transitions,LinkedIn Learning,2025-10-29 22:34:43
+582,582,CSS: Enhancing Interfaces with Animation,LinkedIn Learning,2025-10-29 22:34:43
+583,583,Design of Computer Programs,"Learn how to model problems, and how to optimize performance by using some of the advanced features of Python.",2025-10-29 22:34:43
+584,584,"C: Data Structures, Pointers, and File Systems",LinkedIn Learning,2025-10-29 22:34:43
+585,585,Computer Science 307: Software Engineering,Study.com,2025-10-29 22:34:43
+586,586,Computer Science 108: Introduction to Networking,Study.com,2025-10-29 22:34:43
+587,587,L’esplosione dell’Intelligenza Artificiale,"Scopri l'evoluzione dell'IA da Turing ai moderni LLMs, esplorando principi, impatto sociale, etica e regolamentazione in 30 ore di formazione gratuita.",2025-10-29 22:34:43
+588,588,Advanced Styling with Responsive Design,"Expand CSS3 skills with wireframes, fluid design, media queries, and styling paradigms. Master mobile-first approach, cross-platform design, and frameworks like Bootstrap for responsive web development.",2025-10-29 22:34:43
+589,589,C Programming: Getting Started,20 ratings at edX,2025-10-29 22:34:43
+590,590,Design the Web: Using Counters and Resets in CSS,LinkedIn Learning,2025-10-29 22:34:43
+591,591,Computer Architecture,,2025-10-29 22:34:43
+592,592,"CSS: Inheritance, Specificity, and the Cascade",LinkedIn Learning,2025-10-29 22:34:43
+593,593,Spatial Computational Thinking,"Learn to manipulate spatial data through procedural, generative, and performative modeling techniques using Möbius Modeller. Develop skills in 3D model generation, analysis, and visualization.",2025-10-29 22:34:43
+594,594,Building a RISC-V CPU Core,"Create a RISC-V CPU with modern open source circuit design tools, methodologies, and microarchitecture, all from your browser.",2025-10-29 22:34:43
+595,595,CSS Shorts,LinkedIn Learning,2025-10-29 22:34:43
+596,596,CSS Positioning Best Practices,LinkedIn Learning,2025-10-29 22:34:43
+597,597,Discrete Math: Counting Theory,,2025-10-29 22:34:43
+598,598,Computer Architecture Essentials on Arm,"Explore microprocessor architecture, from basics to advanced concepts like pipelining and superscalar processors. Gain insights from Arm engineers and hands-on experience through simulation tools.",2025-10-29 22:34:43
+599,599,Cloud Computing Engineering and Management,Learn methods for managing cloud computing projects and build an understanding of the various risks and compliance issues involved.,2025-10-29 22:34:43
+600,600,Introduction to Discrete Mathematics for Computer Science,Coursera,2025-10-29 22:34:43
+601,601,Introduction to RISC-V,"Discover various aspects of RISC-V, including technical aspects, specifications and the community ecosystem.",2025-10-29 22:34:43
+602,602,Data Science Using Python,"Comprehensive Python-based program covering data science fundamentals, statistical concepts, and machine learning techniques, with hands-on projects for practical application.",2025-10-29 22:34:43
+603,603,Computer Architecture and Organization,,2025-10-29 22:34:43
+604,604,C Programming and Assembly Language,,2025-10-29 22:34:43
+605,605,Computer Architecture,"This course in computer architecture will take you from an understanding of digital design using combinational logic and synchronous sequential building blocks to building your own single-cycle multicycle, and pipelined microprocessors.",2025-10-29 22:34:43
+606,606,Computer System Design: Advanced Concepts of Modern Microprocessors,"Learn about advanced computer design concepts, including how to make modern multicore-based computers both fast and energy efficient.",2025-10-29 22:34:43
+607,607,Computer Systems Design for Energy Efficiency,"Learn how to design modern computers to improve the speed, performance and energy efficiency of your programs.",2025-10-29 22:34:43
+608,608,Fundamental of Cryptography,"Explore encryption, decryption, and secure communication. Learn classic and modern cryptographic techniques, their applications in digital security, and gain practical knowledge for the digital age.",2025-10-29 22:34:43
+609,609,Artificial Intelligence for Economics,,2025-10-29 22:34:43
+610,610,Computer Architecture,Computer Architecture,2025-10-29 22:34:43
+611,611,Multi-Core Computer Architecture,,2025-10-29 22:34:43
+612,612,Computer System Design: Concepts of Modern Microprocessors,"Mastering advanced microprocessor design concepts to boost career prospects. Learn pipelining, cache memories, parallelism, and more for developing competitive computerized products with improved functionality and efficiency.",2025-10-29 22:34:43
+613,613,Computer Architecture with an Industrial RISC-V Core [RVfpga],Get a practical introduction to using RISC-V computer architecture based on a RISC-V system-on-chip (SoC) targeted to a field-programmable gate array (FPGA) and to different simulation tools.,2025-10-29 22:34:43
+614,614,Digital Logic and Circuits Simulations,"Explore digital logic and circuits through simulations, covering number systems, Boolean algebra, combinational and sequential circuits, and hardware implementations.",2025-10-29 22:34:43
+615,615,Introduction to Graph Algorithms,,2025-10-29 22:34:43
+616,616,Computer Vision for Engineering and Science,"Learn essential computer vision techniques using MATLAB to detect objects, classify images, track motion, and more. Gain practical skills for engineering and scientific applications in autonomous systems and medical imaging.",2025-10-29 22:34:43
+617,617,RISC-V Toolchain and Compiler Optimization Techniques,Develop a working knowledge of the internals of compiler toolchains and compiler optimization techniques with a focus on RISC-V applications.,2025-10-29 22:34:43
+618,618,Distributed Optimization and Machine Learning,,2025-10-29 22:34:43
+619,619,Getting Started with Self-Sovereign Identity,"Gain a solid foundation on self-sovereign identity (SSI) with a 360 degree overview of its evolutionary journey, key concepts, standards, technological building blocks, use cases, real-world examples and implementation considerations.",2025-10-29 22:34:43
+620,620,Computer Applications in Business,"Explore essential computer applications for business, covering word processing, presentations, spreadsheets, and database management. Gain practical skills for creating professional documents, analyzing data, and managing information effectively.",2025-10-29 22:34:43
+621,621,Practical Cyber Security for Cyber Security Practitioners,,2025-10-29 22:34:43
+622,622,Approximation Algorithm,,2025-10-29 22:34:43
+623,623,Computer Science 306: Computer Architecture,Study.com,2025-10-29 22:34:43
+624,624,Introduction to DBMS,,2025-10-29 22:34:43
+625,625,Teach teens computing: How computers work,"Explore the fundamentals of computing: computer architecture, binary logic, data processing, circuits &amp; more.",2025-10-29 22:34:43
+626,626,Computer Science 102: Fundamentals of Information Technology,Study.com,2025-10-29 22:34:43
+627,627,Fundamentals of Operating Systems,,2025-10-29 22:34:43
+628,628,Computer Science 201: Data Structures & Algorithms,Study.com,2025-10-29 22:34:43
+629,629,Computer Science 305: Operating Systems,Study.com,2025-10-29 22:34:43
+630,630,Computer Science 113: Programming in Python,Study.com,2025-10-29 22:34:43
+631,631,Computer Science 311: Artificial Intelligence,Study.com,2025-10-29 22:34:43
+632,632,Introductory Concepts of Digital Computing,,2025-10-29 22:34:43
+633,633,Computational Arithmetic - Geometry for Algebraic Curves,,2025-10-29 22:34:43
+634,634,Formal Language and Automata Theory- An Application in Compiler Design,,2025-10-29 22:34:43
+635,635,Computer Science 105: Introduction to Operating Systems,Study.com,2025-10-29 22:34:43
+636,636,Computer Science 303: Database Management,Study.com,2025-10-29 22:34:43
+637,637,Responsible & Safe AI Systems,"Explore ethical, social, and safety aspects of AI systems. Learn about algorithmic transparency, fairness, interpretability, and potential risks. Develop critical thinking skills for responsible AI development and deployment.",2025-10-29 22:34:43
+638,638,Foundations of Algorithmic Problem-Solving A Comprehensive Approach,,2025-10-29 22:34:43
+639,639,FTCE Computer Science K-12 (005) Prep,Study.com,2025-10-29 22:34:43
+640,640,Computer Science 106: Introduction to Linux,Study.com,2025-10-29 22:34:43
+641,641,Social Networks,,2025-10-29 22:34:43
+642,642,Computer Science 323: Wireless & Mobile Networking,Study.com,2025-10-29 22:34:43
+643,643,Computer Science 302: Systems Analysis & Design,Study.com,2025-10-29 22:34:43
+644,644,Real-Time Systems,,2025-10-29 22:34:43
+645,645,Computer Science 304: Network System Design,Study.com,2025-10-29 22:34:43
+646,646,Randomized Methods in Complexity,,2025-10-29 22:34:43
+647,647,Computer Science 220: Fundamentals of Routing and Switching,Study.com,2025-10-29 22:34:43
+648,648,Computer Science 310: Current Trends in Computer Science & IT,Study.com,2025-10-29 22:34:43
+649,649,Computational Learning Theory and Beyond,,2025-10-29 22:34:43
+650,650,Linux für Alle,,2025-10-29 22:34:43
+651,651,Linked Data Engineering,,2025-10-29 22:34:43
+652,652,Computational Language: A New Kind of Science,,2025-10-29 22:34:43
+653,653,Architecture 2001: x86-64 OS Internals,"Explore x86-64 OS internals, covering privilege separation, hardware requirements, and foundational concepts for understanding Windows, Linux, BSD, and macOS systems.",2025-10-29 22:34:43
+654,654,Architecture 4031: x86-64 Reset Vector: coreboot,Independent,2025-10-29 22:34:43
+655,655,Search Engines,Brilliant,2025-10-29 22:34:43
+656,656,The Top Skills Engineering Professionals Have Right Now,LinkedIn Learning,2025-10-29 22:34:43
+657,657,Technical Program Management,LinkedIn Learning,2025-10-29 22:34:43
+658,658,"24 CSS Projects: Loading Animations, Progress Bars, Flashcards and More",freeCodeCamp,2025-10-29 22:34:43
+659,659,(UPI) Chapter 8: Enhancing Web Design with Cascading Style Sheets (CSS) Course (How To),Treehouse,2025-10-29 22:34:43
+660,660,(UPI) Chapter 4: Understanding the CSS Box Model Course (How To),Treehouse,2025-10-29 22:34:43
+661,661,(UPI) Chapter 3: Web Design with Cascading Style Sheets (CSS) Course (How To),Treehouse,2025-10-29 22:34:43
+662,662,Computer Science for Cybersecurity,"Master computer science fundamentals and cybersecurity skills to anticipate, prevent, and manage sophisticated threats in a world of increasing data breaches and hacking incidents.",2025-10-29 22:34:43
+663,663,Computer Science for Databases using SQL,"Dive into computer science fundamentals and database development with SQL, learning algorithmic thinking, problem-solving, data relationships, normalization, and search optimization using real-world datasets.",2025-10-29 22:34:43
+664,664,Computer Science 104: Intro to Web Development,Study.com,2025-10-29 22:34:43
+665,665,Stanford Seminar - How Not to Generate Random Numbers,Explore common pitfalls in cryptographic random number generation and their real-world implications for security systems and digital certificates.,2025-10-29 22:34:43
+666,666,Finding Fairness - Incorporating Societal Values in Computer Algorithms,"Exploring algorithmic fairness and privacy in computer science, addressing concerns about incorporating societal values into technology as it increasingly impacts our lives.",2025-10-29 22:34:43
+667,667,Human-Computer Interaction I: Fundamentals & Design Principles,"Learn the principles of Human-Computer Interaction to create intuitive, usable interfaces, with established design principles like feedback cycles, direct manipulation, affordances, signifiers, and more.",2025-10-29 22:34:43
+668,668,Computer Science 101,"Demystify computers and coding through hands-on experiments. Learn essential concepts like hardware, software, internet, and digital media. Gain practical understanding of computer science fundamentals.",2025-10-29 22:34:43
+669,669,Applied Machine Learning in Python,"Learn applied machine learning techniques using Python, from clustering to predictive modeling, with a focus on practical implementation and evaluation using scikit-learn.",2025-10-29 22:34:43
+670,670,"Stanford Seminar - MIPS Open, Wave Computing","Explore MIPS Open architecture, its components, features, and benefits. Learn about virtualization, multi-threading, and SIMD in this comprehensive seminar on open-source processor technology.",2025-10-29 22:34:43
+671,671,Stanford Seminar - Safe Passwords Made Easy to Use,"Explore innovative password security techniques, including passphrases and the Cue-Pin-Select algorithm, to enhance authentication while improving user experience and memorability.",2025-10-29 22:34:43
+672,672,Computational Memory - A Stepping-Stone to Non-Von Neumann Computing?,"Explore computational memory as a potential alternative to traditional computing, covering in-memory computing, resistive memory devices, and applications in AI and data processing.",2025-10-29 22:34:43
+673,673,Stanford Seminar - An Architect's Point of View on Emerging Technologies,"Explore emerging technologies in computing from an architect's perspective, covering Moore's Law, scaling challenges, new devices, memories, 3D integration, and architectural simulation tools.",2025-10-29 22:34:43
+674,674,Stanford Seminar - The Quest for Low Storage Latency Changes Everything,"Explore advancements in storage technology, focusing on reducing latency through media and platform improvements, including NVMe, 3D Xpoint, and persistent memory.",2025-10-29 22:34:43
+675,675,Stanford Seminar - The REX Neo Architecture - An Energy Efficient New Processor Architecture,"Explore the innovative REX Neo Architecture, a groundbreaking approach to processor design that prioritizes energy efficiency and computational performance in modern computing systems.",2025-10-29 22:34:43
+676,676,Stanford Seminar - Time Traveling Hardware and Software Systems,"Explore time-traveling concepts in hardware and software systems, focusing on parallelism, dependencies, coherence, and concurrency control in modern computing architectures.",2025-10-29 22:34:43
+677,677,Dynamic Code Optimization and the NVIDIA Denver Processor,"Explore dynamic code optimization and NVIDIA Denver processor architecture, covering pipeline design, performance, and CPU design philosophies in this Stanford seminar.",2025-10-29 22:34:43
+678,678,Stanford Seminar - Applying Theory to Practice and Practice to Theory,"Explore the synergy between theoretical concepts and practical applications in computer science, emphasizing collaboration and innovative problem-solving techniques.",2025-10-29 22:34:43
+679,679,Stanford Seminar - Instruction Sets Should Be Free- The Case for RISC-V,"Explore the case for RISC-V as a free and open instruction set architecture, its benefits, design principles, and potential impact on computing and processor development.",2025-10-29 22:34:43
+680,680,Instruction Execution on the Mill CPU,This is one of the series of talks about the mill architecture. The Mill is a family of CPU designs. The Mill has a 10x single-thread power/performance gain over conventional out of order superscalar architectures.,2025-10-29 22:34:43
+681,681,Stanford Seminar - Finding the Great Problems,"Barbara Liskov discusses her pioneering career in computer science, from early influences to groundbreaking research in programming languages and distributed systems, while reflecting on challenges and ethical considerations in technology.",2025-10-29 22:34:43
+682,682,Introduction to Image Processing,"Learn essential image processing techniques using MATLAB, including loading, adjusting, segmenting, and enhancing digital images for analysis. Apply skills to real-world scenarios like satellite imagery.",2025-10-29 22:34:43
+683,683,Interfacing with the Arduino,"Learn to interface Arduino with sensors and actuators, convert analog/digital signals, use shields and libraries for real-world applications, and connect your IoT device to the Internet.",2025-10-29 22:34:43
+684,684,Herramientas de Inteligencia Artificial para la productividad. Más allá del ChatGPT,164 reviews,2025-10-29 22:34:43
+685,685,The Complete Full-Stack Web Development Bootcamp,Udemy,2025-10-29 22:34:43
+686,686,Intelligenza Artificiale,"Il corso multidisciplinare che affronta il tema dell’intelligenza artificiale dal punto di vista scientifico, tecnico, etico, sociale, economico, filosofico e culturale.",2025-10-29 22:34:43
+687,687,Real-Time Systems,,2025-10-29 22:34:43
+688,688,Binary & Decimal Number System,Learn to convert between binary and decimal number systems with hands-on examples and implementations. Gain practical skills in number system conversions essential for computer science and programming.,2025-10-29 22:34:43
+689,689,Visualizing Data with 7-Segment Displays,"Explore data visualization using 7-segment displays, covering binary-to-decimal conversion, Boolean algebra, and the double dabble algorithm for efficient number representation in digital systems.",2025-10-29 22:34:43
+690,690,Learn CSS in 3 Hours - Cascading Style Sheets for Beginners,"Comprehensive introduction to CSS fundamentals, covering selectors, colors, backgrounds, borders, layout, fonts, and links for web design beginners.",2025-10-29 22:34:43
+691,691,IT in everyday life,"We now live in a global village where distance is no longer a barrier to commercial or social contact. This free course, IT in everyday life, will enable you to gain an understanding of the ...",2025-10-29 22:34:43
+692,692,Prompt Engineering with OpenAI's GPT-3 and Other LLMs,"Learn effective prompt engineering techniques for GPT-3 and other LLMs. Explore anatomy, temperature, few-shot training, external information, and context windows to enhance AI-generated outputs.",2025-10-29 22:34:43
+693,693,Stanford - Human-Computer Interaction Seminar Series,Learn about the latest development in tech in the CS547 seminar series from Standford,2025-10-29 22:34:43
+694,694,Stanford Seminar - Efficient and Resilient Systems in the Cognitive Era,"Explore efficient and resilient systems for cognitive computing, covering swarm intelligence, sensor fusion, hardware optimization, and energy efficiency in the context of IBM's research.",2025-10-29 22:34:43
+695,695,Stanford Seminar: Computational Ecosystems,"Explore computational ecosystems as integrative solutions for complex challenges, focusing on community-informed planning and developing regulation skills in research environments.",2025-10-29 22:34:43
+696,696,What Actually Happens in Computer Science Studies?,"Einblick in Inhalte, Struktur und Anforderungen eines Informatikstudiums. Hilfreiche Informationen für Interessierte zur Entscheidungsfindung und Vorbereitung auf das Studium.",2025-10-29 22:34:43
+697,697,Introducción a ChatGPT.¡Impulsa tu productividad al máximo usando inteligencia artificial!,"Aprende a utilizar ChatGPT para aumentar tu productividad laboral, desde redacción y traducción hasta programación y planificación. Descubre sus ventajas, limitaciones y cómo hacer prompts efectivos.",2025-10-29 22:34:43
+698,698,Principles of Computing (Part 2),"Explore computational principles, data structures, recursion, and algorithmic thinking through hands-on Python projects, preparing you for advanced problem-solving in computer science.",2025-10-29 22:34:43
+699,699,Algorithmic Thinking (Part 1),"Explore algorithmic efficiency and graph theory, implementing key algorithms in Python to analyze real-world data sets. Develop problem-solving skills beyond specific programming languages.",2025-10-29 22:34:43
+700,700,"Unix Tools: Data, Software and Production Engineering","Grow from being a Unix novice to Unix wizard status! Process big data, analyze software code, run DevOps tasks and excel in your everyday job through the amazing power of the Unix shell and command-line tools.",2025-10-29 22:34:43
+701,701,Introduction to Computers - Stanford University,"Comprehensive exploration of computer fundamentals, covering hardware, networks, web development, programming, security, and emerging technologies. Ideal for beginners seeking a solid foundation in computer science.",2025-10-29 22:34:43
+702,702,Introduction to the Theory of Computing - Stanford,"Explore fundamental concepts of theoretical computer science, including automata, computability, and complexity theory, with practical applications and algorithmic fairness.",2025-10-29 22:34:43
+703,703,GGP Course Videos,"Comprehensive video series on General Game Playing, covering game description, management, playing strategies, and advanced topics like heuristic search and Monte Carlo methods.",2025-10-29 22:34:43
+704,704,"Theory of Computation, Fall 2020","Explore computability and complexity theory with MIT's in-depth course. Covers automata, Turing machines, undecidability, NP-completeness, and advanced topics in computational theory.",2025-10-29 22:34:43
+705,705,Introduction to EECS I,"Integrated introduction to electrical engineering and computer science, covering software engineering, linear systems, electronic circuits, and decision-making through lectures and recitations.",2025-10-29 22:34:43
+706,706,Computer Science Summer Program NYC (High School) (Live Online),Noble Desktop,2025-10-29 22:34:43
+707,707,Mastering Recommender Systems,"Explore top strategies for building effective e-commerce recommendation systems, featuring insights from Kaggle Grandmasters on candidate generation, reranking, and model ensembling techniques.",2025-10-29 22:34:43
+708,708,The Nature of Code,"Explore programming strategies for simulating natural systems, covering physics, fractals, genetic algorithms, and more using p5.js. Learn to create digital worlds inspired by nature's unpredictable properties.",2025-10-29 22:34:43
+709,709,Learn Computer Science Online,"Comprehensive online program covering CS fundamentals to advanced topics. Features interactive coding, explanations, problem-solving, and community support for aspiring programmers.",2025-10-29 22:34:43
+710,710,"Improving Deep Neural Networks: Hyperparameter Tuning, Regularization and Optimization","Enhance deep learning skills: master hyperparameter tuning, regularization, optimization, and TensorFlow implementation for improved neural network performance and systematic results generation.",2025-10-29 22:34:43
+711,711,Software Processes and Agile Practices,"This course delves into a variety of processes to structure software development. It also covers the foundations of core Agile practices, such as Extreme Programming and Scrum.",2025-10-29 22:34:43
+712,712,Sequence Models,"Master sequence models for NLP tasks, including RNNs, LSTMs, and transformers. Apply these techniques to speech recognition, language modeling, and machine translation.",2025-10-29 22:34:43
+713,713,Data Structures and Algorithms,Udacity,2025-10-29 22:34:43
+714,714,Operating Systems and You: Becoming a Power User,"Master Windows and Linux: file management, user permissions, software installation, disk partitioning, process control, and remote access. Gain practical skills for effective IT support and troubleshooting.",2025-10-29 22:34:43
+715,715,Aplicaciones de la Teoría de Grafos a la Vida Real (I),Aprenderemos a modelizar problemas del mundo real mediante su representación con grafos y a resolverlos mediante sus algoritmos asociados.,2025-10-29 22:34:43
+716,716,Computer Vision,6 reviews,2025-10-29 22:34:43
+717,717,AI Product Manager,Udacity,2025-10-29 22:34:43
+718,718,令和6年版:参考書の著者直伝！【基本情報技術者試験　科目A】講座　基礎理論から経営戦略までの全範囲を網羅,Udemy,2025-10-29 22:34:43
+719,719,Universidad de Lógica de Programación - Aprende 7 Lenguajes!,Udemy,2025-10-29 22:34:43
+720,720,Locality Sensitive Hashing for Search with Shingling + MinHashing - Python,"Learn efficient similarity search using Locality Sensitive Hashing (LSH) with shingling and MinHashing techniques in Python. Explore implementation steps, from data preprocessing to LSH tuning, for approximate nearest neighbor search.",2025-10-29 22:34:43
+721,721,Super Useful CSS Properties That Don't Get Enough Attention,"Discover five underappreciated CSS properties that enhance web design: isolation, inset, counters, filters, and contain. Learn their practical applications and browser support.",2025-10-29 22:34:43
+722,722,Has Opens Up New Possibilities With CSS,"Explore the game-changing :has() pseudo-class in CSS, unlocking new possibilities for theming, modal interactions, form design, element counting, and conditional styling.",2025-10-29 22:34:43
+723,723,Supercharge Your CSS with Open Props,"Explore Open Props to enhance CSS with pre-built custom properties. Learn setup, customization, typography, and responsive design for efficient styling and improved workflow.",2025-10-29 22:34:43
+724,724,CSS Features Released in 2023 - A Comprehensive Overview,"Comprehensive overview of CSS features released in 2023, covering new selectors, color functions, layout techniques, and more. Includes demos and explanations to help developers stay current with the latest CSS capabilities.",2025-10-29 22:34:43
+725,725,Five Easy and Fun CSS Effects,"Learn five creative CSS effects to enhance your web design skills, including text animations, stylish dividers, fancy links, and eye-catching button designs.",2025-10-29 22:34:43
+726,726,Embracing New CSS Patterns for Better Solutions,"Explore innovative CSS techniques to enhance your coding skills, challenging familiar patterns and embracing new methods for improved web development practices.",2025-10-29 22:34:43
+727,727,Choosing the Right CSS Unit - A Flowchart Guide,"Comprehensive guide to selecting appropriate CSS units, covering positioning, font sizes, spacing, and layout. Includes a practical flowchart and in-depth explanations for various scenarios.",2025-10-29 22:34:43
+728,728,"Creating a Clean, Modern Navigation with HTML and CSS","Learn to create a modern, clean navigation using HTML and CSS, with step-by-step guidance on layout, styling, and animation techniques for an enhanced user interface.",2025-10-29 22:34:43
+729,729,Build Custom Interfaces Using CSS Open Props,"Discover how to create stunning interfaces and animations using CSS Open Props, a versatile design system. Learn implementation techniques, color management, and advanced features like gradients and masks.",2025-10-29 22:34:43
+730,730,"CSS Fonts, Text and Color Properties - Tutorial 19","Explore CSS fonts, text, and color properties to enhance web design. Learn about font styles, line height, letter spacing, text decorations, and color implementation for visually appealing websites.",2025-10-29 22:34:43
+731,731,True Parallax with CSS-Only - Creating Scroll-Based Animations,"Learn to create true parallax effects using CSS-only techniques, leveraging scroll-timeline for complete control over layer speeds without JavaScript. Explore HTML setup, CSS stacking, and animation application.",2025-10-29 22:34:43
+732,732,Creative CSS Layout - Modern Techniques and Tools,"Explore modern CSS layout techniques, including flexbox, Grid, aspect-ratio, and logical properties. Learn creative solutions for common challenges and upcoming features like subgrid and container queries.",2025-10-29 22:34:43
+733,733,Fundamentals of Digital Image and Video Processing,"Learn to process digital images and videos using mathematical frameworks and state-of-the-art techniques. Covers enhancement, recovery, compression, and segmentation, with emphasis on practical applications and modern tools.",2025-10-29 22:34:43
+734,734,Web Development By Doing: HTML / CSS From Scratch,Udemy,2025-10-29 22:34:43
+735,735,ChatGPT & Generative AI - The Complete Guide,Udemy,2025-10-29 22:34:43
+736,736,ServiceNow ITSM Processes,Udemy,2025-10-29 22:34:43
+737,737,AI for Clinical Trials and Precision Medicine - Ruishan Liu,"Explores AI's potential to enhance clinical trial efficiency and generate precision medicine hypotheses, focusing on inclusive trial designs and quantifying cancer therapy effectiveness for specific mutations.",2025-10-29 22:34:43
+738,738,Deep Learning Prerequisites: The Numpy Stack in Python (V2+),Udemy,2025-10-29 22:34:43
+739,739,"Blockchain A-Z: Build a Blockchain, a Crypto + ChatGPT Prize",Udemy,2025-10-29 22:34:43
+740,740,Software Development Process,"Software Development Processes explores requirements engineering, architecture and design, testing, and software quality in general.",2025-10-29 22:34:43
+741,741,"50 Projects In 50 Days - HTML, CSS & JavaScript",Udemy,2025-10-29 22:34:43
+742,742,The Complete ServiceNow System Administrator Course,Udemy,2025-10-29 22:34:43
+743,743,Artificial Intelligence & Machine Learning for Business,Udemy,2025-10-29 22:34:43
+744,744,Bash Scripting and Shell Programming (Linux Command Line),Udemy,2025-10-29 22:34:43
+745,745,6.00x: Introduction to Computer Science and Programming,6.00x is an introduction to using computation to solve real problems. The course is aimed at students with little or no prior programming experience who have a desire (or at least a need) to understand computational approaches to problem solving.,2025-10-29 22:34:43
+746,746,Introduction to Large Language Models,"Explore large language models, their applications, and prompt tuning techniques. Learn to develop Gen AI apps using Google tools in this concise introduction.",2025-10-29 22:34:43
+747,747,"ChatGPT for Marketing, Content, Social Media, and PR",Udemy,2025-10-29 22:34:43
+748,748,Introduction to networking for complete beginners,Udemy,2025-10-29 22:34:43
+749,749,NLP - Natural Language Processing with Python,Udemy,2025-10-29 22:34:43
+750,750,"Jenkins, From Zero To Hero: Become a DevOps Jenkins Master",Udemy,2025-10-29 22:34:43
+751,751,Introduction to Continuous Integration & Continuous Delivery,Udemy,2025-10-29 22:34:43
+752,752,DevOps Project 1 - CI/CD with Git Jenkins Ansible Kubernetes,Udemy,2025-10-29 22:34:43
+753,753,Linux for Beginners,Udemy,2025-10-29 22:34:43
+754,754,ChatGPT for IT Workers,Udemy,2025-10-29 22:34:43
+755,755,Building Web Applications in PHP,"Explore web application structure, request/response cycle, HTML, PHP basics, CSS, and database integration. Gain practical skills for dynamic web development.",2025-10-29 22:34:43
+756,756,Practical PHP: Master the Basics and Code Dynamic Websites,Udemy,2025-10-29 22:34:43
+757,757,Complete Guide to TensorFlow for Deep Learning with Python,Udemy,2025-10-29 22:34:43
+758,758,The Complete Front-End Web Development Course,Udemy,2025-10-29 22:34:43
+759,759,Learn DevOps: CI/CD with Jenkins using Pipelines and Docker,Udemy,2025-10-29 22:34:43
+760,760,"70-461, 761: Querying Microsoft SQL Server with Transact-SQL",Udemy,2025-10-29 22:34:43
+761,761,OpenShift for the Absolute Beginners,Udemy,2025-10-29 22:34:43
+762,762,Learn DevOps: The Complete Kubernetes Course,Udemy,2025-10-29 22:34:43
+763,763,数据结构基础,"掌握经典数据结构和算法,运用于解决实际问题。学习线性表、栈队列、树图等,培养程序设计和结构层次设计能力,为成为优秀程序员打基础。",2025-10-29 22:34:43
+764,764,"Generative AI, from GANs to CLIP, with Python and Pytorch",Udemy,2025-10-29 22:34:43
+765,765,"UX & Web Design Master Course: Strategy, Design, Development",Udemy,2025-10-29 22:34:43
+766,766,Introduction to Machine Learning for Data Science,Udemy,2025-10-29 22:34:43
+767,767,Hardware,"Comprehensive guide to building a computer from scratch, covering hardware components, assembly, and Windows installation for software developers.",2025-10-29 22:34:43
+768,768,Foundation of Scientific Computing,"Explore the fundamentals of scientific computing through a comprehensive series of lectures, covering essential concepts and techniques for computational problem-solving in scientific research.",2025-10-29 22:34:43
+769,769,Learning from Data (Introductory Machine Learning course),Independent,2025-10-29 22:34:43
+770,770,Linux Shell Scripting: A Project-Based Approach to Learning,Udemy,2025-10-29 22:34:43
+771,771,Maven Crash Course,Udemy,2025-10-29 22:34:43
+772,772,Docker Crash Course for busy DevOps and Developers,Udemy,2025-10-29 22:34:43
+773,773,Data Structures A-Z : Data Structures + Algorithms Bootcamp,Udemy,2025-10-29 22:34:43
+774,774,Build Websites from Scratch with HTML & CSS,Udemy,2025-10-29 22:34:43
+775,775,"Complete Data Science,Machine Learning,DL,NLP Bootcamp",Udemy,2025-10-29 22:34:43
+776,776,How to use Artificial Intelligence - A guide for everyone!,Udemy,2025-10-29 22:34:43
+777,777,"DevOps: CI/CD with Jenkins pipelines, Maven, Gradle",Udemy,2025-10-29 22:34:43
+778,778,Bash Shell Scripting: Crash Course For Beginners,Udemy,2025-10-29 22:34:43
+779,779,Ultimate Web Designer & Web Developer Course,Udemy,2025-10-29 22:34:43
+780,780,Introduction to Computer Networks for Non-Techies,Udemy,2025-10-29 22:34:43
+781,781,IT Troubleshooting Skill Training,Udemy,2025-10-29 22:34:43
+782,782,Active Directory & Group Policy Lab,Udemy,2025-10-29 22:34:43
+783,783,Python Data Structures & Algorithms + LEETCODE Exercises,Udemy,2025-10-29 22:34:43
+784,784,Standard 9.1- Part 1 Foundation Enterprise Architect Course,Udemy,2025-10-29 22:34:43
+785,785,ChatGPT Prompt Writing: The Complete Guide,Udemy,2025-10-29 22:34:43
+786,786,Cloud Computing Concepts: Part 2,"Explore distributed computing concepts for cloud systems, including MapReduce, NoSQL, scalability, and trending areas. Implement core techniques in C++ through hands-on exercises.",2025-10-29 22:34:43
+787,787,Data Integration Fundamentals,Udemy,2025-10-29 22:34:43
+788,788,[2025] Tensorflow 2: Deep Learning & Artificial Intelligence,Udemy,2025-10-29 22:34:43
+789,789,"LLM Engineering: Master AI, Large Language Models & Agents",Udemy,2025-10-29 22:34:43
+790,790,Identity and Access Management (IAM),Udemy,2025-10-29 22:34:43
+791,791,"Beginner Full Stack Web Development: HTML, CSS, React & Node",Udemy,2025-10-29 22:34:43
+792,792,Complete web development course,Udemy,2025-10-29 22:34:43
+793,793,"ChatGPT, Midjourney, ChatGPT 4, & DallE - The AI Bible",Udemy,2025-10-29 22:34:43
+794,794,What Is Generative AI?,LinkedIn Learning,2025-10-29 22:34:43
+795,795,Mastering the System Design Interview,Udemy,2025-10-29 22:34:43
+796,796,Foundations of Front-End Web Development,Udemy,2025-10-29 22:34:43
+797,797,Web Development Masterclass - Online Certification Course,Udemy,2025-10-29 22:34:43
+798,798,CURSO de CSS desde CERO,Udemy,2025-10-29 22:34:43
+799,799,Active Directory on Windows Server,Udemy,2025-10-29 22:34:43
+800,800,Python for Computer Vision with OpenCV and Deep Learning,Udemy,2025-10-29 22:34:43
+801,801,Microsoft Windows Server 2016 Training for Beginners,Udemy,2025-10-29 22:34:43
+802,802,Informatica PowerCenter - Beginner to Expert Level,Udemy,2025-10-29 22:34:43
+803,803,Programming for Kids and Beginners: Learn to Code in Scratch,Udemy,2025-10-29 22:34:43
+804,804,TensorFlow for Deep Learning Bootcamp,Udemy,2025-10-29 22:34:43
+805,805,Aprende CSS para dar estilo a tus páginas WEB,Udemy,2025-10-29 22:34:43
+806,806,Complete VMWare vSphere ESXi and vCenter Administration,Udemy,2025-10-29 22:34:43
+807,807,Introduction to SAN and NAS Storage,Udemy,2025-10-29 22:34:43
+808,808,Introduction to Computer Networking - Beginner Crash Course,Udemy,2025-10-29 22:34:43
+809,809,Ethereum Blockchain Developer Bootcamp With Solidity (2025),Udemy,2025-10-29 22:34:43
+810,810,Introducción al Hardware de Computadoras,Udemy,2025-10-29 22:34:43
+811,811,Progressive Web Apps (PWA) - The Complete Guide,Udemy,2025-10-29 22:34:43
+812,812,Windows Server 2019 Administration,Udemy,2025-10-29 22:34:43
+813,813,ChatGPT Complete Course - Prompt Engineering for ChatGPT,Udemy,2025-10-29 22:34:43
+814,814,Introduction to Windows PowerShell 5.1,Udemy,2025-10-29 22:34:43
+815,815,Aprende Informática desde cero,Udemy,2025-10-29 22:34:43
+816,816,Introduction to Machine Learning with Pytorch,Introduction to Machine Learning with Pytorch,2025-10-29 22:34:43
+817,817,Applied Cryptography,"Cryptography is present in everyday life, from paying with a credit card to using the telephone.  Learn all about making and breaking puzzles in computing.",2025-10-29 22:34:43
+818,818,Artificial Intelligence: Reinforcement Learning in Python,Udemy,2025-10-29 22:34:43
+819,819,Fundamentos y Lógica de Programación 2021,Udemy,2025-10-29 22:34:43
+820,820,Up & Running with ServiceNow,Udemy,2025-10-29 22:34:43
+821,821,"Jenkins: Beginner To Pro, Learn CI/CD Pipelines & Automation",Udemy,2025-10-29 22:34:43
+822,822,Complete Generative AI Course With Langchain and Huggingface,Udemy,2025-10-29 22:34:43
+823,823,Mastering Algorithms and Data Structures in Python,CodeSignal,2025-10-29 22:34:43
+824,824,SQL Server Integration Services (SSIS) - An Introduction,Udemy,2025-10-29 22:34:43
+825,825,How To Create a Website in a Weekend! (Project-Centered Course),"Design, build, and publish a basic website with text, sound, images, hyperlinks, plug-ins, and social media interactivity using WordPress. Learn domain setup, layout design, and mobile optimization.",2025-10-29 22:34:43
+826,826,The Raspberry Pi Platform and Python Programming for the Raspberry Pi,"Learn to program and develop IoT devices using Raspberry Pi and Python. Set up the environment, run Linux, write and debug code, and control hardware through GPIO pins.",2025-10-29 22:34:43
+827,827,Building AI,14 reviews,2025-10-29 22:34:43
+828,828,Introducción a la programación en C: Funciones y punteros,"En este curso aprenderás cómo hacer programas modulares a través de funciones y punteros en el lenguaje de programación C, uno de los más utilizados.",2025-10-29 22:34:43
+829,829,操作系统与虚拟化安全,操作系统是计算机系统的基础软件，而系统虚拟化已成为云计算平台的核心技术，没有它们提供的安全性，这些计算机系统及其上数据的安全性都将无法保障。本课程将从理论与工程实践相结合的角度，介绍操作系统(Linux)与系统虚拟化(Xen)安全相关理论、技术和方法，包括：安全概念、安全机制、安全模型、安全体系结构、安全开发方法、安全标准与评测方法等，帮助你深入学习和理解该领域的知识体系、实践技术和方法。,2025-10-29 22:34:43
+830,830,The Unix Workbench,"Explore Unix tools and command line interfaces, learn Bash programming, version control with Git, and cloud computing basics. Gain essential skills for software development and efficient computing.",2025-10-29 22:34:43
+831,831,程序开发项目实践,联合腾讯公司设计的搜索引擎项目实践，通过解决实际问题提升编程能力，并有机会与腾讯工程师交流，为就业做准备。,2025-10-29 22:34:43
+832,832,Mastering Algorithms and Data Structures in Java,CodeSignal,2025-10-29 22:34:43
+833,833,HTML Email Certificate (Live Online),Noble Desktop,2025-10-29 22:34:43
+834,834,How to Do CS Theory - Lecture 1b: Research Tips for Theoretical Computer Science,"Insights and tips for aspiring theoretical computer science researchers, covering research methods, paper writing, presentation skills, and essential resources in the field.",2025-10-29 22:34:43
+835,835,How to Program - Computer Science & Python Coding for Beginners - Variables: Operations/Input/Output,"Learn Python programming basics, including variables, operations, input/output. Gain problem-solving skills and insights into device control through hands-on coding exercises and real-life examples.",2025-10-29 22:34:43
+836,836,Computer Modelling for Molecular Science – With Sir Richard Catlow,"Explore how high-performance computer simulations revolutionize scientific understanding, from molecular behavior to planetary-scale hypotheses, with applications in crystallography, materials science, and battery technology.",2025-10-29 22:34:43
+837,837,Solving Real World Data Science Problems With Python - Computer Vision Edition,"Learn to build and improve convolutional neural networks for computer vision tasks using Python, TensorFlow, and Keras. Explore data augmentation, preprocessing, and network architecture optimization techniques.",2025-10-29 22:34:43
+838,838,Migrations - The Hardest Actual Problem in Computer Science,"Explore strategies for successful software migrations, including lessons from DoorDash, techniques for changing always-on systems, and approaches to minimize pain and disruption in engineering teams.",2025-10-29 22:34:43
+839,839,Computer Science - A Guide for the Perplexed,"Explore computer science through the lens of real-world problems, bridging the gap between academic theory and practical applications. Gain insights from Erlang's inventor on solving user challenges.",2025-10-29 22:34:43
+840,840,Deterministic Search Algorithms in Computer Science,Explore deterministic search algorithms and their applications in problem-solving and optimization techniques.,2025-10-29 22:34:43
+841,841,Aprendizaje automático (machine learning) y ciencia de datos,"Aprende a valorizar y extraer conocimiento a partir de los datos, usando técnicas y herramientas de análisis de datos genéricas, y aprendizaje automático en particular.",2025-10-29 22:34:43
+842,842,Web Development with HTML & CSS (Live Online),Noble Desktop,2025-10-29 22:34:43
+843,843,A complexidade sensível: Um paralelo entre videogames e arte,"Explore as relações entre videogames e arte, aprofundando conceitos, paradigmas e processos criativos para desenvolvedores, pesquisadores e docentes na área de jogos digitais.",2025-10-29 22:34:43
+844,844,Reinforcement Learning,8 reviews,2025-10-29 22:34:43
+845,845,"Graph Search, Shortest Paths, and Data Structures","Explore data structures, graph algorithms, and their applications in computer science, from search techniques to social network analysis.",2025-10-29 22:34:43
+846,846,Introduction to Artificial Intelligence,LinkedIn Learning,2025-10-29 22:34:43
+847,847,Resolución de problemas por búsqueda,"Aprende a resolver problemas mediante algoritmos de búsqueda, desde la abstracción hasta la implementación en Python. Aplica tus conocimientos para resolver el cubo de Rubik y otros desafíos.",2025-10-29 22:34:43
+848,848,Algorithmic Thinking (Part 2),"Develop advanced algorithmic skills through divide-and-conquer and dynamic programming techniques. Implement algorithms in Python to analyze real-world datasets, enhancing problem-solving abilities across computational domains.",2025-10-29 22:34:43
+849,849,Cloud DevOps Engineer,"Learn all about the DevOps landscape, workflow, and a survey of the systems currently being used to support scalable software deployment.",2025-10-29 22:34:43
+850,850,Interactive 3D Graphics,"This course will teach you the principles of 3D computer graphics: meshes, transforms, lighting, animation, and making interactive 3D applications run in a browser.",2025-10-29 22:34:43
+851,851,计算机操作系统,"深入探讨操作系统的核心概念和实现原理,涵盖处理器、存储、设备、文件管理及并发编程,培养学生综合解决实际问题的能力。",2025-10-29 22:34:43
+852,852,Algorithms on Graphs,"Explore graph algorithms for optimal routes, network design, and social network analysis. Learn traversal techniques, shortest paths, and minimum spanning trees with real-world applications.",2025-10-29 22:34:43
+853,853,"Flexbox, Grid, & Bootstrap (Live Online)",Noble Desktop,2025-10-29 22:34:43
+854,854,ITIL 4 Foundation - Elearning Course,YouTube,2025-10-29 22:34:43
+855,855,Scalable Microservices with Kubernetes,"This course is designed to teach you about managing microservices, using Kubernetes. This course is built in partnership with experts such as Google’s Kelsey Hightower.",2025-10-29 22:34:43
+856,856,A/B Testing,"This course will cover the design and analysis of A/B tests, also known as split tests, which are online experiments used to test potential improvements to a website or mobile application.",2025-10-29 22:34:43
+857,857,"Curso completo de HTML, CSS,  CSS Flexbox, CSS Grid  y BEM",Udemy,2025-10-29 22:34:43
+858,858,Intro to Algorithms,Udacity,2025-10-29 22:34:43
+859,859,离散优化建模基础篇 Basic Modeling for Discrete Optimization,"学习离散优化建模的基础知识,掌握MiniZinc语言解决实际问题。涵盖集合、函数和多重建模等技巧,培养解决复杂优化问题的能力。",2025-10-29 22:34:43
+860,860,Data Visualization and D3.js,Udacity,2025-10-29 22:34:43
+861,861,离散优化建模高阶篇 Advanced Modeling for Discrete Optimization,"探索高级离散优化建模技巧,包括模型调试、谓词封装、复杂调度和打包问题解决,以及对称性处理,助你解决更具挑战性的优化难题。",2025-10-29 22:34:43
+862,862,计算机系统基础（一） ：程序的表示、转换与链接,"深入探讨高级语言程序在计算机系统中的实现,涵盖数据表示、指令转换和程序链接等核心主题,培养学生从系统层面理解和优化程序的能力。",2025-10-29 22:34:43
+863,863,"Greedy Algorithms, Minimum Spanning Trees, and Dynamic Programming","The primary topics in this part of the specialization are: greedy algorithms (scheduling, minimum spanning trees, clustering, Huffman codes) and dynamic programming (knapsack, sequence alignment, optimal search trees).",2025-10-29 22:34:43
+864,864,Mastering Algorithms and Data Structures in JavaScript,CodeSignal,2025-10-29 22:34:43
+865,865,Object-Oriented Data Structures in C++,"Learn to code in C++, set up a development environment, and implement data structures as classes. Master memory management and engineer software solutions.",2025-10-29 22:34:43
+866,866,Introduction to Generative AI,"This is an introductory level microlearning course aimed at explaining what Generative AI is, how it is used, and how it differs from traditional machine learning methods. It also covers Google Tools to help you develop your own Gen AI apps.",2025-10-29 22:34:43
+867,867,Algorithms on Strings,"Explore key pattern matching concepts like tries, suffix trees, and Burrows-Wheeler transform. Learn efficient algorithms for text processing, genomic analysis, and information retrieval.",2025-10-29 22:34:43
+868,868,CCNA Complete Course,YouTube,2025-10-29 22:34:43
+869,869,Sprachtechnologie in den Digital Humanities,"Überblick über Konzepte und Technologien zur Digitalisierung und Annotation von Texten für Geisteswissenschaftler und Sprachinteressierte. Fokus auf Korpuserstellung, XML, Analysemethoden und automatische Annotation.",2025-10-29 22:34:43
+870,870,Procesamiento de Imágenes,"Fundamentos teóricos y prácticos del procesamiento de imágenes, desde mejoramiento y filtros hasta restauración y segmentación. Implementación de algoritmos en Python para aplicaciones prácticas.",2025-10-29 22:34:43
+871,871,Python Machine Learning Bootcamp (Live Online),Noble Desktop,2025-10-29 22:34:43
+872,872,Linux Operating System & Bash Scripting (Live Online),Noble Desktop,2025-10-29 22:34:43
+873,873,WordPress for Coders (Live Online),Noble Desktop,2025-10-29 22:34:43
+874,874,Python for Automation (Live Online),Noble Desktop,2025-10-29 22:34:43
+875,875,Front-End Tools & Portfolio (Live Online),Noble Desktop,2025-10-29 22:34:43
+876,876,Intro to HTML & CSS (Live Online),Noble Desktop,2025-10-29 22:34:43
+877,877,WordPress Bootcamp (Live Online),Noble Desktop,2025-10-29 22:34:43
+878,878,Generative AI with ChatGPT (Live Online),Noble Desktop,2025-10-29 22:34:43
+879,879,AI for Marketing Bootcamp (Live Online),Noble Desktop,2025-10-29 22:34:43
+880,880,Python for AI: Create AI Apps with Flask & OpenAI (Live Online),Noble Desktop,2025-10-29 22:34:43
+881,881,AI for Video & Motion Graphics (Live Online),Noble Desktop,2025-10-29 22:34:43
+882,882,AI for Workplace Productivity with Microsoft Copilot (Live Online),Noble Desktop,2025-10-29 22:34:43
+883,883,AI for Business with ChatGPT (Live Online),Noble Desktop,2025-10-29 22:34:43
+884,884,"After Effects Compositing, Tracking, & Keying (Live Online)",Noble Desktop,2025-10-29 22:34:43
+885,885,Full-Stack Web Development Certificate (Live Online),Noble Desktop,2025-10-29 22:34:43
+886,886,Software Engineering Certificate (Live Online),Noble Desktop,2025-10-29 22:34:43
+887,887,Generative AI Certificate (Live Online),Noble Desktop,2025-10-29 22:34:43
+888,888,“MBA” Business Certificate (Live Online),Noble Desktop,2025-10-29 22:34:43
+889,889,Learn Shells and Terminals,Boot.dev,2025-10-29 22:34:43
+890,890,Learn Functional Programming in Python,Boot.dev,2025-10-29 22:34:43
+891,891,Learn Data Structures and Algorithms in Python,Boot.dev,2025-10-29 22:34:43
+892,892,Learn Docker,Boot.dev,2025-10-29 22:34:43
+893,893,"Learn CI/CD with GitHub Actions, Docker and Go",Boot.dev,2025-10-29 22:34:43
+894,894,Learn Kubernetes,Boot.dev,2025-10-29 22:34:43
+895,895,Learn Cryptography in Go,Boot.dev,2025-10-29 22:34:43
+896,896,Learn Algorithms 2 in Python,Boot.dev,2025-10-29 22:34:43
+897,897,Learn Linux,Boot.dev,2025-10-29 22:34:43
+898,898,ChatGPT Level 2 (Live Online),Noble Desktop,2025-10-29 22:34:43
+899,899,AI for Business Course Online (Self-Paced),Noble Desktop,2025-10-29 22:34:43
+900,900,Python Machine Learning Course Online (Self-Paced),Noble Desktop,2025-10-29 22:34:43
+901,901,Web Development with HTML & CSS Course Online (Self-Paced),Noble Desktop,2025-10-29 22:34:43
+902,902,AI for Business with ChatGPT and Copilot (Live Online),Noble Desktop,2025-10-29 22:34:43
+903,903,Python Machine Learning Advanced (Live Online),Noble Desktop,2025-10-29 22:34:43
+904,904,Artificial Intelligence,"This course gives a survey of topics in AI along with in-depth foundational concepts such as classical search, probability, machine learning, logic and planning.",2025-10-29 22:34:43
+905,905,AI for Trading,"Master AI algorithms for quantitative analysis, trading signal generation, and portfolio management. Build a career-ready portfolio with real-world projects designed by industry experts.",2025-10-29 22:34:43
+906,906,Prompt Engineering for Everyone,CodeSignal,2025-10-29 22:34:43
+907,907,"Computability, Complexity & Algorithms",Learn tools and techniques that will help you recognize when problems you encounter are intractable and when there an efficient solution.,2025-10-29 22:34:43
+908,908,IT and Computer Science,"Comprehensive exploration of computer science fundamentals, including binary, number systems, operating systems, and cybersecurity, with practical applications and hands-on tutorials.",2025-10-29 22:34:43
+909,909,Python Project: Software Engineering and Image Manipulation,"Hands-on project using Python to manipulate images, apply OCR, and work with APIs. Practice real-world software engineering skills and create a portfolio-worthy project.",2025-10-29 22:34:43
+910,910,Full-Stack Engineering with JavaScript,CodeSignal,2025-10-29 22:34:43
+911,911,Circuits and Electronics 3: Applications,"Learn about cool applications, op-amps and filters in the design of microchips used in smartphones, self-driving cars, computers, and the internet.",2025-10-29 22:34:43
+912,912,Learn Data Structures and Algorithms in Python,Boot.dev,2025-10-29 22:34:43
+913,913,Introducción a la Inteligencia Artificial: Principales Algoritmos,"Aprende cómo funcionan los algoritmos de inteligencia artificial que hacen posible los chatbos, automóviles autónomos, el reconocimiento de voz y más.",2025-10-29 22:34:43
+914,914,Web Application Technologies and Django,"In this course, you'll explore the basic structure of a web application, and how a web browser interacts with a web server.",2025-10-29 22:34:43
+915,915,Software Defined Networking,"In this course, you will learn about software defined networking and how it is changing the way communications networks are managed, maintained, and secured.",2025-10-29 22:34:43
+916,916,Introducción a Linux,20 reviews,2025-10-29 22:34:43
+917,917,Introduction to Operating Systems,"Introduction to Operating Systems teaches the basic operating system abstractions, mechanisms, and their implementations.",2025-10-29 22:34:43
+918,918,Knowledge-Based AI: Cognitive Systems,The twin goals of knowledge-based artificial intelligence (AI) are to build AI agents capable of human-level intelligence and gain insights into human cognition.,2025-10-29 22:34:43
+919,919,Introduction to Artificial Intelligence (2023),LinkedIn Learning,2025-10-29 22:34:43
+920,920,Introduction to Machine Learning,"Foundational understanding of machine learning models, hands-on implementation with PyTorch, and applications across industries from medical diagnostics to image recognition and text prediction.",2025-10-29 22:34:43
+921,921,Guided Tour of Machine Learning in Finance,"Introductory overview of machine learning applications in finance, covering supervised learning methods and their use in predicting bank closures. Suitable for finance professionals, traders, and students.",2025-10-29 22:34:43
+922,922,Interfacing with the Raspberry Pi,"Aprenda a conectar o Raspberry Pi à Internet, usar sockets para transferência de dados, interagir com APIs online e interfaces com sensores e atuadores complexos.",2025-10-29 22:34:43
+923,923,Great Ideas in Theoretical Computer Science: Time Complexity - Spring 2016,"Explore time complexity in theoretical computer science, covering running time, worst-case scenarios, and common runtime scaling, with practical examples and formal definitions.",2025-10-29 22:34:43
+924,924,Great Ideas in Theoretical Computer Science: Countability and Diagonalization,"Explore fundamental concepts in theoretical computer science, including countability, diagonalization, and set theory, with a focus on infinite sets and cardinality.",2025-10-29 22:34:43
+925,925,Great Ideas in Theoretical Computer Science - Turing's Legacy,"Explore Turing Machines, their definition, and programming techniques in this theoretical computer science lecture, covering interpreters, formal definitions, and practical TM subroutines.",2025-10-29 22:34:43
+926,926,Great Ideas in Theoretical Computer Science: Deductive Systems,"Explore deductive systems in theoretical computer science, covering topics like Hilbert's 10th problem, binary trees, propositional logic, and logical equivalence.",2025-10-29 22:34:43
+927,927,Great Ideas in Theoretical Computer Science: Finite Automata,"Explore finite automata and regular languages in theoretical computer science, covering DFAs, computation concepts, and language analysis techniques.",2025-10-29 22:34:43
+928,928,Great Ideas in Theoretical Computer Science: Computability,"Explore computability theory, Turing machines, and undecidable problems in this theoretical computer science lecture, focusing on fundamental concepts and their implications.",2025-10-29 22:34:43
+929,929,Great Ideas in Theoretical Computer Science - On Proofs,"Explore theoretical computer science concepts, focusing on proofs: their history, significance, and modern developments. Learn tips for constructing proofs and avoiding common mistakes in mathematical reasoning.",2025-10-29 22:34:43
+930,930,The Long Arm of Theoretical Computer Science - The Case of Blockchains-Web3,"Explore how theoretical computer science concepts illuminate blockchain technology, offering a clear, comprehensive view of its essence as a public, ownerless computer system.",2025-10-29 22:34:43
+931,931,Phase Transitions - From Physics to Computer Science,"Explore phase transitions across physics and computer science, from water states to combinatorial optimization and information theory, revealing their universal nature in complex systems.",2025-10-29 22:34:43
+932,932,Berkeley in the 80s - Silvio Micali Interview on Theoretical Computer Science,"Turing Laureate Silvio Micali discusses his groundbreaking research at Berkeley, covering pseudorandomness, multiparty computation, and blockchain technology, while reflecting on the university's influential atmosphere in the 1980s.",2025-10-29 22:34:43
+933,933,Univalence from a Computer Science Point-of-View - Dan Licata,"Explore univalence in computer science with Dan Licata, covering Martin-Löf type theory, computation, and applications in homotopy theory and group structures.",2025-10-29 22:34:43
+934,934,Computer Science Exam Review - Introduction Courses,"Comprehensive review of key computer science concepts including data structures, algorithms, complexity analysis, and recursion, with practical examples and exam preparation tips.",2025-10-29 22:34:43
+935,935,How to Use Real Computer Science in Your Day Job,"Discover practical applications of advanced computer science concepts in everyday software development, enhancing problem-solving skills and job satisfaction.",2025-10-29 22:34:43
+936,936,Can You Read Me? Creative JavaScript to Make Computer Science Fun,"Explore creative JavaScript projects for learning computer science concepts through building machines to send secret messages, showcasing remote collaboration and innovative coding techniques.",2025-10-29 22:34:43
+937,937,Algorithms to Live By - The Computer Science of Human Decisions,"Explore computer science algorithms applied to everyday decisions, offering insights on time management, decision-making, and problem-solving for a more efficient and fulfilling life.",2025-10-29 22:34:43
+938,938,What Can Theoretical Computer Science Contribute to the Discussion of Consciousness,"Explore the intersection of theoretical computer science and consciousness, examining potential insights and contributions to this complex philosophical debate.",2025-10-29 22:34:43
+939,939,Essential Mathematics for Computer Science,"Discover the essential mathematics subjects needed for computer science, from foundational algebra through discrete mathematics, with recommended textbook resources and study paths.",2025-10-29 22:34:43
+940,940,Probabilistic Graphical Models 2: Inference,"Explore probabilistic inference in graphical models, covering exact and approximate algorithms for conditional probability queries and MAP inference, with hands-on programming assignments.",2025-10-29 22:34:43
+941,941,The Critical Role of IT Support Staff in Healthcare,"Explore diverse IT support roles in healthcare, from help desks to analyst positions. Learn about unique challenges, common issues, and the critical impact on patient care and organizational reliability.",2025-10-29 22:34:43
+942,942,Introduction to Self-Driving Cars,Udacity,2025-10-29 22:34:43
+943,943,Introduction to Prompt Engineering for Generative AI,LinkedIn Learning,2025-10-29 22:34:43
+944,944,"Shortest Paths Revisited, NP-Complete Problems and What To Do About Them","Explore advanced graph algorithms, NP-completeness, and strategies for tackling computationally intractable problems. Learn Bellman-Ford, Floyd-Warshall, and heuristic approaches for complex algorithmic challenges.",2025-10-29 22:34:43
+945,945,Understanding ChatGPT,DataCamp,2025-10-29 22:34:43
+946,946,Natural Language Processing,309 ratings at Udacity,2025-10-29 22:34:43
+947,947,Deep Reinforcement Learning,357 ratings at Udacity,2025-10-29 22:34:43
+948,948,Sensor Fusion,"Explore sensor fusion fundamentals for self-driving cars, covering lidar, radar, camera, and Kalman filters. Gain practical skills in data processing, object tracking, and building a complete perception pipeline.",2025-10-29 22:34:43
+949,949,Linux Tutorial for Beginners - Step-by-Step Tutorial with Free Lab Access,"Comprehensive Linux tutorial covering essential commands, file management, permissions, user accounts, and system administration. Includes hands-on labs for practical experience.",2025-10-29 22:34:43
+950,950,Learn CSS,,2025-10-29 22:34:43
+951,951,Cloud Networking,"Explore cloud networking challenges, infrastructure design, and innovative solutions for efficient data transfer, low latency, and application federation across global networks.",2025-10-29 22:34:43
+952,952,Master Complete Statistics For Computer Science - I,Udemy,2025-10-29 22:34:43
+953,953,Internet of Things: Setting Up Your DragonBoard™ Development Platform,"Learn to set up and develop on the DragonBoard™ 410c platform for IoT projects. Gain hands-on experience with hardware, software, and mobile technologies to prototype innovative connected devices.",2025-10-29 22:34:43
+954,954,Mathematics for Machine Learning: PCA,"Explore mathematical foundations of Principal Component Analysis (PCA) for dimensionality reduction. Learn statistics, inner products, orthogonal projections, and derive PCA from a geometric perspective.",2025-10-29 22:34:43
+955,955,Prompt Engineering for ChatGPT,"Master prompt engineering for ChatGPT and unlock its potential in various domains. Learn effective techniques to enhance productivity, creativity, and problem-solving skills using large language models.",2025-10-29 22:34:43
+956,956,Understanding Machine Learning,DataCamp,2025-10-29 22:34:43
+957,957,AI Fundamentals for Non-Data Scientists,"Explore AI fundamentals, machine learning methods, and deep learning techniques. Learn to create algorithms, use no-code tools, and apply AI in business contexts through hands-on practice and industry insights.",2025-10-29 22:34:43
+958,958,ChatGPT Full Course - Automate Useful Professional Tasks Using Open AI - Includes 10 Projects,"Learn to automate professional tasks using ChatGPT, including resume writing, email composition, problem-solving, and performance reporting. Boost productivity with 10 practical AI-driven projects.",2025-10-29 22:34:43
+959,959,Introduction to Web Development,"Learn to create and publish static web pages using HTML and CSS, understand web structure, choose hosting, and develop skills for personal or business websites.",2025-10-29 22:34:43
+960,960,Programming for the Internet of Things Project,"Design, build, and test a microcontroller-based embedded system for real-world applications, focusing on low-cost solutions. Develop skills in system design, interfacing, and programming microcontrollers.",2025-10-29 22:34:43
+961,961,Comprehensive Introduction to Front-End Engineering,CodeSignal,2025-10-29 22:34:43
+962,962,Artificial Intelligence,Udacity,2025-10-29 22:34:43
+963,963,Generative AI: The Evolution of Thoughtful Online Search,LinkedIn Learning,2025-10-29 22:34:43
+964,964,Generative AI for Business Leaders,LinkedIn Learning,2025-10-29 22:34:43
+965,965,AP Computer Science A - Java Concepts and Fundamentals,Udemy,2025-10-29 22:34:43
+966,966,"Data Structures & Algorithms II: Binary Trees, Heaps, SkipLists and HashMaps","Explore nonlinear data structures like trees, heaps, skiplists, and hashmaps. Learn implementation, operations, and algorithms for efficient data management and retrieval in Java.",2025-10-29 22:34:43
+967,967,"Programming Languages, Part B","Explore functional programming concepts using ML, Racket, and Ruby. Learn language design principles to become a more effective programmer and easily adapt to new languages.",2025-10-29 22:34:43
+968,968,Network Security,"Learn the process of network security, including intrusion detection, evidence collection, network auditing, and contingency planning against attacks.",2025-10-29 22:34:43
+969,969,Introduction to Self-Driving Cars,"Explore hardware, software, safety, and control systems for autonomous vehicles. Develop Python code to navigate a simulated self-driving car on a racetrack using CARLA.",2025-10-29 22:34:43
+970,970,Machine Learning: Unsupervised Learning,3 reviews,2025-10-29 22:34:43
+971,971,AI for Healthcare,Udacity,2025-10-29 22:34:43
+972,972,Understanding Artificial Intelligence,DataCamp,2025-10-29 22:34:43
+973,973,Great Ideas in Theoretical Computer Science - Approximation Algorithms,"Explore approximation algorithms for NP-hard problems, focusing on Vertex Cover, k-Coverage, and Traveling Salesperson. Learn techniques to find near-optimal solutions efficiently.",2025-10-29 22:34:43
+974,974,Hyper-contractivity in Analysis and Theoretical Computer Science - Introduction 3,"Explore hyper-contractivity in analysis and theoretical computer science, examining its applications and implications for advanced mathematical concepts.",2025-10-29 22:34:43
+975,975,Computer Science You Might Not Want to Know,"Explore the relevance of Computer Science topics for Rails developers, examining their practical applications and potential limitations in day-to-day work.",2025-10-29 22:34:43
+976,976,The Computer Science Behind a Modern Distributed Data Store,"Explore the challenges and solutions in modern distributed data stores, covering consensus, transactions, and query optimization. Insights into ArangoDB, Cassandra, Cockroach, and RethinkDB.",2025-10-29 22:34:43
+977,977,"Practices and Limitations of Participatory Methods - Views From Computer Science, Political Science and Design","Explore participatory methods across computer science, political science, and design, examining their practices, limitations, and interdisciplinary applications for effective stakeholder engagement and collaborative problem-solving.",2025-10-29 22:34:43
+978,978,Application of Azure Computer Vision OCR Service for NLP Text Extraction - Python Data Science,"Learn to extract text from images using Azure Computer Vision OCR for NLP tasks. Explore data acquisition, storage, and utilization techniques with Azure tools and VS Code extensions for efficient data science workflows.",2025-10-29 22:34:43
+979,979,Innovations in Theoretical Computer Science 2020 - Session 8,"Explore cutting-edge research in theoretical computer science, including cryptography, obfuscation, and secure computation. Gain insights into novel concepts and techniques shaping the field.",2025-10-29 22:34:43
+980,980,Innovations in Theoretical Computer Science 2020 - Session 6,"Explore cutting-edge research in theoretical computer science, including scheduling algorithms, online computation, network coordination games, tournament rules, and prophet inequalities.",2025-10-29 22:34:43
+981,981,Innovations in Theoretical Computer Science 2020 - Session 5,"Explore cutting-edge research in theoretical computer science, including secure computation, communication protocols, coding theory, and fault-tolerant algorithms presented at ITCS 2020.",2025-10-29 22:34:43
+982,982,Innovations in Theoretical Computer Science 2020 - Session 9,"Cutting-edge research in theoretical computer science, covering topics like distribution testing, random object sampling, probability distribution learning, agreement expansion, neural networks, and influence maximization.",2025-10-29 22:34:43
+983,983,Innovations in Theoretical Computer Science 2020 - Session 10,"Explores cutting-edge research in theoretical computer science, covering topics like computational hardness, random strings, decision trees, and pseudorandomness. Features presentations from leading experts in the field.",2025-10-29 22:34:43
+984,984,AI Consciousness is Inevitable - A Theoretical Computer Science Perspective,"Explores the Conscious Turing Machine model for understanding consciousness from a theoretical computer science perspective, integrating insights from cognitive neuroscience and AI research.",2025-10-29 22:34:43
+985,985,Software Engineering and Computer Science with the Wolfram Compiler,"Explore software engineering practices and compiler techniques using the Wolfram Compiler, gaining insights into its internal organization and innovative approaches.",2025-10-29 22:34:43
+986,986,Ordering the Chaos - Understanding Time in Computer Science,"Explore time concepts in computer science, from clock usage to implementation and beyond. Learn to manage chaos in software development through advanced timing techniques.",2025-10-29 22:34:43
+987,987,Breaking Resistance in Computer Science and Engineering,Explore innovative approaches to overcoming resistance in computer science and engineering with insights from a leading expert at the University of Michigan.,2025-10-29 22:34:43
+988,988,Reading Alan Turing - Exploring Turing's Influential Ideas in Theoretical Computer Science,Explore Turing's influential papers and their impact on theoretical computer science with Avi Wigderson. Gain insights into Turing's visionary ideas and their modern relevance.,2025-10-29 22:34:43
+989,989,The Hardest Problem in Computer Science: Marketing,"Explore the parallels between academic research and entrepreneurship, examining how groundbreaking ideas in Computer Science spread and comparing it to successful product marketing strategies.",2025-10-29 22:34:43
+990,990,Strings and Geometry in Computer Science - Session 6C,"Explore advanced concepts in strings and geometry, focusing on cutting-edge research and applications in computer science and mathematics.",2025-10-29 22:34:43
+991,991,Matrix Methods in Computer Science - Session 6B,"Explore advanced matrix methods and their applications in computer science, focusing on cutting-edge research and algorithmic developments.",2025-10-29 22:34:43
+992,992,Matrix Methods in Computer Science - Session 4B,"Explore advanced matrix methods and their applications in computer science, focusing on cutting-edge research and algorithmic developments.",2025-10-29 22:34:43
+993,993,The Computer Science Behind Colour,"Explore the science of digital color: from hex codes to RGB conversion, binary representation, and human perception. Gain a deeper understanding of color technology across various tech fields.",2025-10-29 22:34:43
+994,994,Computer Vision: OCR Tesseract in C# - Data Science and Machine Learning,"Implement OCR using Tesseract library in C# for extracting text from images, enhancing your computer vision skills.",2025-10-29 22:34:43
+995,995,Reading Alan Turing - A Survey of His Influential Papers and Their Impact on Computer Science,Explore Turing's influential papers and their lasting impact on theoretical computer science through the lens of Turing Award winner Avi Wigderson's comprehensive analysis and historical perspective.,2025-10-29 22:34:43
+996,996,Neuromorphic Computing from the Computer Science Perspective - Algorithms and Applications,"Explore neuromorphic computing from a computer science lens, focusing on spiking neural networks, algorithms, and real-world applications from scientific data analysis to autonomous vehicles.",2025-10-29 22:34:43
+997,997,High-Dimensional Expanders in Pure Mathematics and Computer Science,Explore high-dimensional expanders and their applications across pure mathematics and computer science in this Rothschild Public Lecture by Professor Alex Lubotzky.,2025-10-29 22:34:43
+998,998,Interactive Computer Graphics,"Explore interactive computer graphics tools for visual problem-solving, from enhanced GUIs to 3D modeling and animation, with hands-on demonstrations and practical assignments.",2025-10-29 22:34:43
+999,999,Flying Car and Autonomous Flight Engineer,Udacity,2025-10-29 22:34:43
+1000,1000,How to Research and Write Using Generative AI Tools,LinkedIn Learning,2025-10-29 22:34:43
+1001,1001,Java Object-Oriented Programming: AP Computer Science B,Udemy,2025-10-29 22:34:43
+1002,1002,Design and Analysis of Algorithms,YouTube,2025-10-29 22:34:43
+1003,1003,Configuring Linux Web Servers,Udacity,2025-10-29 22:34:43
+1004,1004,"Web Development with HTML, CSS, and JavaScript",CodeSignal,2025-10-29 22:34:43
+1005,1005,Shell Workshop,,2025-10-29 22:34:43
+1006,1006,Generative AI For Business Leaders,Pragmatic Institute,2025-10-29 22:34:43
+1007,1007,Generative AI for NLP,Pragmatic Institute,2025-10-29 22:34:43
+1008,1008,AI Product Expert Certification,Pragmatic Institute,2025-10-29 22:34:43
+1009,1009,Design and Analysis of Algorithms,7 reviews,2025-10-29 22:34:43
+1010,1010,AI Training for Product Professionals,Pragmatic Institute,2025-10-29 22:34:43
+1011,1011,AI and Machine Learning,Pragmatic Institute,2025-10-29 22:34:43
+1012,1012,AI for Visual Design,Pragmatic Institute,2025-10-29 22:34:43
+1013,1013,Advanced AI Techniques for Product Marketing,Pragmatic Institute,2025-10-29 22:34:43
+1014,1014,MLOps,Pragmatic Institute,2025-10-29 22:34:43
+1015,1015,Understanding LLMs and Basic Prompting Techniques,CodeSignal,2025-10-29 22:34:43
+1016,1016,Introduction to Shell,DataCamp,2025-10-29 22:34:43
+1017,1017,Responsive Images,Udacity,2025-10-29 22:34:43
+1018,1018,Large Language Models (LLMs) Concepts,DataCamp,2025-10-29 22:34:43
+1019,1019,Mastering Design Patterns with Python,CodeSignal,2025-10-29 22:34:43
+1020,1020,AI For Business Leaders,"Deepen understanding of AI and ML innovations, learn to evaluate and implement AI strategies in business contexts through practical exercises and a final project.",2025-10-29 22:34:43
+1021,1021,Fundamentals of Machine Learning for Healthcare,"Explore machine learning's potential in healthcare, covering fundamental concepts, use cases, evaluation metrics, and best practices for developing and implementing ML applications in medical settings.",2025-10-29 22:34:43
+1022,1022,Intro to TensorFlow for Deep Learning,,2025-10-29 22:34:43
+1023,1023,Understanding Prompt Engineering,DataCamp,2025-10-29 22:34:43
+1024,1024,Ethics in the Age of Generative AI,LinkedIn Learning,2025-10-29 22:34:43
+1025,1025,Implementing AI Algorithms from Scratch,CodeSignal,2025-10-29 22:34:43
+1026,1026,Implementing AI Algorithms from Scratch,CodeSignal,2025-10-29 22:34:43
+1027,1027,Classification – Fundamentals & Practical Applications,Corporate Finance Institute,2025-10-29 22:34:43
+1028,1028,Loan Default Prediction with Machine Learning,Corporate Finance Institute,2025-10-29 22:34:43
+1029,1029,Introduction to Docker,DataCamp,2025-10-29 22:34:43
+1030,1030,Introduction to Python for Developers,DataCamp,2025-10-29 22:34:43
+1031,1031,Introduction to Deep Learning with PyTorch,DataCamp,2025-10-29 22:34:43
+1032,1032,Comprehensive Introduction to PyTorch,CodeSignal,2025-10-29 22:34:43
+1033,1033,Generative AI Concepts,DataCamp,2025-10-29 22:34:43
+1034,1034,Functional Programming in Python,CodeSignal,2025-10-29 22:34:43
+1035,1035,AWS Machine Learning Engineer Nanodegree,Udacity,2025-10-29 22:34:43
+1036,1036,Mastering Design Patterns with Java,CodeSignal,2025-10-29 22:34:43
+1037,1037,"Mastering Docker: Containers, Networking, and Orchestration",CodeSignal,2025-10-29 22:34:43
+1038,1038,Mastering Design Patterns with C++,CodeSignal,2025-10-29 22:34:43
+1039,1039,AI Ethics,DataCamp,2025-10-29 22:34:43
+1040,1040,Introduction to Bash Scripting,DataCamp,2025-10-29 22:34:43
