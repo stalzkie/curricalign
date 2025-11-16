@@ -2,13 +2,13 @@ from collections import Counter
 import os
 import re
 from datetime import datetime, timezone
-import json # <-- NEW: Import the JSON library
-from pydantic import BaseModel, Field # <-- NEW: Import Pydantic for schema definition
-from ast import literal_eval # <-- NEW: Use safe literal_eval instead of eval
+import json
+from pydantic import BaseModel, Field
+from ast import literal_eval
 
 # 🔑 MODERN SDK IMPORTS
-from google import genai 
-from google.genai import types 
+from google import genai
+from google.genai import types
 
 from dotenv import load_dotenv
 from ..core.supabase_client import supabase  # Supabase wrapper for DB access
@@ -22,23 +22,26 @@ client = genai.Client(
 )
 MODEL_ID = "gemini-2.5-pro"
 
+# How many newly scraped jobs to process per run
+DEFAULT_BATCH_LIMIT = 10
+
 
 # 🎯 FIX 1: Define a Pydantic schema for structured output
 class SkillList(BaseModel):
     """Schema to enforce the model returns a clean list of skills."""
     skills: list[str] = Field(description="A concise list of 5-10 technical skills.")
 
+
 # Skill Extraction Logic
 # ---------------------
 
-def extract_skills_with_gemini(text):
+def extract_skills_with_gemini(text: str) -> list[str]:
     """
     Primary function to extract technical skills from job descriptions using Gemini.
     - Sends a carefully crafted prompt to Gemini
-    - **Uses JSON schema to force a clean, parsable list of skills**
+    - Uses JSON schema to force a clean, parsable list of skills
     - Cleans and normalizes the skills before returning
     """
-    # NOTE: The prompt can be simplified since the schema enforces the format.
     prompt = f"""
 You're an AI assistant extracting technical skills from job postings.
 
@@ -69,48 +72,40 @@ Job Posting:
 {text.strip()}
 """
     try:
-        # 🎯 FIX 2: Use response_mime_type and response_schema for JSON output
         config = types.GenerateContentConfig(
             response_mime_type="application/json",
             response_schema=SkillList,
         )
 
         response = client.models.generate_content(
-            model=MODEL_ID, 
+            model=MODEL_ID,
             contents=prompt,
-            config=config # <-- Pass the structured configuration
+            config=config,
         )
-        
-        # 🎯 FIX 3: Parse the response JSON and extract the list
+
         try:
-            # The response.text will be a JSON string like '{"skills": ["python", "sql"]}'
-            # Safely load the JSON string.
             json_data = json.loads(response.text.strip())
             extracted_list = json_data.get("skills", [])
-            
+
             raw_text_for_logging = response.text.strip()
             print(f"🧠 Gemini raw output (JSON): {raw_text_for_logging}\n")
-            
+
             if extracted_list and isinstance(extracted_list, list):
-                # Normalize and clean the skills
                 skills = [s.lower().strip() for s in extracted_list if isinstance(s, str) and s.strip()]
                 if skills:
                     return skills
-                
+
         except json.JSONDecodeError:
-            # If the model still returns messy markdown/code fences, the JSON load fails.
             print(f"⚠️ JSON decoding failed. Raw output: {response.text.strip()[:100]}...")
-            
-        # If invalid response, trigger fallback
+
         raise ValueError("No valid skills extracted from structured response.")
 
     except Exception as e:
         print(f"⚠️ Primary extraction failed: {e}")
-        # Fallback attempt with simpler prompt
         return retry_extract_skills(text)
 
 
-def retry_extract_skills(text):
+def retry_extract_skills(text: str) -> list[str]:
     """
     Fallback skill extraction if the first Gemini call fails.
     Uses a simpler, more direct prompt, and implements safer parsing.
@@ -122,61 +117,50 @@ Extract 5–10 technical skills from this job. Return only a valid Python list l
 """
     try:
         response = client.models.generate_content(
-            model=MODEL_ID, 
-            contents=retry_prompt
+            model=MODEL_ID,
+            contents=retry_prompt,
         )
         raw = response.text.strip()
         print(f"🔁 Gemini retry output:\n{raw}\n")
 
-        # 🎯 FIX 4: Use literal_eval() for safer parsing after stripping markdown
-        
-        # 1. Strip markdown code fences if they exist
         if raw.startswith("```"):
             raw = re.sub(r'^\s*```[a-z]*\s*', '', raw, flags=re.MULTILINE)
             raw = re.sub(r'```\s*$', '', raw, flags=re.MULTILINE)
             raw = raw.strip()
 
-        # 2. Check if the result is a Python list string
         if raw.startswith("[") and raw.endswith("]"):
-            # literal_eval is safer than eval for parsing list/dict literals
             skills_list = literal_eval(raw)
             if skills_list and isinstance(skills_list, list):
                 return [s.lower().strip() for s in skills_list if isinstance(s, str)]
-            
+
     except Exception as e:
         print(f"❌ Retry also failed: {e}")
 
-    # Return empty list if both attempts fail
     return []
 
-
-# --- Remainder of the code (fetch_skills_from_supabase, get_existing_job_skill_ids, extract_skills_from_jobs, if __name__ == "__main__":) remains the same ---
 
 # Supabase Helpers
 # ----------------
 
 def fetch_skills_from_supabase():
-    # ... (code unchanged)
     response = supabase.table("job_skills").select("job_skills").execute()
     all_skills = []
     for row in response.data:
         raw = row.get("job_skills")
         if isinstance(raw, str):
-            # This logic assumes job_skills is a comma-separated string
             skills = [s.strip() for s in raw.split(",") if s.strip()]
             all_skills.extend(skills)
     return {skill: 1 for skill in all_skills}
 
 
-def get_existing_job_skill_ids():
-    # ... (code unchanged)
+def get_existing_job_skill_ids() -> set[str]:
     try:
         res = supabase.table("job_skills").select("job_id").execute()
         existing = set()
         for row in res.data or []:
             jid = row.get("job_id")
             if jid is not None:
-                existing.add(str(jid))  # Normalize to string
+                existing.add(str(jid))
         print(f"📚 Found {len(existing)} existing job_ids in job_skills.")
         return existing
     except Exception as e:
@@ -186,33 +170,48 @@ def get_existing_job_skill_ids():
 
 # Main Skill Extraction Flow
 # --------------------------
-def extract_skills_from_jobs(jobs=None):
-    # ... (code unchanged)
+
+def extract_skills_from_jobs(jobs=None, batch_limit: int = DEFAULT_BATCH_LIMIT):
+    """
+    Extract skills only for the **recently scraped jobs**, not the entire jobs table.
+
+    Behaviour:
+    - If `jobs` is provided: process only that list.
+    - If `jobs` is None: fetch the most recent `batch_limit` jobs from Supabase,
+      ordered by `scraped_at` DESC (i.e., last scraped first).
+    - Within that batch, skip jobs that already have entries in `job_skills`.
+    """
     existing_ids = get_existing_job_skill_ids()
 
     if jobs is None:
-        print("📦 Fetching all jobs from Supabase...")
+        print(f"📦 Fetching up to {batch_limit} most recently scraped jobs from Supabase...")
         try:
-            jobs = supabase.table("jobs").select("*").execute().data
+            resp = (
+                supabase.table("jobs")
+                .select("*")
+                .order("scraped_at", desc=True)
+                .limit(batch_limit)
+                .execute()
+            )
+            jobs = resp.data or []
         except Exception as e:
             print(f"❌ Failed to fetch jobs: {e}")
             return {}
 
     if not jobs:
-        print("⚠️ No jobs available to process.")
+        print("⚠️ No jobs available to process in this batch.")
         return {}
 
-    # Filter jobs that need new skill extraction
+    # Only consider jobs in this batch that don't have skills yet
     pending_jobs = [j for j in jobs if str(j.get("job_id")) not in existing_ids]
 
     print(
-        f"🧮 Jobs total: {len(jobs)} | To process (new only): {len(pending_jobs)} | "
+        f"🧮 Jobs fetched this batch: {len(jobs)} | To process (new only in batch): {len(pending_jobs)} | "
         f"Skipped (already have skills): {len(jobs) - len(pending_jobs)}"
     )
 
     skills_found = Counter()
 
-    # Iterate over jobs and extract skills
     for i, job in enumerate(pending_jobs):
         job_id = job.get("job_id")
         title = job.get("title", "")
@@ -221,27 +220,23 @@ def extract_skills_from_jobs(jobs=None):
         requirements = job.get("requirements", "")
         keywords = job.get("matched_keyword", "")
 
-        # Prepare job content (clean & limit length to avoid token overflow)
         content = " ".join(str(x or "") for x in [title, description, requirements, keywords]).lower()
         content = re.sub(r'\s+', ' ', content).strip()[:2000]
 
         print(f"🔍 [{i+1}/{len(pending_jobs)}] Extracting skills for job ID {job_id}...")
 
-        # Extract skills using Gemini
         extracted_skills = extract_skills_with_gemini(content)
 
         if extracted_skills:
             print(f"✅ Extracted: {extracted_skills}\n")
             try:
-                # Insert into Supabase job_skills table
                 supabase.table("job_skills").insert({
                     "job_id": job_id,
                     "title": title,
                     "company": company,
                     "description": description,
-                    # Joins the list into a comma-space separated string for your DB schema
                     "job_skills": ", ".join(sorted(set(extracted_skills))),
-                    "date_extracted_jobs": datetime.now(timezone.utc).isoformat()
+                    "date_extracted_jobs": datetime.now(timezone.utc).isoformat(),
                 }).execute()
                 print("📤 Inserted into job_skills table.\n")
             except Exception as e:
@@ -249,14 +244,14 @@ def extract_skills_from_jobs(jobs=None):
         else:
             print("⚠️ No skills extracted.\n")
 
-        # Count frequency of extracted skills
         for skill in set(extracted_skills):
             skills_found[skill] += 1
 
     if not pending_jobs:
-        print("👌 Nothing to do. All jobs already have skills in job_skills.")
+        print("👌 Nothing to do for this batch. All fetched jobs already have skills in job_skills.")
 
     return dict(skills_found)
 
+
 if __name__ == "__main__":
-    extract_skills_from_jobs()
+    extract_skills_from_jobs(batch_limit=DEFAULT_BATCH_LIMIT)
