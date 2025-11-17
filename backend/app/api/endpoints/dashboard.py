@@ -21,31 +21,30 @@ except Exception:
     class RemoteProtocolError(Exception):
         pass
 
-# fuzzy matching (optional, with graceful fallback)
+# fuzzy matching (optional with fallback)
 try:
     from rapidfuzz import fuzz as _rf_fuzz
 
     def _fuzzy_ratio(a: str, b: str) -> int:
-        # rapidfuzz returns 0..100
-        return int(_rf_fuzz.ratio(a, b))
+        # use partial_ratio so short skills like "sql" match longer phrases
+        return int(_rf_fuzz.partial_ratio(a, b))
 except Exception:
 
     def _fuzzy_ratio(a: str, b: str) -> int:
-        # fallback: exact match only
         return 100 if a == b else 0
 
 
 router = APIRouter()
 T = TypeVar("T")
 
-SKILL_GAP_TABLE = "skill_gap_counts"  # ← evaluator writes unmatched skills here
+SKILL_GAP_TABLE = "skill_gap_counts"  # evaluator writes unmatched skills here
 
-# --------------------------- New caps & limits ---------------------------
+# New caps & limits
 DEFAULT_LIST_LIMIT = 200         # default response size
 MAX_LIST_LIMIT = 2000            # hard ceiling for response size
 PAGINATION_HARD_CAP = 20000      # stop scanning after this many rows fetched
 
-# --------------------------- Tiny in-memory cache ---------------------------
+# Tiny in-memory cache
 _CACHE: dict[str, tuple[float, Any]] = {}
 
 def _cache_get(key: str, ttl: float):
@@ -61,8 +60,7 @@ def _cache_get(key: str, ttl: float):
 def _cache_set(key: str, payload: Any):
     _CACHE[key] = (time.time(), payload)
 
-# --------------------------- Helpers ---------------------------
-
+# Helpers
 def _get_sb(request: Request):
     sb = getattr(request.app.state, "supabase", None)
     if sb is None:
@@ -176,7 +174,7 @@ def _split_skills_maybe_list(value: Any) -> List[str]:
     return [sval] if sval else []
 
 
-# ---------- Normalization & dedupe for skills ----------
+# Normalization & dedupe for skills
 
 # Leading phrases/verbs that often precede real skills.
 # NOTE the trailing space for verbs to ensure we only strip at the start.
@@ -205,20 +203,34 @@ def _normalize_skill(raw: str) -> str:
     """
     Canonical normalization for grouping:
     - lowercase, trim
+    - drop leading stopword tokens ("experience", "using", "strong", ...)
     - strip common leading phrases/verbs ("using ", "building ", ...)
     - remove most punctuation (keep + and #), collapse whitespace
     - very light plural trim (trailing 's' for longer tokens)
     """
     s = (raw or "").strip().lower()
+    if not s:
+        return ""
+
+    # Drop leading noise tokens so "experience using sql" -> "sql"
+    tokens = s.split()
+    while tokens and tokens[0] in STOPWORDS:
+        tokens.pop(0)
+    s = " ".join(tokens)
+
+    # Strip known prefixes if still present
     for p in _PREFIXES:
         if s.startswith(p):
             s = s[len(p):]
             break
+
     s = _PUNCT_RE.sub(" ", s)
     s = _WS_RE.sub(" ", s).strip()
+
     # light plural normalization (avoid over-aggressive trimming)
     if len(s) > 8 and s.endswith("s"):
         s = s[:-1]
+
     return s
 
 
@@ -248,8 +260,7 @@ def _dedupe_frequency(freq: Dict[str, int], threshold: int = 85) -> Dict[str, in
     return merged
 
 
-# --------------------------- Simple alias support (deterministic) ---------------------------
-
+# Simple alias support (deterministic)
 # Map normalized *variants* -> *canonical* names. Start small; grow as needed.
 ALIASES: Dict[str, str] = {
     "js": "javascript",
@@ -267,6 +278,7 @@ STOPWORDS = {
     "and", "or", "of", "the", "to", "in", "for", "with", "on",
     "using", "experience", "knowledge", "background",
     "skills", "skill", "ability",
+    "strong", "hands-on", "proficient", "familiar",
 }
 
 
