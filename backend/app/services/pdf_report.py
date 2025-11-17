@@ -73,12 +73,14 @@ You are an education and job market analyst. Given the following course alignmen
 {chr(10).join(course_summaries)}
 
 Write an executive summary that:
-1. Highlights the strongest and weakest courses based on the 'score'.
+1. Highlights the strongest courses based on the 'score', in descending order.
 2. Identifies common skills missing from the curriculum (present in 'matched' but not 'taught').
-3. Recommends areas of improvement.
-4. The format should be 1 paragraph per point as stated above.
-5. Keep a clean and digestible format do not add indicators such as "**"
-6. Go directly to the point and don't add a title as there is already a title on the report.
+3. Recommends to keep the higher scoring courses, and states their relevancy to the job market.
+4. States that courses with extremely low scores may need to be manually reviewed due to potentially being focused on theories and fundamental concepts.
+5. Avoids recommending revision or removal of any courses.
+6. The format should be 1 paragraph per point as stated above.
+7. Keep a clean and digestible format do not add indicators such as "**"
+8. Go directly to the point and don't add a title as there is already a title on the report.
 
 Keep it under 200 words.
 """
