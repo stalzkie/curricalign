@@ -25,26 +25,15 @@ MODEL_ID = "gemini-2.5-pro" # Using a current, stable model ID
 
 
 # Helpers for skill normalization
-# -----------------------------
-
 def normalize_skill(skill):
-    """Removes text in parentheses and normalizes case/whitespace."""
     skill = re.sub(r"\s*\([^)]*\)", "", skill)
     return skill.lower().strip()
 
 
 def clean_skills(raw):
-    """
-    Safely parses the string output from Gemini into a cleaned list of skills.
-    
-    This function has been revised to strip markdown code fences which often cause 
-    SyntaxErrors with ast.literal_eval().
-    """
     raw = raw.strip()
     
-    # 🎯 FIX: Use regex to strip the markdown code fences (e.g., ```python\n...\n```)
-    # This non-greedy regex looks for three backticks, optional language tag, 
-    # and extracts the content in between.
+    # Use regex to strip the markdown code fences (e.g., ```python\n...\n```)
     match = re.search(r"```[a-zA-Z]*\n?([\s\S]*?)\n?```", raw)
     
     # If a markdown block is found, use the content inside it.
@@ -58,24 +47,22 @@ def clean_skills(raw):
             skills = ast.literal_eval(raw)
             
             if not isinstance(skills, list):
-                print("⚠️ Gemini output is not a list after stripping. Raw:\n", raw)
+                print("Gemini output is not a list after stripping. Raw:\n", raw)
                 return []
             
             # Normalize and filter out empty strings
             return [normalize_skill(s) for s in skills if isinstance(s, str) and s.strip()]
         else:
-            print("⚠️ Raw output does not look like a Python list (missing brackets). Raw:\n", raw)
+            print("Raw output does not look like a Python list (missing brackets). Raw:\n", raw)
             return []
             
     except Exception as e:
-        print(f"❌ Failed to parse Gemini output: {e}")
+        print(f"Failed to parse Gemini output: {e}")
         print("Raw output (after stripping):\n", raw)
         return []
 
 
 # Core Gemini extraction functions
-# ------------------------------
-
 def extract_skills_with_gemini(text):
     """
     Primary function to extract technical skills from a course description using Gemini.
@@ -111,13 +98,13 @@ Course Description:
 {text.strip()}
 """
     try:
-        # 🎯 UPDATED: Use the client.models service to call generate_content
+        # Use the client.models service to call generate_content
         response = client.models.generate_content(
             model=MODEL_ID, 
             contents=prompt
         )
         raw = response.text.strip()
-        print(f"🧠 Gemini raw output:\n{raw}\n")
+        print(f"🧠 Gemini RAW output:\n{raw}\n")
         skills = clean_skills(raw)
         if not skills:
             # Re-raise the ValueError using the specific failure type for logging clarity
@@ -138,13 +125,13 @@ Extract 5–10 technical skills from this course. Return only a valid Python lis
 {text.strip()}
 """
     try:
-        # 🎯 UPDATED: Use the client.models service for the retry call
+        # Use the client.models service for the retry call
         response = client.models.generate_content(
             model=MODEL_ID, 
             contents=retry_prompt
         )
         raw = response.text.strip()
-        print(f"🔁 Gemini retry output:\n{raw}\n")
+        print(f"Gemini retry output:\n{raw}\n")
         return clean_skills(raw)
     except Exception as e:
         print(f"❌ Retry also failed: {e}")
@@ -207,7 +194,7 @@ def extract_subject_skills_from_supabase():
             print(f"⏩ Skipping {code}, already up-to-date.")
             continue
 
-        print(f"🔍 [{i}/{len(courses)}] Processing {code} - {title}")
+        print(f"[{i}/{len(courses)}] Processing {code} - {title}")
         matched_skills = extract_skills_with_gemini(desc)
         if not matched_skills:
             print("⚠️ No skills extracted.\n")
@@ -218,7 +205,6 @@ def extract_subject_skills_from_supabase():
             "course_code": code,
             "course_title": title,
             "course_description": desc,
-            # Joins the list into a comma-space separated string for your DB schema
             "course_skills": ", ".join(sorted(set(matched_skills))),
             "date_extracted_course": datetime.now(timezone.utc).isoformat()
         }
@@ -226,14 +212,14 @@ def extract_subject_skills_from_supabase():
         try:
             if existing_row:
                 supabase.table("course_skills").update(payload).eq("course_skill_id", existing_row["course_skill_id"]).execute()
-                print(f"♻️ Updated course_skills for {code}")
+                print(f"Updated course_skills for {code}")
             else:
                 supabase.table("course_skills").insert(payload).execute()
-                print(f"📤 Inserted course_skills for {code}")
+                print(f"Inserted course_skills for {code}")
         except Exception as e:
             print(f"❌ Supabase upsert failed for {code}: {e}\n")
 
-    # Final return: mapping for training
+    # Final return mapping for training
     try:
         raw = supabase.table("course_skills").select("course_code, course_skills").execute().data
         subject_skills_map = {
@@ -245,9 +231,7 @@ def extract_subject_skills_from_supabase():
         print(f"❌ Failed to fetch course_skills: {e}")
         return {}
 
-# ---------------------------
-# NEW: Read-only fetch helper
-# ---------------------------
+# Read-only fetch helper
 def fetch_subject_skills_from_db():
     """
     Return {course_code: [skill, ...]} from the course_skills table

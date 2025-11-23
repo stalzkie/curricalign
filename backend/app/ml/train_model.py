@@ -257,9 +257,7 @@ def load_or_build_clusters(all_market_skills):
     log.info(f"💾 Saved cluster cache → {CLUSTER_CACHE_FILE.name} (clusters={len(cluster_members)})")
     return cluster_centroids, cluster_members, labels, market_embeddings
 
-# ======================
 # Feature Engineering
-# ======================
 def compute_demand_weights_per_cluster(cluster_members, all_market_skills, job_skill_tree, recency_halflife_days=None):
     cluster_freq = np.zeros(len(cluster_members), dtype=np.float32)
     today = datetime.now(timezone.utc).date()
@@ -395,11 +393,9 @@ def build_job_level_features(course_skills, job_skill_tree, all_market_skills, l
 
     return np.array([mean_sim, max_sim, share_060, q95, q50, q75, q05, share_070], dtype=np.float32)
 
-# ===========================
 # Stacking model (top-level for pickling)
-# ===========================
 class BlendedRegressor:
-    """Average of KernelRidge-pipeline and LightGBM (if available/enabled)."""
+    # Average of KernelRidge-pipeline and LightGBM.
     def __init__(self, krr_pipeline, lgb_model=None):
         self.krr_pipeline = krr_pipeline
         self.lgb_model = lgb_model
@@ -419,7 +415,7 @@ class BlendedRegressor:
 # Main training pipeline
 # ===========================
 def train_subject_score_model(skip_extraction=False):
-    log.info("🧠 Starting training")
+    log.info("Starting training")
     log.info(f"Config: FAST_MODE={FAST_MODE} | USE_JOB_FEATURES={USE_JOB_FEATURES} | USE_LGB={USE_LGB and HAS_LGB} | "
              f"SVD_CANDIDATES={SVD_CANDIDATES} | RSCV_N_ITER={RSCV_N_ITER} | RECENCY_HALFLIFE_DAYS={RECENCY_HALFLIFE_DAYS}")
     with Timer(f"Loading embedder '{EMBED_MODEL}'"):

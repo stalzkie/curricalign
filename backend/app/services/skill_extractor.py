@@ -33,8 +33,6 @@ class SkillList(BaseModel):
 
 
 # Skill Extraction Logic
-# ---------------------
-
 def extract_skills_with_gemini(text: str) -> list[str]:
     """
     Primary function to extract technical skills from job descriptions using Gemini.
@@ -96,7 +94,7 @@ Job Posting:
                     return skills
 
         except json.JSONDecodeError:
-            print(f"⚠️ JSON decoding failed. Raw output: {response.text.strip()[:100]}...")
+            print(f"JSON decoding failed. Raw output: {response.text.strip()[:100]}...")
 
         raise ValueError("No valid skills extracted from structured response.")
 
@@ -106,10 +104,6 @@ Job Posting:
 
 
 def retry_extract_skills(text: str) -> list[str]:
-    """
-    Fallback skill extraction if the first Gemini call fails.
-    Uses a simpler, more direct prompt, and implements safer parsing.
-    """
     retry_prompt = f"""
 Extract 5–10 technical skills from this job. Return only a valid Python list like ['skill1', 'skill2'].
 
@@ -121,7 +115,7 @@ Extract 5–10 technical skills from this job. Return only a valid Python list l
             contents=retry_prompt,
         )
         raw = response.text.strip()
-        print(f"🔁 Gemini retry output:\n{raw}\n")
+        print(f"Gemini retry output:\n{raw}\n")
 
         if raw.startswith("```"):
             raw = re.sub(r'^\s*```[a-z]*\s*', '', raw, flags=re.MULTILINE)
@@ -140,8 +134,6 @@ Extract 5–10 technical skills from this job. Return only a valid Python list l
 
 
 # Supabase Helpers
-# ----------------
-
 def fetch_skills_from_supabase():
     response = supabase.table("job_skills").select("job_skills").execute()
     all_skills = []
@@ -169,22 +161,12 @@ def get_existing_job_skill_ids() -> set[str]:
 
 
 # Main Skill Extraction Flow
-# --------------------------
 
 def extract_skills_from_jobs(jobs=None, batch_limit: int = DEFAULT_BATCH_LIMIT):
-    """
-    Extract skills only for the **recently scraped jobs**, not the entire jobs table.
-
-    Behaviour:
-    - If `jobs` is provided: process only that list.
-    - If `jobs` is None: fetch the most recent `batch_limit` jobs from Supabase,
-      ordered by `scraped_at` DESC (i.e., last scraped first).
-    - Within that batch, skip jobs that already have entries in `job_skills`.
-    """
     existing_ids = get_existing_job_skill_ids()
 
     if jobs is None:
-        print(f"📦 Fetching up to {batch_limit} most recently scraped jobs from Supabase...")
+        print(f"Fetching up to {batch_limit} most recently scraped jobs from Supabase...")
         try:
             resp = (
                 supabase.table("jobs")
@@ -206,7 +188,7 @@ def extract_skills_from_jobs(jobs=None, batch_limit: int = DEFAULT_BATCH_LIMIT):
     pending_jobs = [j for j in jobs if str(j.get("job_id")) not in existing_ids]
 
     print(
-        f"🧮 Jobs fetched this batch: {len(jobs)} | To process (new only in batch): {len(pending_jobs)} | "
+        f"Jobs fetched this batch: {len(jobs)} | To process (new only in batch): {len(pending_jobs)} | "
         f"Skipped (already have skills): {len(jobs) - len(pending_jobs)}"
     )
 
@@ -223,12 +205,12 @@ def extract_skills_from_jobs(jobs=None, batch_limit: int = DEFAULT_BATCH_LIMIT):
         content = " ".join(str(x or "") for x in [title, description, requirements, keywords]).lower()
         content = re.sub(r'\s+', ' ', content).strip()[:2000]
 
-        print(f"🔍 [{i+1}/{len(pending_jobs)}] Extracting skills for job ID {job_id}...")
+        print(f"[{i+1}/{len(pending_jobs)}] Extracting skills for job ID {job_id}...")
 
         extracted_skills = extract_skills_with_gemini(content)
 
         if extracted_skills:
-            print(f"✅ Extracted: {extracted_skills}\n")
+            print(f"Extracted: {extracted_skills}\n")
             try:
                 supabase.table("job_skills").insert({
                     "job_id": job_id,
@@ -238,7 +220,7 @@ def extract_skills_from_jobs(jobs=None, batch_limit: int = DEFAULT_BATCH_LIMIT):
                     "job_skills": ", ".join(sorted(set(extracted_skills))),
                     "date_extracted_jobs": datetime.now(timezone.utc).isoformat(),
                 }).execute()
-                print("📤 Inserted into job_skills table.\n")
+                print("Inserted into job_skills table.\n")
             except Exception as e:
                 print(f"❌ Supabase insert failed: {e}\n")
         else:
@@ -248,7 +230,7 @@ def extract_skills_from_jobs(jobs=None, batch_limit: int = DEFAULT_BATCH_LIMIT):
             skills_found[skill] += 1
 
     if not pending_jobs:
-        print("👌 Nothing to do for this batch. All fetched jobs already have skills in job_skills.")
+        print("Nothing to do for this batch. All fetched jobs already have skills in job_skills.")
 
     return dict(skills_found)
 

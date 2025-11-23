@@ -84,16 +84,11 @@ def _split_comma_skills(val: Any) -> List[str]:
     return []
 
 def normalize_skills(skills: Any) -> List[str]:
-    """
-    Normalize skills into consistent lowercased tokens; keep phrases (no token explosion).
-    Preserve characters that matter to tech names (#, +, .).
-    NOTE: This normalization is used consistently for both job and course skills.
-    """
     skills = _split_comma_skills(skills)
     normalized: List[str] = []
     for skill in skills:
         clean = skill.strip().lower()
-        clean = re.sub(r"[^\w\s#.+]", "", clean)  # keep [A-Za-z0-9_], spaces, # . +
+        clean = re.sub(r"[^\w\s#.+]", "", clean)  
         clean = re.sub(r"\s+", " ", clean).strip()
         if clean:
             normalized.append(clean)
@@ -133,7 +128,7 @@ def _fetch_courses_map() -> Tuple[Dict[str, Dict[str, Any]], Dict[str, str]]:
     return id2course, code2id
 
 def get_combined_job_skills() -> List[Dict[str, Any]]:
-    print("📦 Fetching ALL job_skills rows...")
+    print("Fetching ALL job_skills rows...")
     rows = supabase.table("job_skills").select("*").execute().data or []
 
     by_job: Dict[Any, List[Dict[str, Any]]] = {}
@@ -157,13 +152,13 @@ def get_combined_job_skills() -> List[Dict[str, Any]]:
             "rep_job_skill_id": rep.get("job_skill_id"),
         })
 
-    print(f"🧮 Combined job_ids: {len(combined)}")
+    print(f"Combined job_ids: {len(combined)}")
     return combined
 
 def get_combined_course_skills() -> List[Dict[str, Any]]:
-    print("📦 Fetching ALL course_skills rows...")
+    print("Fetching ALL course_skills rows...")
     rows = supabase.table("course_skills").select("*").execute().data or []
-    print(f"🔎 service-visible course_skills rows: {len(rows)}")
+    print(f"service-visible course_skills rows: {len(rows)}")
 
     id2course, code2id = _fetch_courses_map()
 
@@ -200,11 +195,11 @@ def get_combined_course_skills() -> List[Dict[str, Any]]:
         })
 
     non_empty = sum(1 for c in combined if c.get("skills"))
-    print(f"🧮 Combined courses (with resolved course_id): {len(combined)}; "
+    print(f"Combined courses (with resolved course_id): {len(combined)}; "
           f"courses with non-empty skills: {non_empty}")
     return combined
 
-# ---------------- Persistence: unmatched job skills ----------------
+# Persistence: unmatched job skills
 def _upsert_skill_gap_counts(
     unmatched_job_skill_norms: List[str],
     batch_id: str,
@@ -212,7 +207,7 @@ def _upsert_skill_gap_counts(
 ) -> None:
     counts = Counter([s for s in unmatched_job_skill_norms if s and s.strip()])
     if not counts:
-        print("ℹ️ No unmatched job skills in this batch.")
+        print("No unmatched job skills in this batch.")
         return
 
     rows = [
@@ -239,7 +234,7 @@ def _topk_mean(a: np.ndarray, k=3, axis=-1) -> np.ndarray:
     if a.size == 0:
         return np.array([], dtype=np.float32)
     k = max(1, min(k, a.shape[axis]))
-    idx = np.argpartition(a, kth=-k, axis=axis)
+    idx = np.argpartition(a, kth=-k, axis=axis)     
     topk_idx = np.take(idx, indices=range(a.shape[axis]-k, a.shape[axis]), axis=axis)
     topk_vals = np.take_along_axis(a, topk_idx, axis=axis)
     return topk_vals.mean(axis=axis)
@@ -259,30 +254,26 @@ def _summarize_course_vs_centroids(course_skills: List[str], centroids: np.ndarr
     ], dtype=np.float32)
 
 def _predict_ml_score_if_enabled(course_skills: List[str], job_skill_pairs: List[str]) -> float | None:
-    """
-    Use the trained model bundle to predict a score if enabled and bundle present.
-    Demand-weighted pooling is applied via bundle['cluster_freq'] for perfect train/infer parity.
-    """
     if not (USE_TRAINED_MODEL_SCORE and _bundle):
         return None
     try:
-        centroids: np.ndarray = _bundle["cluster_centroids"]          # [C, D]
+        centroids: np.ndarray = _bundle["cluster_centroids"]          
         topk = int(_bundle.get("topk", 3))
-        cluster_freq: np.ndarray | None = _bundle.get("cluster_freq") # [C] or None
+        cluster_freq: np.ndarray | None = _bundle.get("cluster_freq") 
 
         cs_emb = _encode_norm(course_skills)
         if cs_emb.size == 0 or centroids.size == 0:
             return 0.0
 
-        sims = cs_emb @ centroids.T                        # [S, C]
-        pooled = _topk_mean(sims, k=topk, axis=0)          # [C]
+        sims = cs_emb @ centroids.T                       
+        pooled = _topk_mean(sims, k=topk, axis=0)         
 
         # Apply demand weighting as used during training
         if isinstance(cluster_freq, np.ndarray) and cluster_freq.shape[0] == centroids.shape[0]:
             pooled = pooled * (0.5 + 0.5 * cluster_freq)
 
-        summary = _summarize_course_vs_centroids(course_skills, centroids)  # [4]
-        feat = np.concatenate([pooled, summary], axis=0)[None, :]  # [1, C+4]
+        summary = _summarize_course_vs_centroids(course_skills, centroids)
+        feat = np.concatenate([pooled, summary], axis=0)[None, :] 
 
         raw = _bundle["model"].predict(feat)
         pred = _bundle["calibrator"].predict(raw)
@@ -392,7 +383,7 @@ def compute_subject_scores_and_save() -> None:
         avg_similarity = float(np.mean(best_finals_per_course_skill)) if best_finals_per_course_skill else 0.0
         heuristic_score = int(np.clip(avg_similarity * coverage * 100.0, 0.0, 100.0))
 
-        # Optionally replace with ML score from your trained bundle (uses demand-weighted pooling)
+        # Trained model scoring (if enabled)
         final_score = heuristic_score
         if USE_TRAINED_MODEL_SCORE and _bundle:
             ml_score = _predict_ml_score_if_enabled(course_skills, job_skill_pairs)
@@ -422,11 +413,11 @@ def compute_subject_scores_and_save() -> None:
         except Exception as e:
             print(f"❌ Insert failed for {course_code or course_id}: {e}")
 
-    # --------- Aggregate unmatched job skills across the ENTIRE batch ----------
+    # Aggregate unmatched job skills across the ENTIRE batch
     unmatched_occ_indices = np.where(~matched_job_occurrence)[0]
     unmatched_job_skill_norms = [job_skill_pairs[i] for i in unmatched_occ_indices]
 
-    print(f"🧩 Unmatched job-skill occurrences: {len(unmatched_occ_indices)} "
+    print(f"Unmatched job-skill occurrences: {len(unmatched_occ_indices)} "
           f"(unique skills: {len(set(unmatched_job_skill_norms))})")
 
     _upsert_skill_gap_counts(

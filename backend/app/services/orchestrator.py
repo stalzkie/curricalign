@@ -41,8 +41,8 @@ from .final_checking import run_final_checks
 # NEW: storage upload helper (Supabase Storage, signed/public URL)
 from .storage_utils import upload_pdf_to_supabase_storage
 
-# NEW: curriculum PDF → COURSES upsert (major-only parser)
-from .scan_pdf import scan_pdf_and_store
+# NEW: curriculum CSV → COURSES upsert (replaces previous PDF-based parser)
+from .scan_pdf import scan_csv_and_store
 
 
 def _env_flag(name: str, default: bool) -> bool:
@@ -163,75 +163,91 @@ async def scrape_and_ingest(scrape_enabled: bool) -> Dict[str, Any]:
 
 
 # ----------------------------------------------------------------------
-# NEW: Curriculum PDF → COURSES upsert (uses MAJOR COURSE DESCRIPTION(S) only)
+# NEW: Curriculum CSV → COURSES upsert
 # ----------------------------------------------------------------------
-async def ingest_courses_from_pdf(pdf: Union[str, Path, bytes]) -> Dict[str, Any]:
+async def ingest_courses_from_csv(csv: Union[str, Path, bytes]) -> Dict[str, Any]:
     """
-    Parse a single curriculum PDF and upsert courses (STRICTLY the
-    'MAJOR COURSE DESCRIPTION(S)' section), then return a summary.
+    Parse a single curriculum CSV and upsert courses, then return a summary.
 
     Args:
-      pdf: path-like or raw bytes
+      csv: path-like (str/Path) or raw bytes
 
     Returns: {
       "inserted_count": int,
       "parsed_count": int,
-      "raw_text_len": int,
       "inserted": [...],
       "parsed_rows": [...]
     }
     """
-    logging.debug("Entering ingest_courses_from_pdf.")
+    logging.debug("Entering ingest_courses_from_csv.")
     t0 = time.perf_counter()
 
+    import tempfile
+
+    tmp_path: Optional[Path] = None
     try:
-        # Load bytes
-        if isinstance(pdf, (str, Path)):
-            pdf_path = Path(pdf)
-            if not pdf_path.exists():
-                raise FileNotFoundError(f"PDF not found: {pdf_path}")
-            logging.info("📚 Parsing curriculum PDF: %s", pdf_path)
-            file_bytes = pdf_path.read_bytes()
-        elif isinstance(pdf, (bytes, bytearray)):
-            logging.info("📚 Parsing curriculum PDF from memory bytes.")
-            file_bytes = bytes(pdf)
+        # Case 1: path-like (preferred)
+        if isinstance(csv, (str, Path)):
+            csv_path = Path(csv)
+            if not csv_path.exists():
+                raise FileNotFoundError(f"CSV not found: {csv_path}")
+            logging.info("📚 Parsing curriculum CSV: %s", csv_path)
+            file_path_str = str(csv_path)
+
+        # Case 2: in-memory bytes (e.g., from an upload)
+        elif isinstance(csv, (bytes, bytearray)):
+            logging.info("📚 Parsing curriculum CSV from memory bytes.")
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".csv")
+            tmp.write(bytes(csv))
+            tmp.flush()
+            tmp.close()
+            tmp_path = Path(tmp.name)
+            file_path_str = str(tmp_path)
+
         else:
-            raise TypeError("pdf must be a path-like or bytes")
+            raise TypeError("csv must be a path-like or bytes")
 
-        # Parse + upsert (major-only) off the event loop
-        result = await asyncio.to_thread(scan_pdf_and_store, file_bytes)
+        # Parse + upsert off the event loop
+        result = await asyncio.to_thread(scan_csv_and_store, file_path_str)
 
-        inserted = result.get("inserted", []) or []
+        inserted_rows = result.get("inserted_rows", []) or []
         parsed_rows = result.get("parsed_rows", []) or []
+
         summary = {
-            "inserted_count": len(inserted),
-            "parsed_count": len(parsed_rows),
-            "raw_text_len": int(result.get("raw_text_len", 0)),
-            "inserted": inserted,
+            "inserted_count": int(result.get("total_inserted", len(inserted_rows))),
+            "parsed_count": int(result.get("total_parsed", len(parsed_rows))),
+            "inserted": inserted_rows,
             "parsed_rows": parsed_rows,
         }
 
         logging.info(
-            "✅ Curriculum ingest complete. parsed=%d inserted=%d raw_text_len=%d",
-            summary["parsed_count"], summary["inserted_count"], summary["raw_text_len"]
+            "✅ Curriculum CSV ingest complete. parsed=%d inserted=%d",
+            summary["parsed_count"], summary["inserted_count"]
         )
         return summary
 
     except Exception as e:
-        msg = f"Curriculum ingest failed: {e}"
+        msg = f"Curriculum CSV ingest failed: {e}"
         logging.exception(msg)
         raise
     finally:
+        # Clean up temp file if we created one from bytes
+        if tmp_path is not None:
+            try:
+                tmp_path.unlink()
+            except FileNotFoundError:
+                pass
+
         elapsed = round(time.perf_counter() - t0, 3)
-        logging.info("Curriculum ingest timing: %s sec", elapsed)
+        logging.info("Curriculum CSV ingest timing: %s sec", elapsed)
 
 
-async def ingest_courses_from_pdf_paths(paths: List[str]) -> Dict[str, Any]:
+async def ingest_courses_from_csv_paths(paths: List[str]) -> Dict[str, Any]:
     """
-    Convenience wrapper to ingest multiple PDFs and aggregate results.
-    Accepts globs as well (e.g., ['data/*.pdf', 'more/file.pdf'])
+    Convenience wrapper to ingest multiple CSVs and aggregate results.
+    Accepts globs as well (e.g., ['data/*.csv', 'more/file.csv'])
     """
-    logging.debug("Entering ingest_courses_from_pdf_paths.")
+    logging.debug("Entering ingest_courses_from_csv_paths.")
     t0 = time.perf_counter()
 
     try:
@@ -244,7 +260,7 @@ async def ingest_courses_from_pdf_paths(paths: List[str]) -> Dict[str, Any]:
             expanded.extend(matches)
 
         if not expanded:
-            logging.warning("No PDFs matched: %s", paths)
+            logging.warning("No CSVs matched: %s", paths)
 
         agg = {
             "files": [str(p) for p in expanded],
@@ -253,25 +269,42 @@ async def ingest_courses_from_pdf_paths(paths: List[str]) -> Dict[str, Any]:
             "details": [],
         }
 
-        for pdf_path in expanded:
+        for csv_path in expanded:
             try:
-                res = await ingest_courses_from_pdf(pdf_path)
-                agg["details"].append({"file": str(pdf_path), **res})
+                res = await ingest_courses_from_csv(csv_path)
+                agg["details"].append({"file": str(csv_path), **res})
                 agg["total_parsed"] += res.get("parsed_count", 0)
                 agg["total_inserted"] += res.get("inserted_count", 0)
             except Exception as e:
-                logging.exception("Failed ingest for %s: %s", pdf_path, e)
+                logging.exception("Failed ingest for %s: %s", csv_path, e)
             await _yield_now()
 
         logging.info(
-            "📚 Batch curriculum ingest complete. files=%d parsed=%d inserted=%d",
+            "📚 Batch curriculum CSV ingest complete. files=%d parsed=%d inserted=%d",
             len(expanded), agg["total_parsed"], agg["total_inserted"]
         )
         return agg
 
     finally:
         elapsed = round(time.perf_counter() - t0, 3)
-        logging.info("Batch curriculum ingest timing: %s sec", elapsed)
+        logging.info("Batch curriculum CSV ingest timing: %s sec", elapsed)
+
+
+# Backward-compatible aliases so existing callers using the old PDF names won't break
+async def ingest_courses_from_pdf(pdf: Union[str, Path, bytes]) -> Dict[str, Any]:
+    logging.warning(
+        "ingest_courses_from_pdf is deprecated; treating input as CSV. "
+        "Use ingest_courses_from_csv instead."
+    )
+    return await ingest_courses_from_csv(pdf)
+
+
+async def ingest_courses_from_pdf_paths(paths: List[str]) -> Dict[str, Any]:
+    logging.warning(
+        "ingest_courses_from_pdf_paths is deprecated; treating inputs as CSVs. "
+        "Use ingest_courses_from_csv_paths instead."
+    )
+    return await ingest_courses_from_csv_paths(paths)
 
 
 # ----------------------------------------------------------------------
@@ -285,7 +318,7 @@ async def extract_skills(extract_enabled: bool, use_stored_data: bool) -> None:
     - ALWAYS run `extract_subject_skills_from_supabase()` which reads the **courses**
       table and (re)writes into **course_skills**.
     - `use_stored_data` only indicates the run originates from existing DB state
-      (not PDF upload); it does NOT suppress creation of course_skills anymore.
+      (not CSV upload); it does NOT suppress creation of course_skills anymore.
     """
     logging.debug("Entering extract_skills function.")
     if not extract_enabled:

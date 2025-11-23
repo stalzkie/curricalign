@@ -27,7 +27,7 @@ export default function ReportView() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text_defaultColor mb-6">Generate Report</h1>
         <p className="text-lg text_secondaryColor mb-8">
-          Upload your curriculum PDF or run the pipeline using stored data. We’ll parse courses,
+          Upload your curriculum CSV or run the pipeline using stored data. We’ll parse courses,
           extract skills, evaluate alignment, and generate a downloadable report.
         </p>
 

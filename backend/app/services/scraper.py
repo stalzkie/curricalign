@@ -31,7 +31,7 @@ def load_cs_terms_from_supabase():
         print(f"❌ Failed to fetch CS terms from Supabase: {e}")
         return set()
 
-def scrape_jobs_from_google_jobs(location: str = "Philippines", top_n_keywords: int = 1, jobs_per_query: int = 10):
+def scrape_jobs_from_google_jobs(location: str = "Philippines", top_n_keywords: int = 10, jobs_per_query: int = 5):
 
     cs_terms = load_cs_terms_from_supabase()
     keyword_list = get_top_keywords(n=top_n_keywords)
@@ -62,7 +62,7 @@ def scrape_jobs_from_google_jobs(location: str = "Philippines", top_n_keywords: 
 
         while len(collected) < jobs_per_query and variation_attempts < max_attempts:
 
-            # GLOBAL HARD LIMIT: stop scraping if we already have 10 jobs
+            # GLOBAL HARD LIMIT: stop scraping if we already have n jobs
             if len(all_jobs) >= 10:
                 break
 
@@ -83,8 +83,8 @@ def scrape_jobs_from_google_jobs(location: str = "Philippines", top_n_keywords: 
                 jobs = results.get("jobs_results", [])
 
                 for job in jobs:
-                    if len(all_jobs) >= 10:
-                        break  # 🔥 HARD LIMIT CHECK INSIDE LOOP
+                    if len(all_jobs) >= 10: #another hard limiter for scraped jobs applied to preserve tokens
+                        break 
 
                     job_id = job.get("job_id", "N/A")
                     if job_id in seen_job_ids:

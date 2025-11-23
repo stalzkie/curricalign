@@ -25,37 +25,41 @@ export default function UploadCard({
     <div className="btn_border_silver mb-8">
       <div className="card_background rounded p-8">
         <h2 className="text-2xl font-semibold text_defaultColor mb-6">
-          Upload Curriculum PDF
+          Upload Curriculum CSV
         </h2>
 
         <div className="space-y-6">
           {/* Drop area */}
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[var(--brand-teal,#025864)]/50 transition-colors">
             <input
-              id="pdf-upload"
+              id="csv-upload"
               type="file"
-              accept="application/pdf,.pdf"
+              accept=".csv,text/csv"
               onChange={(e) => {
                 const f = e.currentTarget.files?.[0] || null;
-                if (f && f.type !== 'application/pdf') {
-                  alert('Please upload a PDF file.');
+
+                if (f && !f.name.toLowerCase().endsWith('.csv')) {
+                  alert('Please upload a CSV file.');
                   e.currentTarget.value = '';
                   return;
                 }
+
                 onFileChange(f);
               }}
               className="hidden"
             />
-            <label htmlFor="pdf-upload" className="cursor-pointer flex flex-col items-center">
+            <label htmlFor="csv-upload" className="cursor-pointer flex flex-col items-center">
               <RiFilePdfLine
                 className="text-6xl mb-4"
                 style={{ color: 'var(--brand-teal,#025864)' }}
               />
               <p className="text-xl text_defaultColor mb-2">
-                {file ? file.name : 'Click to upload PDF file'}
+                {file ? file.name : 'Click to upload CSV file'}
               </p>
               <p className="text_secondaryColor">
-                {file ? 'File ready for processing' : 'Drag and drop or click to select your curriculum PDF'}
+                {file
+                  ? 'File ready for processing'
+                  : 'Drag and drop or click to select your curriculum CSV'}
               </p>
             </label>
           </div>
@@ -66,7 +70,9 @@ export default function UploadCard({
               onClick={onGenerateFromPdf}
               disabled={isGenerateDisabled}
               className={`btn_background_purple w-full text-white px-6 py-3 rounded-lg font-semibold text-base transition-all whitespace-nowrap ${
-                isGenerateDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg hover:scale-[1.01]'
+                isGenerateDisabled
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:shadow-lg hover:scale-[1.01]'
               }`}
             >
               Generate Report
@@ -88,8 +94,8 @@ export default function UploadCard({
           {/* Notice */}
           <div className="rounded-md p-4 bg-[rgba(2,88,100,0.06)] border border-[rgba(2,88,100,0.18)]">
             <p className="text-sm" style={{ color: 'var(--brand-teal,#025864)' }}>
-              “Use Stored Data” will run the orchestrator using information already in your database,
-              including previously stored curriculum data.
+              “Use Stored Data” will run the orchestrator using information already in your
+              database, including previously stored curriculum data.
             </p>
           </div>
         </div>

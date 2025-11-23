@@ -1,50 +1,62 @@
-# apps/backend/api/endpoints/scan_pdf.py
+# apps/backend/api/endpoints/scan_csv.py
 from __future__ import annotations
 
 import logging
 import asyncio
+import tempfile
+import os
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
-# import the updated service function
-from ...services.scan_pdf import scan_pdf_and_store
+# import the new CSV scanner
+from ...services.scan_pdf import scan_csv_and_store  # Replace scan_pdf with scan_csv module if renamed
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-# Updated response model — matches new orchestrator output
+# Response model aligned with CSV output
 class ScanResponse(BaseModel):
     inserted_count: int
     parsed_count: int
-    raw_text_len: int
     inserted: List[Dict[str, Any]] = []
     parsed_rows: List[Dict[str, Any]] = []
 
-@router.post("/scan-pdf", response_model=ScanResponse)
-async def scan_pdf_endpoint(pdf: UploadFile = File(...)):
+@router.post("/scan-csv", response_model=ScanResponse)
+async def scan_csv_endpoint(csv_file: UploadFile = File(...)):
     """
-    Handles direct upload of a single curriculum PDF.
-    Uses the same logic as orchestrator.ingest_courses_from_pdf().
+    Handles direct upload of the CSV-based curriculum file.
+    Expects a CSV containing: course_code, course_title, course_description.
     """
-    if not pdf.filename.lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+
+    # 1. Validate extension
+    if not csv_file.filename.lower().endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Only CSV files are supported.")
 
     try:
-        file_bytes = await pdf.read()
+        # 2. Read bytes
+        file_bytes = await csv_file.read()
 
-        # Run in a thread (since scan_pdf_and_store might be heavy/blocking)
-        result = await asyncio.to_thread(scan_pdf_and_store, file_bytes)
+        # 3. Save to a temporary CSV file for scan_csv_and_store()
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
+            tmp.write(file_bytes)
+            tmp_path = tmp.name
 
-        # Build a consistent response
+        # 4. Execute scanner in a thread (safe for blocking CPU/file I/O)
+        try:
+            result = await asyncio.to_thread(scan_csv_and_store, tmp_path)
+        finally:
+            # Clean up temporary file
+            os.remove(tmp_path)
+
+        # 5. Build clean frontend response
         return ScanResponse(
-            inserted_count=len(result.get("inserted", []) or []),
-            parsed_count=len(result.get("parsed_rows", []) or []),
-            raw_text_len=int(result.get("raw_text_len", 0)),
-            inserted=result.get("inserted", []) or [],
+            inserted_count=int(result.get("total_inserted", 0)),
+            parsed_count=int(result.get("total_parsed", 0)),
+            inserted=result.get("inserted_rows", []) or [],
             parsed_rows=result.get("parsed_rows", []) or [],
         )
 
     except Exception as e:
-        logger.exception("❌ scan_pdf failed")
-        raise HTTPException(status_code=500, detail=f"PDF scan failed: {e}")
+        logger.exception("❌ scan_csv failed")
+        raise HTTPException(status_code=500, detail=f"CSV scan failed: {e}")
