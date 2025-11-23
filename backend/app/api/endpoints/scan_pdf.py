@@ -22,7 +22,7 @@ class ScanResponse(BaseModel):
     inserted: List[Dict[str, Any]] = []
     parsed_rows: List[Dict[str, Any]] = []
 
-@router.post("/scan-csv", response_model=ScanResponse)
+@router.post("/scan-pdf", response_model=ScanResponse)
 async def scan_csv_endpoint(csv_file: UploadFile = File(...)):
     """
     Handles direct upload of the CSV-based curriculum file.
