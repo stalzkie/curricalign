@@ -8,6 +8,7 @@ import pandas as pd
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+from backend.app.ml.models import BlendedRegressor
 
 # ─────────────────────────────────────────────
 # Logging setup
@@ -392,24 +393,6 @@ def build_job_level_features(course_skills, job_skill_tree, all_market_skills, l
     share_070 = float(np.mean(sims > 0.70))
 
     return np.array([mean_sim, max_sim, share_060, q95, q50, q75, q05, share_070], dtype=np.float32)
-
-# Stacking model (top-level for pickling)
-class BlendedRegressor:
-    # Average of KernelRidge-pipeline and LightGBM.
-    def __init__(self, krr_pipeline, lgb_model=None):
-        self.krr_pipeline = krr_pipeline
-        self.lgb_model = lgb_model
-    def fit(self, X, y):
-        self.krr_pipeline.fit(X, y)
-        if self.lgb_model is not None:
-            self.lgb_model.fit(X, y, eval_set=[(X, y)], eval_metric="l2")
-        return self
-    def predict(self, X):
-        pred_krr = self.krr_pipeline.predict(X)
-        if self.lgb_model is None:
-            return pred_krr
-        pred_lgb = self.lgb_model.predict(X)
-        return 0.5 * pred_krr + 0.5 * pred_lgb
 
 # ===========================
 # Main training pipeline
