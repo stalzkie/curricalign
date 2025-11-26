@@ -165,7 +165,7 @@ export function useOrchestrator() {
    */
   async function uploadPdf(file: File): Promise<{ inserted: any[]; parsed_rows: any[]; raw_text_len: number }> {
     const form = new FormData();
-    form.append('pdf', file);
+    form.append('csv_file', file);
     const url = toAbsoluteUrl(PDF_UPLOAD_URL);
 
     const res = await fetch(url, { method: 'POST', body: form });

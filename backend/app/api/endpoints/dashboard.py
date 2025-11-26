@@ -133,7 +133,8 @@ def get_average_alignment_score_local(sb) -> float:
         logging.error(f"Error fetching scores for average calculation: {e!r}")
         return 0.0
 
-    scores = [r.get("score") for r in rows if r.get("score") is not None]
+    # EXCLUDE zero and null scores
+    scores = [r.get("score") for r in rows if r.get("score") not in (None, 0)]
     if not scores:
         return 0.0
     avg_score = sum(scores) / len(scores)
@@ -691,8 +692,8 @@ def get_kpi_data(request: Request):
         )
         latest_ts = latest_row_resp.data[0].get("calculated_at") if (latest_row_resp and latest_row_resp.data) else None
 
-        # (B) aggregate
-        sel = "coalesce(avg(score)::float8, 0) as avg"
+        # (B) aggregate, ignoring score = 0
+        sel = "coalesce(avg(NULLIF(score, 0))::float8, 0) as avg"
         if latest_ts:
             avg_resp = _retry_supabase_sync(
                 lambda: sb.from_("course_alignment_scores_clean").select(sel).eq("calculated_at", latest_ts).execute()
